@@ -1,0 +1,8 @@
+Linux basics, from the Friday workshop
+
+  pwd          show the folder you are in
+  ls -la       list everything in it, hidden files too
+  cd ..        go up one folder
+  cat FILE     print a file
+
+Paths: "/" is the top of the whole system. ".." always means "the folder above".

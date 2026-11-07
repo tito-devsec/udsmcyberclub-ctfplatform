@@ -29,17 +29,31 @@ After changing anything in `src/GZCTF/ClientApp`, run the build again and then `
 
 Two scripts fill the preview with something to try. Both read the logins from `.env`, work with API Encryption on or off ([gzctf-api.mjs](gzctf-api.mjs) encrypts passwords and flags the way the web interface does), and stop early if their game already exists. Everything they create can be edited or deleted from the admin panel.
 
-- `node seed-web-demo.mjs` creates **UDSM Web Basics**, an individual game with two beginner web challenges: [Staff Portal](examples/web-container) and [Ping Tool](examples/ping-tool). Every player gets their own instance and their own `udsm{...}` flag, with 5 attempts per challenge. Instances last 60 minutes, and players can add 30 more in the last 10. The script builds the two challenge images if they are missing and sets that instance lifetime for the whole platform.
+- `node seed-web-demo.mjs` creates **UDSM Web Basics**, an individual game with the nine beginner web challenges listed below. Every player gets their own instance and their own `udsm{...}` flag, with 5 attempts per challenge. Instances last 60 minutes, and players can add 30 more in the last 10. The script builds any challenge image that is missing and sets that instance lifetime for the whole platform. Run it again after adding a challenge to the script: it adds what the game is missing.
 - `node seed-demo.mjs` creates test players, five teams and a team game called "Cyber Club Demo CTF" with eight challenges.
 
 To play, sign in as `testuser` with `TEST_USER_PASSWORD` from `.env`.
 
 ## Container challenges
 
-[examples/web-container](examples/web-container) (read the page source) and [examples/ping-tool](examples/ping-tool) (command injection) are small per-player web challenges. To add one by hand, build its image first:
+Each folder in [examples](examples) is a small per-player web challenge, built around one mistake:
+
+| Challenge | Folder | Points | What players learn |
+| --- | --- | --- | --- |
+| Staff Portal | [web-container](examples/web-container) | 100 | reading the page source |
+| Hidden Pages | [hidden-pages](examples/hidden-pages) | 100 | `robots.txt` is public |
+| Secret Agent | [secret-agent](examples/secret-agent) | 150 | request headers are written by the visitor |
+| Members Only | [members-only](examples/members-only) | 150 | cookies can be edited |
+| Club Shop | [club-shop](examples/club-shop) | 150 | hidden form fields can be edited too |
+| Member Profiles | [member-profiles](examples/member-profiles) | 200 | IDOR: check who owns what is asked for |
+| Club Library | [club-library](examples/club-library) | 200 | path traversal with `../` |
+| Ping Tool | [ping-tool](examples/ping-tool) | 200 | command injection |
+| Admin Login | [admin-login](examples/admin-login) | 250 | SQL injection |
+
+The Python ones are a good starting point for new challenges: `app.py` reads the flag from `GZCTF_FLAG` and serves a few pages, and the Dockerfile is the same for each. To add one by hand, build its image first:
 
 ```bash
-docker build -t club/ping-tool:latest examples/ping-tool
+docker build -t club/admin-login:latest examples/admin-login
 ```
 
 Then add a "Dynamic Container" challenge with that image and service port `80`, and set:
