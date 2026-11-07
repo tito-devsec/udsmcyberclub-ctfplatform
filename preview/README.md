@@ -29,14 +29,14 @@ After changing anything in `src/GZCTF/ClientApp`, run the build again and then `
 
 Two scripts fill the preview with something to try. Both read the logins from `.env`, work with API Encryption on or off ([gzctf-api.mjs](gzctf-api.mjs) encrypts passwords and flags the way the web interface does), and stop early if their game already exists. Everything they create can be edited or deleted from the admin panel.
 
-- `node seed-web-demo.mjs` creates **UDSM Web Basics**, an individual game with the nine beginner web challenges listed below. Every player gets their own instance and their own `udsm{...}` flag, with 5 attempts per challenge. Instances last 60 minutes, and players can add 30 more in the last 10. The script builds any challenge image that is missing and sets that instance lifetime for the whole platform. Run it again after adding a challenge to the script: it adds what the game is missing.
+- `node seed-beginner-ctf.mjs` creates **UDSM Beginner CTF**, an individual game with the 20 beginner challenges listed below, in web, crypto, forensics and OSINT. Each player has 5 attempts per challenge. In web, crypto and forensics, every player gets their own instance and their own `udsm{...}` flag; instances last 60 minutes, and players can add 30 more in the last 10. The script builds any challenge image that is missing and sets that instance lifetime for the whole platform. Run it again after adding a challenge to the script: it adds what the game is missing (and renames the game if it still has its old name, UDSM Web Basics).
 - `node seed-demo.mjs` creates test players, five teams and a team game called "Cyber Club Demo CTF" with eight challenges.
 
 To play, sign in as `testuser` with `TEST_USER_PASSWORD` from `.env`.
 
-## Container challenges
+## Challenges
 
-Each folder in [examples](examples) is a small per-player web challenge, built around one mistake:
+Each folder in [examples](examples) is one challenge, built around one idea. Web, crypto and forensics challenges are small per-player containers; crypto and forensics ones make each player's ciphertext or file from that player's own flag.
 
 | Challenge | Folder | Points | What players learn |
 | --- | --- | --- | --- |
@@ -49,8 +49,24 @@ Each folder in [examples](examples) is a small per-player web challenge, built a
 | Club Library | [club-library](examples/club-library) | 200 | path traversal with `../` |
 | Ping Tool | [ping-tool](examples/ping-tool) | 200 | command injection |
 | Admin Login | [admin-login](examples/admin-login) | 250 | SQL injection |
+| **Crypto** | | | |
+| Shifty Notes | [shifty-notes](examples/shifty-notes) | 100 | the Caesar cipher |
+| Encoding Layers | [encoding-layers](examples/encoding-layers) | 100 | Base32, Base64 and hex are encodings, not encryption |
+| Single Byte | [single-byte](examples/single-byte) | 150 | XOR with a one-byte key and a known plaintext |
+| Weak Hash | [weak-hash](examples/weak-hash) | 150 | cracking an MD5 password hash with a wordlist |
+| **Forensics** | | | |
+| Not a PDF | [not-a-pdf](examples/not-a-pdf) | 100 | file signatures ("magic bytes") |
+| Strings Attached | [strings-attached](examples/strings-attached) | 100 | `strings` on a binary file |
+| Hidden Metadata | [hidden-metadata](examples/hidden-metadata) | 150 | image metadata with `exiftool` |
+| Lost Packets | [lost-packets](examples/lost-packets) | 200 | reading a packet capture in Wireshark |
+| **OSINT** | | | |
+| Campus History | (no files) | 100 | finding public records |
+| Who Runs .tz? | (no files) | 100 | the IANA Root Zone Database |
+| Where Is This? | [where-is-this](examples/where-is-this) | 150 | GPS positions in photo metadata |
 
-The Python ones are a good starting point for new challenges: `app.py` reads the flag from `GZCTF_FLAG` and serves a few pages, and the Dockerfile is the same for each. To add one by hand, build its image first:
+OSINT answers are public facts, so their flags are the same for every player and flag sharing cannot be detected there. The answers were checked against Wikipedia and IANA in November 2026.
+
+The Python ones are a good starting point for new challenges: `app.py` reads the flag from `GZCTF_FLAG` and serves a page or a download, and the Dockerfile is the same for each. To add one by hand, build its image first:
 
 ```bash
 docker build -t club/admin-login:latest examples/admin-login
