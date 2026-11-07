@@ -1,0 +1,2 @@
+# Holds the preview's passwords — never commit it
+.env

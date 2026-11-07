@@ -1,0 +1,64 @@
+# Local preview of the UDSM Cyber Club CTF platform: official GZCTF v1.9.1 image + PostgreSQL.
+# Start:  docker compose up -d      (run from this folder)
+# Stop:   docker compose down       (add -v to also wipe the database and uploads)
+# Secrets and test logins live in .env next to this file (copy .env.example to start).
+
+name: gzctf-preview
+
+services:
+  gzctf:
+    # Same version as the source in this repository, so the web interface built from it matches
+    image: gztime/gzctf:v1.9.1
+    restart: unless-stopped
+    environment:
+      LC_ALL: en_US.UTF-8
+      # Creates the "Admin" account on first start
+      GZCTF_ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      GZCTF_XorKey: ${XOR_KEY}
+      GZCTF_ConnectionStrings__Database: "Host=db:5432;Database=gzctf;Username=postgres;Password=${POSTGRES_PASSWORD}"
+      # Address players use to reach challenge containers. Not "localhost": Docker Desktop
+      # resets these connections over IPv6, which is what localhost resolves to first.
+      # On a real server this is its public IP or domain name.
+      GZCTF_ContainerProvider__PublicEntry: 127.0.0.1
+      # Largest upload accepted, in bytes (1 GiB). The default of about 28 MB is too
+      # small for disk images and packet captures.
+      GZCTF_Kestrel__Limits__MaxRequestBodySize: 1073741824
+    ports:
+      # Web UI on http://localhost:3000, reachable from this machine only.
+      # Change to "3000:8080" to let other devices on your network open it.
+      - "127.0.0.1:3000:8080"
+    volumes:
+      - gzctf-files:/app/files
+      # Web interface built from ../src (run `pnpm build` in src/GZCTF/ClientApp, then
+      # restart this service). Remove this line to go back to the image's stock interface.
+      - ../src/GZCTF/ClientApp/build:/app/wwwroot:ro
+      # Lets the platform start and stop challenge containers; it will not run without it
+      - /var/run/docker.sock:/var/run/docker.sock
+    # The image's own check only allows 10s to start and then waits 5 minutes,
+    # so a normal ~30s startup shows as "unhealthy" for a while.
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/healthz"]
+      interval: 30s
+      timeout: 3s
+      start_period: 90s
+      retries: 3
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - gzctf-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  gzctf-files:
+  gzctf-db:
