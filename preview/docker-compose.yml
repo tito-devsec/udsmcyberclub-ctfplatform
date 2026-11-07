@@ -42,6 +42,10 @@ services:
       timeout: 3s
       start_period: 90s
       retries: 3
+    networks:
+      - default
+      - challenges-open
+      - challenges-isolated
     depends_on:
       db:
         condition: service_healthy
@@ -62,3 +66,20 @@ services:
 volumes:
   gzctf-files:
   gzctf-db:
+
+# Networks for challenge instances. GZCTF creates these itself when they are missing,
+# but then every instance can reach every other one, so a player who gets a shell in
+# their own instance could attack a classmate's. Creating them here first, with
+# enable_icc off, blocks traffic between instances. Players still reach their own
+# instance through its published port.
+networks:
+  challenges-open:
+    name: gzctf-open
+    driver_opts:
+      com.docker.network.bridge.enable_icc: "false"
+  # For challenges set to the "Isolated" network mode: also no internet access
+  challenges-isolated:
+    name: gzctf-isolated
+    driver_opts:
+      com.docker.network.bridge.enable_icc: "false"
+      com.docker.network.bridge.enable_ip_masquerade: "false"

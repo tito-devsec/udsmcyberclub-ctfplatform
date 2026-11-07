@@ -134,7 +134,7 @@ const challenges = [
     title: 'Sanity Check',
     category: 'Misc',
     score: 100,
-    flag: 'flag{w3lc0me_t0_th3_club}',
+    flag: 'udsm{w3lc0me_t0_th3_club}',
     content: (flag) =>
       `Welcome aboard! Every CTF needs a free one.\n\nCopy this flag into the box below and submit it:\n\n\`\`\`\n${flag}\n\`\`\``,
   },
@@ -143,7 +143,7 @@ const challenges = [
     title: "Caesar's Secret",
     category: 'Crypto',
     score: 200,
-    flag: 'flag{rot13_is_not_encryption}',
+    flag: 'udsm{rot13_is_not_encryption}',
     hints: ['Julius liked shifting letters. Halfway round the alphabet is a popular choice.'],
     content: (flag) =>
       `We intercepted a note passed around during the last club meeting:\n\n\`\`\`\n${rot13(flag)}\n\`\`\`\n\nCan you read it?`,
@@ -153,7 +153,7 @@ const challenges = [
     title: 'Base Jumping',
     category: 'Crypto',
     score: 300,
-    flag: 'flag{l4yers_0n_l4yers}',
+    flag: 'udsm{l4yers_0n_l4yers}',
     content: (flag) =>
       `Somebody thought encoding a secret twice makes it twice as safe:\n\n\`\`\`\n${Buffer.from(Buffer.from(flag).toString('base64')).toString('base64')}\n\`\`\``,
   },
@@ -162,7 +162,7 @@ const challenges = [
     title: 'Token Trouble',
     category: 'Web',
     score: 300,
-    flag: 'flag{jwt_p4yl0ads_ar3_n0t_s3cret}',
+    flag: 'udsm{jwt_p4yl0ads_ar3_n0t_s3cret}',
     hints: ['A JWT is three base64url parts joined by dots.'],
     content: (flag) =>
       `The members portal hands every visitor a session token. Here is ours:\n\n\`\`\`\n${makeJwt(flag)}\n\`\`\`\n\nThe developers swear nothing sensitive is stored in it.`,
@@ -172,7 +172,7 @@ const challenges = [
     title: 'Strings Attached',
     category: 'Reverse',
     score: 400,
-    flag: 'flag{str1ngs_4re_y0ur_fr1end}',
+    flag: 'udsm{str1ngs_4re_y0ur_fr1end}',
     file: { name: 'firmware.bin', make: makeFirmware },
     content: () =>
       'We pulled this firmware image off the door controller of the club room. The vendor left a debug token inside.\n\nDownload the attachment and dig it out.',
@@ -182,7 +182,7 @@ const challenges = [
     title: 'Lost Packets',
     category: 'Forensics',
     score: 400,
-    flag: 'flag{pl41ntext_http_1s_4_g1ft}',
+    flag: 'udsm{pl41ntext_http_1s_4_g1ft}',
     file: { name: 'stream7.txt', make: makeCapture },
     content: () =>
       'Someone logged in to the intranet over plain HTTP while we were capturing traffic. The attachment is a hex dump of that TCP stream.\n\nWhat secret did they send?',
@@ -192,7 +192,7 @@ const challenges = [
     title: 'Stack Smasher',
     category: 'Pwn',
     score: 500,
-    flag: 'flag{sm4sh_th3_st4ck_f0r_fun}',
+    flag: 'udsm{sm4sh_th3_st4ck_f0r_fun}',
     content: () =>
       `A tiny echo service reads your name into a 64-byte buffer with \`gets()\`. There is a \`win()\` function that prints the flag.\n\n${placeholderNote}`,
   },
@@ -201,9 +201,9 @@ const challenges = [
     title: 'Where It All Began',
     category: 'OSINT',
     score: 300,
-    flag: 'flag{las_vegas}',
+    flag: 'udsm{las_vegas}',
     content: () =>
-      'The very first DEF CON took place in 1993. In which city?\n\nFlag format: `flag{city_name}`, lowercase, with underscores instead of spaces.',
+      'The very first DEF CON took place in 1993. In which city?\n\nFlag format: `udsm{city_name}`, lowercase, with underscores instead of spaces.',
   },
 ]
 
@@ -337,7 +337,7 @@ const gameInfo = {
     '',
     '- **Format:** jeopardy, teams of up to four',
     '- **Scoring:** dynamic. A challenge is worth less the more teams solve it, and the first three solvers earn a bonus',
-    '- **Flags:** look like `flag{...}`',
+    '- **Flags:** look like `udsm{...}`',
     '',
     'Most challenges here can really be solved. Give them a go!',
   ].join('\n'),
@@ -371,13 +371,13 @@ for (const player of players) {
 console.log('All teams joined the game')
 
 await admin.call('POST', `/api/edit/games/${game.id}/notices`, {
-  content: 'Welcome to the demo CTF! Flags look like `flag{...}`. Ask an organiser if something seems broken.',
+  content: 'Welcome to the demo CTF! Flags look like `udsm{...}`. Ask an organiser if something seems broken.',
 })
 
 const flags = Object.fromEntries(challenges.map((spec) => [spec.key, spec.flag]))
 for (const [index, [userName, key, correct = true]] of storyline.entries()) {
   await sleep(randomInt(400, 2500))
-  const flag = correct ? flags[key] : 'flag{n0t_qu1te_r1ght}'
+  const flag = correct ? flags[key] : 'udsm{n0t_qu1te_r1ght}'
   const status = await submit(sessions[userName], game.id, challengeIds[key], flag)
   console.log(`  ${userName.padEnd(6)} -> ${key.padEnd(8)} ${status}`)
 

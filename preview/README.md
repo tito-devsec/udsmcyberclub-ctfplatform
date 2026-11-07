@@ -27,20 +27,33 @@ After changing anything in `src/GZCTF/ClientApp`, run the build again and then `
 
 ## Demo content
 
-`node seed-demo.mjs` creates test players, five teams and a game called "Cyber Club Demo CTF" with eight challenges. It stops early if the game already exists. Everything it creates can be edited or deleted from the admin panel.
+Two scripts fill the preview with something to try. Both read the logins from `.env` and stop early if their game already exists. Everything they create can be edited or deleted from the admin panel.
 
-## Container challenge example
+- `node seed-web-demo.mjs` creates **UDSM Web Basics**, an individual game with two beginner web challenges: [Staff Portal](examples/web-container) and [Ping Tool](examples/ping-tool). Every player gets their own instance and their own `udsm{...}` flag, with 5 attempts per challenge. Instances last 60 minutes, and players can add 30 more in the last 10. The script builds the two challenge images if they are missing and sets that instance lifetime for the whole platform.
+- `node seed-demo.mjs` creates test players, five teams and a team game called "Cyber Club Demo CTF" with eight challenges.
 
-[examples/web-container](examples/web-container) is a small per-team container challenge. Build it:
+To play, sign in as `testuser` with `TEST_USER_PASSWORD` from `.env`.
+
+## Container challenges
+
+[examples/web-container](examples/web-container) (read the page source) and [examples/ping-tool](examples/ping-tool) (command injection) are small per-player web challenges. To add one by hand, build its image first:
 
 ```bash
-docker build -t club/staff-portal:latest examples/web-container
+docker build -t club/ping-tool:latest examples/ping-tool
 ```
 
-Then add a "Dynamic Container" challenge with image `club/staff-portal:latest` and service port `80`. The platform starts one container per team and passes that team's flag in the `GZCTF_FLAG` environment variable, so the image never contains a flag.
+Then add a "Dynamic Container" challenge with that image and service port `80`, and set:
+
+- **Flag template:** `udsm{some_words_[TEAM_HASH]}`. `[TEAM_HASH]` makes every player's flag different. The server works it out from a secret it keeps for each game, so one player's flag says nothing about another's.
+- **Submission limit:** for example `5`. Once a player has used that many attempts, the challenge is locked for them.
+- **Network:** "Isolated" for challenges that do not need the internet.
+
+The platform starts one container per player (or per team in a team game) and passes the flag in the `GZCTF_FLAG` environment variable, so the image never contains a flag.
 
 ## Things to know
 
+- Challenge instances cannot reach each other. `docker-compose.yml` creates the two challenge networks (`gzctf-open`, `gzctf-isolated`) with container-to-container traffic turned off, before the platform would create them with it on. Docker cannot change this on an existing network: to apply it to an older setup, run `docker compose down`, then `docker network rm gzctf-open gzctf-isolated`, then `docker compose up -d`.
+- On Docker Desktop, instances on the "Isolated" network can still reach the internet, because Docker Desktop sends all container traffic through its own network layer. Docker's setting applies on a Linux server; test it there before relying on it.
 - The site is bound to `127.0.0.1`, so only this computer can open it. Change the port line to `"3000:8080"` to let other devices on your network in.
 - The platform gets the Docker socket so it can start challenge containers. That gives it control of Docker on this machine, so keep this setup for local use.
 - Uploads up to 1 GB are accepted (`MaxRequestBodySize`). Use the "Remote Url" attachment type for anything larger.
