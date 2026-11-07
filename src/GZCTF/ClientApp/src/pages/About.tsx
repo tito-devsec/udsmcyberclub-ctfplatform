@@ -83,6 +83,9 @@ const About: FC = () => {
                 <ResourceLink icon={mdiGithub} href={repo}>
                   {t('common.content.about.repository')}
                 </ResourceLink>
+                <ResourceLink icon={mdiGithub} href="https://github.com/tito-devsec/udsmcyberclub-ctfplatform">
+                  {t('common.content.about.source')}
+                </ResourceLink>
                 <ResourceLink
                   icon={mdiScaleBalance}
                   href="https://www.gnu.org/licenses/agpl-3.0.html"
