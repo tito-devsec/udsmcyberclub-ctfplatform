@@ -1,0 +1,9 @@
+allowBuilds:
+  esbuild: false
+minimumReleaseAge: 360
+minimumReleaseAgeExclude:
+  - "@mantine/*"
+overrides:
+  canvas: npm:dry-uninstall
+publicHoistPattern:
+  - pdfjs-dist
