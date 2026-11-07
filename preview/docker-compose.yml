@@ -63,6 +63,28 @@ services:
       timeout: 3s
       retries: 20
 
+  # Adds CPU and process limits to every challenge instance, which GZCTF itself only
+  # memory-limits on Linux (see instance-limits.sh). Without this, a player with a shell
+  # in their instance could run a CPU-burning loop and slow the platform for everyone.
+  instance-limits:
+    image: docker:29-cli
+    restart: unless-stopped
+    entrypoint: ["sh", "/instance-limits.sh"]
+    environment:
+      # Most CPU one instance may use, in cores
+      INSTANCE_CPUS: "0.5"
+      # Priority when the machine is busy (Docker's default is 1024), so the platform and
+      # its database always get the CPU first
+      INSTANCE_CPU_SHARES: "128"
+      # Most processes one instance may run; stops fork bombs
+      INSTANCE_PIDS: "256"
+    volumes:
+      - ./instance-limits.sh:/instance-limits.sh:ro
+      # Needed to update the instances' limits
+      - /var/run/docker.sock:/var/run/docker.sock
+    # Talks to Docker through the socket only
+    network_mode: none
+
 volumes:
   gzctf-files:
   gzctf-db:
