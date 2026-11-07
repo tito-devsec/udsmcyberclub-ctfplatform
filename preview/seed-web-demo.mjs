@@ -9,74 +9,16 @@
 // Re-running is safe: it stops early when the game already exists.
 
 import { execFileSync } from 'node:child_process'
-import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { BASE, readEnv, Session, waitForServer } from './gzctf-api.mjs'
 
-const BASE = process.env.GZCTF_URL ?? 'http://localhost:3000'
 const GAME_TITLE = 'UDSM Web Basics'
 const MINUTE = 60_000
 const DAY = 24 * 60 * MINUTE
 
 const here = dirname(fileURLToPath(import.meta.url))
-const env = Object.fromEntries(
-  readFileSync(join(here, '.env'), 'utf8')
-    .split(/\r?\n/)
-    .filter((line) => line && !line.startsWith('#') && line.includes('='))
-    .map((line) => [line.slice(0, line.indexOf('=')), line.slice(line.indexOf('=') + 1)])
-)
-
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
-
-class Session {
-  cookie = ''
-
-  constructor(name) {
-    this.name = name
-  }
-
-  async send(method, path, init) {
-    const res = await fetch(BASE + path, {
-      method,
-      ...init,
-      headers: { ...init?.headers, ...(this.cookie && { Cookie: this.cookie }) },
-    })
-    for (const cookie of res.headers.getSetCookie()) {
-      if (cookie.startsWith('GZCTF_Token=')) this.cookie = cookie.split(';')[0]
-    }
-    const text = await res.text()
-    if (!res.ok) throw new Error(`${method} ${path} as ${this.name}: ${res.status} ${text.slice(0, 300)}`)
-    try {
-      return text ? JSON.parse(text) : null
-    } catch {
-      return text
-    }
-  }
-
-  call(method, path, body) {
-    if (body === undefined) return this.send(method, path)
-    return this.send(method, path, {
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    })
-  }
-
-  login(userName, password) {
-    return this.call('POST', '/api/account/login', { userName, password })
-  }
-}
-
-async function waitForServer() {
-  for (let attempt = 0; attempt < 90; attempt++) {
-    try {
-      if ((await fetch(BASE + '/api/config')).ok) return
-    } catch {
-      // not listening yet
-    }
-    await sleep(2000)
-  }
-  throw new Error(`GZCTF did not answer on ${BASE}`)
-}
+const env = readEnv(here)
 
 function ensureImage(image, folder) {
   try {
