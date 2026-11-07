@@ -20,7 +20,7 @@ import { Icon } from '@mdi/react'
 import { FC, useEffect, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
-import { GameJoinModal } from '@Components/GameJoinModal'
+import { GameJoinInfo, GameJoinModal } from '@Components/GameJoinModal'
 import { GameProgress } from '@Components/GameProgress'
 import { Markdown } from '@Components/MarkdownRenderer'
 import { WithNavBar } from '@Components/WithNavbar'
@@ -30,7 +30,7 @@ import { useIsMobile } from '@Utils/ThemeOverride'
 import { getGameStatus, useGame } from '@Hooks/useGame'
 import { usePageTitle } from '@Hooks/usePageTitle'
 import { useTeams, useUser } from '@Hooks/useUser'
-import api, { GameJoinModel, ParticipationStatus } from '@Api'
+import api, { ParticipationStatus } from '@Api'
 import classes from '@Styles/Banner.module.css'
 
 const GetAlert = (status: ParticipationStatus, team: string) => {
@@ -93,7 +93,11 @@ const GameDetail: FC = () => {
   const { locale } = useLanguage()
 
   const { user } = useUser()
-  const { teams } = useTeams()
+  const { teams, mutate: mutateTeams } = useTeams()
+
+  // a team size limit of 1 is how the platform marks an individual game
+  const individual = game?.limit === 1
+  const needsJoinDetails = Boolean(game?.inviteCodeRequired) || (game?.divisions?.length ?? 0) > 0
 
   const modals = useModals()
   const isMobile = useIsMobile()
@@ -123,11 +127,29 @@ const GameDetail: FC = () => {
     [ParticipationStatus.Unsubmitted, t('game.participation.actions.unsubmitted')],
   ])
 
-  const onSubmitJoin = async (info: GameJoinModel) => {
+  // Individual games still run on teams underneath, so each player gets a one-person team named after them.
+  const ensurePersonalTeam = async () => {
+    const soloTeams = teams?.filter((team) => team.members?.length === 1 && team.members[0].id === user?.userId) ?? []
+    const personal = soloTeams.find((team) => team.name === user?.userName)
+    if (personal?.id) return personal.id
+
+    try {
+      const created = await api.team.teamCreateTeam({ name: user?.userName })
+      mutateTeams()
+      return created.data.id!
+    } catch (err) {
+      // the player may already captain the maximum number of teams; any one-person team of theirs will do
+      if (soloTeams[0]?.id) return soloTeams[0].id
+      throw err
+    }
+  }
+
+  const onSubmitJoin = async (info: GameJoinInfo) => {
     try {
       if (!numId) return
 
-      await api.game.gameJoinGame(numId, info)
+      const teamId = info.teamId ?? (await ensurePersonalTeam())
+      await api.game.gameJoinGame(numId, { ...info, teamId })
       showNotification({
         color: 'teal',
         message: t('game.notification.joined'),
@@ -163,10 +185,15 @@ const GameDetail: FC = () => {
     isGameOpenForJoin &&
     user &&
     teams &&
-    teams.length > 0
+    (individual || teams.length > 0)
 
   const teamRequire =
-    user && status === ParticipationStatus.Unsubmitted && isGameOpenForJoin && teams && teams.length === 0
+    !individual &&
+    user &&
+    status === ParticipationStatus.Unsubmitted &&
+    isGameOpenForJoin &&
+    teams &&
+    teams.length === 0
 
   const onJoin = () =>
     modals.openConfirmModal({
@@ -174,15 +201,24 @@ const GameDetail: FC = () => {
       children: (
         <Stack gap="xs">
           <Text size="sm">{t('game.content.join.content.0')}</Text>
-          <Text size="sm">
-            <Trans i18nKey="game.content.join.content.1" />
-          </Text>
-          <Text size="sm">
-            <Trans i18nKey="game.content.join.content.2" />
-          </Text>
+          {individual ? (
+            <Text size="sm">
+              <Trans i18nKey="game.content.join.individual" />
+            </Text>
+          ) : (
+            <>
+              <Text size="sm">
+                <Trans i18nKey="game.content.join.content.1" />
+              </Text>
+              <Text size="sm">
+                <Trans i18nKey="game.content.join.content.2" />
+              </Text>
+            </>
+          )}
         </Stack>
       ),
-      onConfirm: () => setJoinModalOpen(true),
+      // an individual game with no division or invite code has nothing left to ask
+      onConfirm: () => (individual && !needsJoinDetails ? onSubmitJoin({}) : setJoinModalOpen(true)),
       confirmProps: { color: theme.primaryColor },
     })
 
@@ -307,6 +343,7 @@ const GameDetail: FC = () => {
           title={t('game.content.join.title')}
           opened={joinModalOpen}
           withCloseButton={false}
+          individual={individual}
           onClose={() => setJoinModalOpen(false)}
           onSubmitJoin={onSubmitJoin}
         />

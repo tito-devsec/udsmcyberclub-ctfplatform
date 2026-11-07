@@ -7,6 +7,7 @@ import {
   Image,
   Input,
   NumberInput,
+  Select,
   SimpleGrid,
   Stack,
   Switch,
@@ -54,6 +55,8 @@ const GameInfoEdit: FC = () => {
 
   // seeded from an already cached `gameSource`, kept in sync below
   const [game, setGame] = useState<GameInfoModel | undefined>(gameSource)
+  // an individual game is stored as a team game whose teams hold a single member
+  const [individual, setIndividual] = useState(gameSource?.teamMemberCountLimit === 1)
   const [disabled, setDisabled] = useState(false)
   // `useInputState` has no lazy initializer, so these are plain expressions
   const [start, setStart] = useInputState(gameSource ? dayjs(gameSource.start) : dayjs())
@@ -83,6 +86,7 @@ const GameInfoEdit: FC = () => {
 
     if (gameSource) {
       setGame(gameSource)
+      setIndividual(gameSource.teamMemberCountLimit === 1)
       setStart(dayjs(gameSource.start))
       setEnd(dayjs(gameSource.end))
 
@@ -132,11 +136,23 @@ const GameInfoEdit: FC = () => {
 
   const onUpdateInfo = async () => {
     if (!game?.title) return
+
+    // a team game must say how big its teams are; a size of 1 is an individual game
+    if (!individual && (game.teamMemberCountLimit ?? 0) < 2) {
+      showNotification({
+        color: 'red',
+        message: t('admin.notification.games.info.member_limit_required'),
+        icon: <Icon path={mdiClose} size={1} />,
+      })
+      return
+    }
+
     setDisabled(true)
 
     try {
       await api.edit.editUpdateGame(game.id!, {
         ...game,
+        teamMemberCountLimit: individual ? 1 : game.teamMemberCountLimit,
         inviteCode: (game.inviteCode?.length ?? 0) > 6 ? game.inviteCode : null,
         start: start.valueOf(),
         end: end.valueOf(),
@@ -240,19 +256,40 @@ const GameInfoEdit: FC = () => {
           required
           onChange={(e) => game && setGame({ ...game, title: e.target.value })}
         />
-        <NumberInput
-          label={t('admin.content.games.info.member_limit.label')}
-          description={t('admin.content.games.info.member_limit.description')}
+        <Select
+          label={t('admin.content.games.info.mode.label')}
+          description={t('admin.content.games.info.mode.description')}
           disabled={disabled}
-          min={0}
+          allowDeselect={false}
           required
-          value={game?.teamMemberCountLimit}
-          onChange={(e) => {
-            const number = getInputNumber(e)
-            if (!game || isNaN(number)) return
-            setGame({ ...game, teamMemberCountLimit: number })
+          value={individual ? 'individual' : 'team'}
+          data={[
+            { value: 'individual', label: t('admin.content.games.info.mode.individual') },
+            { value: 'team', label: t('admin.content.games.info.mode.team') },
+          ]}
+          onChange={(mode) => {
+            if (!game) return
+            setIndividual(mode === 'individual')
+            // leaving individual mode clears the size of 1, so the team size has to be chosen
+            if (mode === 'team' && game.teamMemberCountLimit === 1) setGame({ ...game, teamMemberCountLimit: 0 })
           }}
         />
+        {!individual && (
+          <NumberInput
+            label={t('admin.content.games.info.member_limit.label')}
+            description={t('admin.content.games.info.member_limit.description')}
+            disabled={disabled}
+            min={2}
+            required
+            // 0 (no size chosen yet) shows as an empty field
+            value={game?.teamMemberCountLimit || ''}
+            onChange={(e) => {
+              const number = getInputNumber(e)
+              if (!game || isNaN(number)) return
+              setGame({ ...game, teamMemberCountLimit: number })
+            }}
+          />
+        )}
         <NumberInput
           label={t('admin.content.games.info.container_limit.label')}
           description={t('admin.content.games.info.container_limit.description')}

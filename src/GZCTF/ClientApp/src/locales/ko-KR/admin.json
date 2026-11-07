@@ -277,8 +277,14 @@
           "placeholder": "비활성화하려면 빈 칸으로 두세요"
         },
         "member_limit": {
-          "description": "0은 팀 멤버 수 제한이 없음을 의미합니다.",
-          "label": "최대 팀 멤버 수"
+          "description": "각 팀의 총 팀원 수 (최소 2명)",
+          "label": "팀 인원"
+        },
+        "mode": {
+          "description": "개인전: 각자 혼자 참가합니다. 팀전: 팀 단위로 참가합니다.",
+          "individual": "개인전",
+          "label": "게임 유형",
+          "team": "팀전"
         },
         "poster": "포스터",
         "practice_mode": {
@@ -506,6 +512,7 @@
       "info": {
         "deleted": "게임이 삭제되었습니다",
         "info_updated": "게임이 업데이트 되었습니다.",
+        "member_limit_required": "팀전에는 팀 인원(최소 2명)을 설정하세요",
         "poster": {
           "upload_failed": "글 업로드 실패",
           "uploaded": "포스터가 업로드되었습니다.",

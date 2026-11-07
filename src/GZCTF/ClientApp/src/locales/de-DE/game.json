@@ -46,6 +46,7 @@
         "description": "Dieses Spiel hat mehrere verfügbare Divisionen. Bitte wählen Sie Ihre Division aus.",
         "label": "Division auswählen"
       },
+      "individual": "Dies ist ein Einzelspiel: Du trittst allein an, ohne Team.",
       "invite_code": {
         "description": "Dieses Spiel ist nur auf Einladung. Um teilzunehmen, geben Sie bitte einen Einladungscode ein.",
         "label": "Bitte geben Sie den Einladungscode ein"

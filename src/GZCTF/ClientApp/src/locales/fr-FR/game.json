@@ -46,6 +46,7 @@
         "description": "Ce jeu a plusieurs divisions disponibles. Veuillez sélectionner votre division.",
         "label": "Sélectionner la division"
       },
+      "individual": "Ceci est un jeu individuel : vous participez seul, sans équipe.",
       "invite_code": {
         "description": "Ce jeu est uniquement sur invitation. Pour y participer, veuillez entrer un code d'invitation.",
         "label": "Veuillez entrer le code d'invitation"

@@ -19,14 +19,18 @@ const defaultDivisionId = (game?: DetailedGameInfoModel) => {
   return ''
 }
 
+// individual games leave the team out; the caller supplies the player's own one-person team
+export type GameJoinInfo = Omit<GameJoinModel, 'teamId'> & { teamId?: number }
+
 interface GameJoinModalProps extends ModalProps {
-  onSubmitJoin: (info: GameJoinModel) => Promise<void>
+  individual?: boolean
+  onSubmitJoin: (info: GameJoinInfo) => Promise<void>
 }
 
 export const GameJoinModal: FC<GameJoinModalProps> = (props) => {
   const { id } = useParams()
   const numId = parseInt(id ?? '-1')
-  const { onSubmitJoin, ...modalProps } = props
+  const { individual, onSubmitJoin, ...modalProps } = props
 
   const { teams } = useTeams()
   const { game } = useGame(numId)
@@ -76,7 +80,7 @@ export const GameJoinModal: FC<GameJoinModalProps> = (props) => {
     return teams?.map((t) => ({ label: t.name!, value: t.id!.toString() })) ?? []
   }, [teams])
 
-  const joinedTeam = team ? gameCheckInfo.get(team) : null
+  const joinedTeam = !individual && team ? gameCheckInfo.get(team) : null
   const joinedDivision = joinedTeam?.div ? game?.divisions?.find((d) => d.id === joinedTeam?.div) : null
   const hasDivision = divisionOptions.length > 0 || joinedTeam?.div
   const canSelectDivision = !joinedTeam
@@ -94,7 +98,7 @@ export const GameJoinModal: FC<GameJoinModalProps> = (props) => {
   const onJoinGame = async () => {
     setDisabled(true)
 
-    if (!team) {
+    if (!individual && !team) {
       showNotification({
         color: 'orange',
         message: t('game.notification.no_team'),
@@ -126,7 +130,7 @@ export const GameJoinModal: FC<GameJoinModalProps> = (props) => {
 
     try {
       await onSubmitJoin({
-        teamId: parseInt(team, 10),
+        teamId: individual || !team ? undefined : parseInt(team, 10),
         inviteCode: shouldRequireInviteCode ? inviteCode : undefined,
         divisionId:
           canSelectDivision && hasDivision
@@ -146,15 +150,17 @@ export const GameJoinModal: FC<GameJoinModalProps> = (props) => {
   return (
     <Modal {...modalProps}>
       <Stack>
-        <Select
-          required
-          label={t('game.content.join.team.label')}
-          description={t('game.content.join.team.description')}
-          data={teamsData}
-          disabled={disabled}
-          value={team}
-          onChange={(e) => e && setTeam(e)}
-        />
+        {!individual && (
+          <Select
+            required
+            label={t('game.content.join.team.label')}
+            description={t('game.content.join.team.description')}
+            data={teamsData}
+            disabled={disabled}
+            value={team}
+            onChange={(e) => e && setTeam(e)}
+          />
+        )}
         {canSelectDivision && hasDivision && (
           <Select
             required

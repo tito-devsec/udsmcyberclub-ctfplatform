@@ -277,8 +277,14 @@
           "placeholder": "Leer lassen zum Deaktivieren"
         },
         "member_limit": {
-          "description": "0 bedeutet unbegrenzte Teammitglieder",
-          "label": "Maximale Teammitglieder"
+          "description": "Gesamtzahl der Mitglieder pro Team (mindestens 2)",
+          "label": "Teamgröße"
+        },
+        "mode": {
+          "description": "Einzeln: Jeder spielt für sich. Team: Gespielt wird in Teams.",
+          "individual": "Einzeln",
+          "label": "Spieltyp",
+          "team": "Team"
         },
         "poster": "Poster",
         "practice_mode": {
@@ -506,6 +512,7 @@
       "info": {
         "deleted": "Spiel gelöscht",
         "info_updated": "Spiel aktualisiert",
+        "member_limit_required": "Lege für ein Teamspiel die Teamgröße fest (mindestens 2)",
         "poster": {
           "upload_failed": "Hochladen des Posters fehlgeschlagen",
           "uploaded": "Poster erfolgreich hochgeladen",

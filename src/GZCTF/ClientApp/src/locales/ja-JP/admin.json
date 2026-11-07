@@ -277,8 +277,14 @@
           "placeholder": "空欄で無効化"
         },
         "member_limit": {
-          "description": "無制限の場合は 0 を記入してください",
-          "label": "チーム人数制限"
+          "description": "各チームのメンバー総数（2 人以上）",
+          "label": "チーム人数"
+        },
+        "mode": {
+          "description": "ソロ戦：各プレイヤーが一人で参加します。チーム戦：チーム単位で参加します。",
+          "individual": "ソロ戦",
+          "label": "ゲーム形式",
+          "team": "チーム戦"
         },
         "poster": "ポスター",
         "practice_mode": {
@@ -506,6 +512,7 @@
       "info": {
         "deleted": "ゲームが削除されました",
         "info_updated": "ゲーム情報が更新されました",
+        "member_limit_required": "チーム戦ではチーム人数（2 人以上）を設定してください",
         "poster": {
           "upload_failed": "ポスターをアップロードできませんでした",
           "uploaded": "ポスターは正常にアップロードされました。",

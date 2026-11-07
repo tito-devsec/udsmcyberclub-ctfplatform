@@ -277,8 +277,14 @@
           "placeholder": "Laissez vide pour désactiver"
         },
         "member_limit": {
-          "description": "0 signifie membres illimités de l'équipe",
-          "label": "Nombre maximal de membres de l'équipe"
+          "description": "Nombre total de membres par équipe (au moins 2)",
+          "label": "Taille de l'équipe"
+        },
+        "mode": {
+          "description": "Individuel : chaque joueur participe seul. Équipe : on joue en équipes.",
+          "individual": "Individuel",
+          "label": "Type de jeu",
+          "team": "Équipe"
         },
         "poster": "Affiche",
         "practice_mode": {
@@ -506,6 +512,7 @@
       "info": {
         "deleted": "Jeu supprimé",
         "info_updated": "Jeu mis à jour",
+        "member_limit_required": "Indiquez la taille des équipes (au moins 2) pour un jeu en équipe",
         "poster": {
           "upload_failed": "Échec du téléchargement de l'affiche",
           "uploaded": "Affiche téléchargée avec succès",

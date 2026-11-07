@@ -46,6 +46,7 @@
         "description": "This game has multiple division available. Please select your division.",
         "label": "Select Division"
       },
+      "individual": "This is an individual game: you compete on your own, without a team.",
       "invite_code": {
         "description": "This game is invitation-only. To participate in, please enter an invitation code.",
         "label": "Please enter the invitation code"
@@ -237,7 +238,7 @@
   },
   "tag": {
     "hidden": "Hidden",
-    "individual": "Personal",
+    "individual": "Individual",
     "limited": "{{count}} players",
     "multiplayer": "Team"
   },

@@ -277,8 +277,14 @@
           "placeholder": "Để trống để tắt"
         },
         "member_limit": {
-          "description": "Đặt 0 để không giới hạn số thành viên",
-          "label": "Số thành viên tối đa trong đội."
+          "description": "Tổng số thành viên trong mỗi đội (tối thiểu 2)",
+          "label": "Số thành viên mỗi đội"
+        },
+        "mode": {
+          "description": "Cá nhân: mỗi người chơi tự thi đấu. Đồng đội: thi đấu theo đội.",
+          "individual": "Cá nhân",
+          "label": "Loại trò chơi",
+          "team": "Đồng đội"
         },
         "poster": "Poster",
         "practice_mode": {
@@ -506,6 +512,7 @@
       "info": {
         "deleted": "Trò chơi đã bị xóa.",
         "info_updated": "Trò chơi đã được cập nhật.",
+        "member_limit_required": "Hãy đặt số thành viên mỗi đội (tối thiểu 2) cho trò chơi đồng đội",
         "poster": {
           "upload_failed": "Tải poster lên thất bại.",
           "uploaded": "Poster đã được tải lên thành công.",

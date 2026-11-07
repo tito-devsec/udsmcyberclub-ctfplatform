@@ -46,6 +46,7 @@
         "description": "Permainan ini memiliki beberapa divisi yang tersedia. Harap pilih divisi kamu.",
         "label": "Pilih divisi"
       },
+      "individual": "Ini adalah game individu: Anda bermain sendiri, tanpa tim.",
       "invite_code": {
         "description": "Permainan ini hanya dengan undangan. Untuk berpartisipasi, harap masukkan kode undangan.",
         "label": "Harap masukkan kode undangan"

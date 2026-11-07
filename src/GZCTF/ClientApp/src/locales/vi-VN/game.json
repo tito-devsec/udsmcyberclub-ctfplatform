@@ -46,6 +46,7 @@
         "description": "Trò chơi này có nhiều bảng. Vui lòng chọn bảng của bạn.",
         "label": "Chọn bảng"
       },
+      "individual": "Đây là trò chơi cá nhân: bạn tự thi đấu, không cần đội.",
       "invite_code": {
         "description": "Trò chơi này chỉ dành cho người được mời. Để tham gia, vui lòng nhập mã mời.",
         "label": "Vui lòng nhập mã mời"

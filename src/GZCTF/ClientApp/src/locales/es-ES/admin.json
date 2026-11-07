@@ -277,8 +277,14 @@
           "placeholder": "Deja en blanco para deshabilitar"
         },
         "member_limit": {
-          "description": "0 significa miembros ilimitados del equipo",
-          "label": "Máximo de Miembros del Equipo"
+          "description": "Número total de miembros de cada equipo (mínimo 2)",
+          "label": "Tamaño del equipo"
+        },
+        "mode": {
+          "description": "Individual: cada jugador compite solo. Equipo: se compite en equipos.",
+          "individual": "Individual",
+          "label": "Tipo de juego",
+          "team": "Equipo"
         },
         "poster": "Cartel",
         "practice_mode": {
@@ -506,6 +512,7 @@
       "info": {
         "deleted": "Juego eliminado",
         "info_updated": "Juego actualizado",
+        "member_limit_required": "Indica el tamaño del equipo (mínimo 2) para un juego por equipos",
         "poster": {
           "upload_failed": "Fallo en la carga del póster",
           "uploaded": "Cartel subido con éxito",

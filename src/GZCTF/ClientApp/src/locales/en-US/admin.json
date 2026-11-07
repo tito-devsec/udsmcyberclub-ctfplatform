@@ -277,8 +277,14 @@
           "placeholder": "Leave empty to disable"
         },
         "member_limit": {
-          "description": "0 means unlimited members of team",
-          "label": "Maximum Team Member"
+          "description": "Total number of members in each team (at least 2)",
+          "label": "Team Size"
+        },
+        "mode": {
+          "description": "Individual: each player competes alone. Team: players compete in teams.",
+          "individual": "Individual",
+          "label": "Game Type",
+          "team": "Team"
         },
         "poster": "Poster",
         "practice_mode": {
@@ -506,6 +512,7 @@
       "info": {
         "deleted": "Game deleted",
         "info_updated": "Game updated",
+        "member_limit_required": "Set the team size (at least 2) for a team game",
         "poster": {
           "upload_failed": "Post upload failed",
           "uploaded": "Poster successfully uploaded",

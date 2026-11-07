@@ -277,8 +277,14 @@
           "placeholder": "留空以禁用"
         },
         "member_limit": {
-          "description": "0 表示不限制队伍人数",
-          "label": "队伍人数限制"
+          "description": "每支队伍的成员总数（至少 2 人）",
+          "label": "队伍人数"
+        },
+        "mode": {
+          "description": "个人赛：每位选手独自参赛。团队赛：以队伍为单位参赛。",
+          "individual": "个人赛",
+          "label": "比赛类型",
+          "team": "团队赛"
         },
         "poster": "比赛海报",
         "practice_mode": {
@@ -506,6 +512,7 @@
       "info": {
         "deleted": "比赛已删除",
         "info_updated": "比赛信息已更新",
+        "member_limit_required": "团队赛请设置队伍人数（至少 2 人）",
         "poster": {
           "upload_failed": "海报上传失败",
           "uploaded": "海报上传成功",

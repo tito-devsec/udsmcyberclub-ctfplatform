@@ -277,8 +277,14 @@
           "placeholder": "Biarkan kosong untuk menonaktifkan"
         },
         "member_limit": {
-          "description": "0 berarti anggota tim tidak terbatas",
-          "label": "Batas maks anggota tim"
+          "description": "Jumlah total anggota di setiap tim (minimal 2)",
+          "label": "Ukuran Tim"
+        },
+        "mode": {
+          "description": "Individu: setiap pemain bermain sendiri. Tim: pemain bermain dalam tim.",
+          "individual": "Individu",
+          "label": "Jenis Game",
+          "team": "Tim"
         },
         "poster": "Poster",
         "practice_mode": {
@@ -506,6 +512,7 @@
       "info": {
         "deleted": "Game dihapus",
         "info_updated": "Game diperbarui",
+        "member_limit_required": "Tentukan ukuran tim (minimal 2) untuk game tim",
         "poster": {
           "upload_failed": "Gagal mengungah postingan",
           "uploaded": "Poster berhasil diunggah",
