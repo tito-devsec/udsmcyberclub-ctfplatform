@@ -178,13 +178,13 @@ export const useLanguage = () => {
 
 export const normalizeLanguage = (language: string) => language.toUpperCase().replace(/[_-].*/, '')
 
-export const convertLanguage = (language: string): SupportedLanguages => {
-  const normalizedLanguage = normalizeLanguage(language)
-
-  const matchedLanguage = Object.keys(LanguageMap).filter((lang) => normalizeLanguage(lang) === normalizedLanguage)
-  if (matchedLanguage.length > 0) {
-    return matchedLanguage.at(0) as SupportedLanguages
+// English unless the visitor has picked another language from the menu (saved by LanguageProvider)
+export const savedLanguage = (): SupportedLanguages => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('language') ?? 'null')
+    if (typeof saved === 'string' && saved in LanguageMap) return saved as SupportedLanguages
+  } catch {
+    // storage is unavailable or holds something unreadable
   }
-
   return defaultLanguage
 }
