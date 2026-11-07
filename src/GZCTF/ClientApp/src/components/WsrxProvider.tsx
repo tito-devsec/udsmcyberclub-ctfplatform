@@ -16,7 +16,7 @@ interface CustomWsrxOptions {
 
 export const DefaultWsrxOptions: CustomWsrxOptions = {
   api: 'http://127.0.0.1:3307',
-  name: 'GZ::CTF',
+  name: 'UD::CTF',
   allowLan: false,
 }
 

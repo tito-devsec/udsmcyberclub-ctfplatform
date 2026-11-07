@@ -134,7 +134,7 @@ const Configs: FC = () => {
               <TextInput
                 label={t('admin.content.settings.platform.name.label')}
                 description={t('admin.content.settings.platform.name.description')}
-                placeholder="GZ"
+                placeholder="UDSM-CTFPLATFORM"
                 disabled={disabled}
                 value={globalConfig?.title ?? ''}
                 onChange={(e) => {
@@ -146,7 +146,7 @@ const Configs: FC = () => {
               <TextInput
                 label={t('admin.content.settings.platform.slogan.label')}
                 description={t('admin.content.settings.platform.slogan.description')}
-                placeholder="Hack for fun not for profit"
+                placeholder="Build Cybersafe Society"
                 disabled={disabled}
                 value={globalConfig?.slogan ?? ''}
                 onChange={(e) => {
@@ -193,7 +193,7 @@ const Configs: FC = () => {
               <TextInput
                 label={t('admin.content.settings.platform.description.label')}
                 description={t('admin.content.settings.platform.description.description')}
-                placeholder="GZ::CTF is an open source CTF platform"
+                placeholder="UD::CTF"
                 disabled={disabled}
                 value={globalConfig?.description ?? ''}
                 onChange={(e) => {
