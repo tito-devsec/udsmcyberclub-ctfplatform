@@ -1,10 +1,15 @@
 # Local preview
 
-Runs the platform on your own machine with Docker: the official GZCTF v1.9.1 image, PostgreSQL, and the web interface built from `../src/GZCTF/ClientApp` so the UDSM changes show up.
+Runs the platform on your own machine with Docker:
+
+- the official GZCTF v1.9.1 image, with the web interface built from `../src/GZCTF/ClientApp` so the UDSM changes show up;
+- PostgreSQL;
+- the [Labs service](../services/labs), which serves the Labs section and its lab machines;
+- Caddy in front of both on <http://localhost:3000> ([Caddyfile](Caddyfile)): `/api/labs` goes to the Labs service, everything else to GZCTF.
 
 ## First run
 
-1. Copy `.env.example` to `.env` and fill in the passwords.
+1. Copy `.env.example` to `.env` and fill in the passwords and secrets.
 2. Build the web interface (needs Node.js and pnpm):
 
    ```bash
@@ -12,10 +17,10 @@ Runs the platform on your own machine with Docker: the official GZCTF v1.9.1 ima
    pnpm --dir ../src/GZCTF/ClientApp build
    ```
 
-3. Start it from this folder:
+3. Build the images the labs and demo challenges use as machines (see [Challenges](#challenges); `seed-beginner-ctf.mjs` also builds any that are missing), then start everything from this folder:
 
    ```bash
-   docker compose up -d
+   docker compose up -d --build
    ```
 
 4. Open <http://localhost:3000> and sign in as `Admin` with `ADMIN_PASSWORD` from `.env`. The first start takes about 30 seconds while the database is created.
@@ -23,7 +28,13 @@ Runs the platform on your own machine with Docker: the official GZCTF v1.9.1 ima
 
 Stop with `docker compose down`. Add `-v` to also delete the database and uploaded files.
 
-After changing anything in `src/GZCTF/ClientApp`, run the build again and then `docker compose restart gzctf`.
+After changing anything in `src/GZCTF/ClientApp`, run the build again and then `docker compose restart gzctf`. After changing a lab in `../labs`, run `docker compose restart labs`; after changing the Labs service itself, `docker compose up -d --build labs`.
+
+## Labs
+
+**Labs** in the side menu is the learning section: paths of short lessons, each followed by questions, most with a machine of the student's own. Labs open one after another. The first path is **Web Security Beginner** (9 labs), which uses the web challenge images below as its machines. How to write labs: [labs/README.md](../labs/README.md); how the service works: [services/labs/README.md](../services/labs/README.md).
+
+Students sign in with their platform account. Their progress is kept in the `labs` database, which the Labs service creates on first start next to the platform's.
 
 ## Demo content
 

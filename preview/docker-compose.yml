@@ -1,6 +1,7 @@
-# Local preview of the UDSM Cyber Club CTF platform: official GZCTF v1.9.1 image + PostgreSQL.
-# Start:  docker compose up -d      (run from this folder)
-# Stop:   docker compose down       (add -v to also wipe the database and uploads)
+# Local preview of the UDSM Cyber Club CTF platform: the official GZCTF v1.9.1 image,
+# PostgreSQL, the Labs service, and Caddy in front of both on http://localhost:3000.
+# Start:  docker compose up -d --build   (run from this folder)
+# Stop:   docker compose down            (add -v to also wipe the database and uploads)
 # Secrets and test logins live in .env next to this file (copy .env.example to start).
 
 name: gzctf-preview
@@ -23,10 +24,10 @@ services:
       # Largest upload accepted, in bytes (1 GiB). The default of about 28 MB is too
       # small for disk images and packet captures.
       GZCTF_Kestrel__Limits__MaxRequestBodySize: 1073741824
-    ports:
-      # Web UI on http://localhost:3000, reachable from this machine only.
-      # Change to "3000:8080" to let other devices on your network open it.
-      - "127.0.0.1:3000:8080"
+      # Visitors arrive through the proxy below. Trust the visitor address it passes on,
+      # from this network only, so rate limits and logs see real visitors, not the proxy.
+      GZCTF_ForwardedOptions__ForwardedHeaders: "XForwardedFor,XForwardedProto"
+      GZCTF_ForwardedOptions__TrustedNetworks__0: 172.29.0.0/24
     volumes:
       - gzctf-files:/app/files
       # Web interface built from ../src (run `pnpm build` in src/GZCTF/ClientApp, then
@@ -85,6 +86,41 @@ services:
     # Talks to Docker through the socket only
     network_mode: none
 
+  # The Labs section: learning paths, lab answers, progress and lab machines.
+  # Lab content comes from ../labs; the service itself from ../services/labs.
+  labs:
+    build: ../services/labs
+    image: udsm-labs:local
+    restart: unless-stopped
+    environment:
+      # its own database, created on first start, on the same PostgreSQL server
+      DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/labs"
+      GZCTF_URL: http://gzctf:8080
+      LABS_SECRET: ${LABS_SECRET}
+      # address students use to reach their lab machine; on a real server, its domain or IP
+      PUBLIC_ENTRY: 127.0.0.1
+    volumes:
+      - ../labs:/content:ro
+      # starts and stops the lab machines
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # The front door: /api/labs goes to the Labs service, everything else to the platform.
+  proxy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    ports:
+      # http://localhost:3000, reachable from this machine only.
+      # Change to "3000:80" to let other devices on your network open it.
+      - "127.0.0.1:3000:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - gzctf
+      - labs
+
 volumes:
   gzctf-files:
   gzctf-db:
@@ -95,6 +131,11 @@ volumes:
 # enable_icc off, blocks traffic between instances. Players still reach their own
 # instance through its published port.
 networks:
+  # The services' own network, with a fixed address range so GZCTF can trust the proxy
+  default:
+    ipam:
+      config:
+        - subnet: 172.29.0.0/24
   challenges-open:
     name: gzctf-open
     driver_opts:

@@ -1,0 +1,14 @@
+# The preview's front door, on http://localhost:3000 (see docker-compose.yml).
+# On a real server, replace ":80" with the site's domain name and Caddy gets an HTTPS
+# certificate for it automatically.
+:80 {
+	# the Labs section: learning paths, lab answers and lab machines
+	handle /api/labs/* {
+		reverse_proxy labs:8080
+	}
+
+	# everything else is the platform: its pages, its API and its live updates
+	handle {
+		reverse_proxy gzctf:8080
+	}
+}
