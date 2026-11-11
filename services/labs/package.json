@@ -1,0 +1,25 @@
+{
+  "name": "udsm-labs",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Labs service for the UDSM Cyber Club CTF platform: learning paths, hands-on labs and lab machines",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "check": "tsc --noEmit",
+    "start": "node dist/main.js"
+  },
+  "dependencies": {
+    "pg": "^8.13.1",
+    "yaml": "^2.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/pg": "^8.11.10",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
