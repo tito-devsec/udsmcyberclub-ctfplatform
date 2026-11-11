@@ -1,5 +1,5 @@
 import { Anchor, Avatar, Box, Group, SimpleGrid, Stack, Text, Title } from '@mantine/core'
-import { mdiAccountGroup, mdiFileDocumentOutline, mdiGithub, mdiLink, mdiScaleBalance } from '@mdi/js'
+import { mdiAccountGroup, mdiFileDocumentOutline, mdiGithub, mdiLink, mdiScaleBalance, mdiShapeOutline } from '@mdi/js'
 import { Icon } from '@mdi/react'
 import { FC, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -99,6 +99,13 @@ const About: FC = () => {
                   prefix={<span className={classes.resourcePrefix}>Licensed under&nbsp;</span>}
                 >
                   LicenseRef-GZCTF-Restricted
+                </ResourceLink>
+                <ResourceLink
+                  icon={mdiShapeOutline}
+                  href="https://www.flaticon.com/uicons"
+                  prefix={<span className={classes.resourcePrefix}>Uicons by&nbsp;</span>}
+                >
+                  Flaticon
                 </ResourceLink>
               </Stack>
             </Box>

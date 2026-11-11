@@ -1,0 +1,3 @@
+node_modules/
+# keeps the icon tool on the versions it was written for
+!package-lock.json

@@ -1,0 +1,115 @@
+# The icons the web interface takes from Uicons by Flaticon (https://www.flaticon.com/uicons).
+# One per line: the icon's name there, followed by "solid" for the filled style.
+# After changing this list, run: npm install && node extract.mjs
+
+# arrows and marks
+angle-small-down
+angle-small-left
+angle-small-right
+angle-small-up
+arrow-left
+arrow-right
+arrow-small-down
+arrow-small-right
+arrow-up-right-from-square
+check
+check-circle
+check-circle solid
+cross
+cross-small
+exclamation
+info
+lock
+lock solid
+triangle-warning
+
+# actions
+copy-alt
+filter
+play solid
+power
+refresh
+search
+sign-in-alt
+stop solid
+time-add
+trash
+
+# labels
+bulb
+clock
+computer
+cursor-finger
+document
+flag-alt
+layers
+list
+route
+signal-alt
+signal-alt-1
+signal-alt-2
+time-past
+user
+
+# learning, XP and ranks
+bolt
+bolt solid
+chart-line-up
+crown
+diploma
+flame
+flame solid
+graduation-cap
+hat-wizard
+incognito
+infinity
+medal
+mountain
+party-horn
+rocket
+seedling
+sparkles
+stairs
+star
+star solid
+target
+terminal
+trophy
+
+# categories
+binary
+blockchain-3
+book-open-cover
+brain-circuit
+bug
+eye
+fingerprint
+globe
+industry-windows
+key
+microchip
+picture
+puzzle-alt
+
+# cover art for modules and paths (the "icon" field of a module or path file)
+bomb
+browser
+code-simple
+cookie
+cube
+database
+folder-open
+key-lock-crypto
+laptop-code
+network
+password
+robot
+satellite-dish
+search-location
+shield-check
+shield-keyhole
+skull
+spider-web
+spy
+syringe
+wifi
