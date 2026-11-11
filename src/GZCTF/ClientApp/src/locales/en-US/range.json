@@ -1,0 +1,190 @@
+{
+  "action": {
+    "continue": "Continue learning",
+    "register": "Create an account",
+    "sign_in": "Sign in",
+    "sign_in_to_start": "Sign in to start",
+    "start": "Start learning"
+  },
+  "catalogue": {
+    "empty": "No modules match these filters.",
+    "lead": "Every module on the platform. Take them in any order, or follow a skill path."
+  },
+  "category": {
+    "ai": "AI",
+    "crypto": "Crypto",
+    "forensics": "Forensics",
+    "general": "Fundamentals",
+    "hardware": "Hardware",
+    "ics": "ICS",
+    "misc": "Misc",
+    "osint": "OSINT",
+    "pwn": "Pwn",
+    "reverse": "Reverse Engineering",
+    "stego": "Steganography",
+    "web": "Web",
+    "web3": "Web3"
+  },
+  "count": {
+    "hands_on_one": "{{count}} hands-on",
+    "hands_on_other": "{{count}} hands-on",
+    "modules_one": "{{count}} module",
+    "modules_other": "{{count}} modules",
+    "results_one": "{{count}} result",
+    "results_other": "{{count}} results",
+    "sections_done_one": "{{done}} / {{count}} section",
+    "sections_done_other": "{{done}} / {{count}} sections",
+    "sections_one": "{{count}} section",
+    "sections_other": "{{count}} sections"
+  },
+  "difficulty": {
+    "easy": "Easy",
+    "hard": "Hard",
+    "medium": "Medium"
+  },
+  "filter": {
+    "category": "Category",
+    "clear": "Clear all filters",
+    "difficulty": "Difficulty",
+    "search": "Search modules",
+    "status": "Progress"
+  },
+  "home": {
+    "all_modules": "View all modules",
+    "in_progress": "Modules in progress",
+    "lead": "Short sections teach one idea at a time. Then you use it on a machine of your own, answer the questions, and earn XP towards your next rank.",
+    "my_path": "My path",
+    "nothing_started": "You have no module in progress. Start one from your path or from the catalogue.",
+    "paths_lead": "Skill paths are groups of modules, in order, that build one cybersecurity skill.",
+    "title": "Learn security by doing it",
+    "welcome": "Welcome, {{name}}"
+  },
+  "kind": {
+    "hands_on": "Hands-on",
+    "lesson": "Lesson",
+    "path": "Skill path"
+  },
+  "level": {
+    "ask_content": "It decides which skill path is suggested to you first. You can change it at any time.",
+    "ask_title": "What is your cybersecurity level?",
+    "beginner": "Beginner",
+    "beginner_hint": "New to cybersecurity, or just starting out.",
+    "choose": "Choose your level",
+    "continue": "Continue",
+    "expert": "Expert",
+    "expert_hint": "You play CTFs regularly or work in security.",
+    "intermediate": "Intermediate",
+    "intermediate_hint": "You know the basics and have solved a few challenges.",
+    "label": "Your cybersecurity level",
+    "required": "Choose your cybersecurity level first."
+  },
+  "machine": {
+    "copied": "Copied",
+    "copy": "Copy the address",
+    "description": "A private copy of this section's target, started only for you.",
+    "extend": "Extend",
+    "extend_hint": "You can extend your machine in its last 10 minutes.",
+    "lifetime": "It runs for an hour, and you can extend it near the end.",
+    "offline": "Offline",
+    "open": "Open it in a new tab",
+    "other": "Your machine for \"{{title}}\" is running. Starting this one stops it.",
+    "reload_hint": "It takes a few seconds to start: if the page does not load, wait a moment and reload.",
+    "running": "Running",
+    "start": "Start machine",
+    "stop": "Stop",
+    "time_left": "Time left:",
+    "title": "Your machine"
+  },
+  "module": {
+    "collapse_all": "Collapse all sections",
+    "completed_content": "You finished every section of this module.",
+    "completed_title": "Module complete",
+    "continue": "Continue module",
+    "expand_all": "Expand all sections",
+    "not_found": "There is no such module.",
+    "part_of": "Part of",
+    "progress": "Module progress",
+    "review": "Review module",
+    "reward": "Reward",
+    "sections": "Sections",
+    "start": "Start module",
+    "tab_details": "Module details",
+    "tab_progress": "Progress",
+    "time": "Time",
+    "updated": "Last updated {{date}}"
+  },
+  "nav": {
+    "modules": "Modules",
+    "paths": "Skill Paths"
+  },
+  "path": {
+    "about": "About this path",
+    "enrol": "Enrol in this path",
+    "enrolled": "Enrolled",
+    "finished": "Path complete",
+    "leave": "Leave path",
+    "modules_done": "{{done}}/{{total}} modules",
+    "none": "There are no skill paths yet.",
+    "not_found": "There is no such skill path.",
+    "pick_content": "A skill path is a set of modules in the right order. Enrol in one, and it stays here with your progress.",
+    "pick_title": "Choose a path to follow",
+    "progress": "Path progress",
+    "recommended": "Suggested for your level",
+    "see_full": "See full path"
+  },
+  "powered_by": "Powered by",
+  "progress": {
+    "completed": "{{percent}}% completed"
+  },
+  "question": {
+    "correct": "Correct",
+    "flag": "Flag",
+    "number": "Question {{n}}",
+    "placeholder": "Your answer",
+    "show_hint": "Show a hint",
+    "submit": "Submit",
+    "wrong": "Not quite. Read the section again and try once more."
+  },
+  "rank": {
+    "level_short": "Lvl",
+    "level_up_content": "You reached level {{level}}.",
+    "level_up_title": "Level up",
+    "level_xp": "Level XP",
+    "next": "{{xp}} XP to {{rank}}",
+    "rank": "Rank",
+    "top": "You hold the highest rank.",
+    "total": "Total",
+    "up_content": "You are now {{rank}}.",
+    "up_title": "New rank",
+    "week": "This week",
+    "week_xp": "{{xp}} XP"
+  },
+  "section": {
+    "answered": "{{solved}} / {{total}} answered",
+    "back": "Back to the module",
+    "bonus": "Bonus for finishing this section",
+    "completed": "Section complete",
+    "go_to_questions": "Go to questions",
+    "locked_content": "Finish \"{{title}}\" first. Each section builds on the one before it.",
+    "locked_go": "Go to {{title}}",
+    "locked_hint": "Finish the section before it first",
+    "locked_title": "This section is locked",
+    "mark_complete": "Mark as complete",
+    "next": "Next",
+    "next_hint": "Finish this section to open the next one.",
+    "not_found": "There is no such section.",
+    "outline": "Sections",
+    "position": "Section {{n}} / {{total}}",
+    "previous": "Previous",
+    "questions": "Questions",
+    "questions_note": "Answer every question to finish the section. Capital letters do not matter, except in flags."
+  },
+  "status": {
+    "completed": "Completed",
+    "new": "Not started",
+    "started": "In progress"
+  },
+  "xp": {
+    "gained": "+{{xp}} XP"
+  }
+}

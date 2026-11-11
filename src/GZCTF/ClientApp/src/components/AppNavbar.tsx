@@ -14,7 +14,6 @@ import {
   mdiAccountGroupOutline,
   mdiCached,
   mdiFlagOutline,
-  mdiFlaskOutline,
   mdiHomeVariantOutline,
   mdiInformationOutline,
   mdiLogin,
@@ -33,10 +32,12 @@ import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
 import { LogoBox } from '@Components/LogoBox'
+import { Uicon } from '@Components/Uicon'
 import { AppControlProps } from '@Components/WithNavbar'
 import { WsrxManager } from '@Components/WsrxManager'
 import { clearLocalCache } from '@Utils/Cache'
 import { LanguageMap, SupportedLanguages, useLanguage } from '@Utils/I18n'
+import { UiconName } from '@Utils/Uicons'
 import { useConfig } from '@Hooks/useConfig'
 import { useLogOut, useUser } from '@Hooks/useUser'
 import { ContainerPortMappingType, Role } from '@Api'
@@ -44,14 +45,19 @@ import classes from '@Styles/AppNavbar.module.css'
 import misc from '@Styles/Misc.module.css'
 
 interface NavbarItem {
-  icon: string
+  icon?: string
+  // an icon from Uicons, for the items that have no `icon`
+  uicon?: UiconName
   label: string
   link: string
+  // other addresses that belong to this item
+  also?: string[]
   admin?: boolean
 }
 
 export interface NavbarLinkProps {
-  icon: string
+  icon?: string
+  uicon?: UiconName
   label: string
   link?: string
   onClick?: () => void
@@ -70,7 +76,7 @@ const NavbarLink: FC<NavbarLinkProps> = (props: NavbarLinkProps) => {
         data-active={props.isActive || undefined}
         className={classes.link}
       >
-        <Icon path={props.icon} size={1} />
+        {props.uicon ? <Uicon name={props.uicon} size={21} /> : <Icon path={props.icon ?? ''} size={1} />}
       </ActionIcon>
     </Tooltip>
   )
@@ -90,7 +96,7 @@ export const AppNavbar: FC<AppControlProps> = ({ openColorModal }) => {
     { icon: mdiHomeVariantOutline, label: 'common.tab.home', link: '/' },
     { icon: mdiNoteTextOutline, label: 'common.tab.post', link: '/posts' },
     { icon: mdiFlagOutline, label: 'common.tab.game', link: '/games' },
-    { icon: mdiFlaskOutline, label: 'common.tab.labs', link: '/labs' },
+    { uicon: 'graduation-cap', label: 'common.tab.paths', link: '/paths', also: ['/modules'] },
     { icon: mdiAccountGroupOutline, label: 'common.tab.team', link: '/teams' },
     { icon: mdiInformationOutline, label: 'common.tab.about', link: '/about' },
     { icon: mdiWrenchOutline, label: 'common.tab.admin', link: '/admin/games', admin: true },
@@ -102,7 +108,7 @@ export const AppNavbar: FC<AppControlProps> = ({ openColorModal }) => {
         ? path === '/'
         : item.link.startsWith('/admin')
           ? path.startsWith('/admin')
-          : path.startsWith(item.link)
+          : path.startsWith(item.link) || item.also?.some((link) => path.startsWith(link))
     )?.label
 
   const active = location.pathname === '/' ? items[0].label : (getLabel(location.pathname) ?? '')

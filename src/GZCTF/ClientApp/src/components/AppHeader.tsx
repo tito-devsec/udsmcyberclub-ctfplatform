@@ -14,6 +14,7 @@ import { FC, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { LogoHeader } from '@Components/LogoHeader'
+import { Uicon } from '@Components/Uicon'
 import { AppControlProps } from '@Components/WithNavbar'
 import { clearLocalCache } from '@Utils/Cache'
 import { LanguageMap, SupportedLanguages, useLanguage } from '@Utils/I18n'
@@ -60,6 +61,9 @@ export const AppHeader: FC<AppControlProps> = ({ openColorModal }) => {
               <Burger opened={opened} onClick={() => setOpened((o) => !o)} />
             </Menu.Target>
             <Menu.Dropdown>
+              <Menu.Item component={Link} to="/paths" leftSection={<Uicon name="graduation-cap" size={22} />}>
+                {t('common.tab.paths')}
+              </Menu.Item>
               {user && !error ? (
                 <>
                   <Menu.Item component={Link} to="/teams" leftSection={<Icon path={mdiAccountGroupOutline} size={1} />}>
