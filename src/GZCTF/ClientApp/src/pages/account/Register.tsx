@@ -1,4 +1,4 @@
-import { Anchor, Button, PasswordInput, TextInput } from '@mantine/core'
+import { Anchor, Button, PasswordInput, Select, TextInput } from '@mantine/core'
 import { useInputState } from '@mantine/hooks'
 import { showNotification, updateNotification } from '@mantine/notifications'
 import { mdiCheck, mdiClose } from '@mdi/js'
@@ -10,6 +10,7 @@ import { AccountView } from '@Components/AccountView'
 import { Captcha, useCaptchaRef } from '@Components/Captcha'
 import { StrengthPasswordInput } from '@Components/StrengthPasswordInput'
 import { encryptApiData } from '@Utils/Crypto'
+import { rememberSkillLevel, SKILL_LEVELS, SkillLevel } from '@Utils/Range'
 import { tryGetClientError } from '@Utils/Shared'
 import { useConfig } from '@Hooks/useConfig'
 import { usePageTitle } from '@Hooks/usePageTitle'
@@ -21,6 +22,7 @@ const Register: FC = () => {
   const [retypedPwd, setRetypedPwd] = useInputState('')
   const [uname, setUname] = useInputState('')
   const [email, setEmail] = useInputState('')
+  const [level, setLevel] = useState<SkillLevel | null>(null)
   const [disabled, setDisabled] = useState(false)
   const { config } = useConfig()
 
@@ -68,6 +70,16 @@ const Register: FC = () => {
       return
     }
 
+    if (!level) {
+      showNotification({
+        color: 'red',
+        title: t('common.error.check_input'),
+        message: t('range.level.required'),
+        icon: <Icon path={mdiClose} size={1} />,
+      })
+      return
+    }
+
     const { valid, token } = await getToken()
 
     if (!valid) {
@@ -100,6 +112,8 @@ const Register: FC = () => {
       })
       const data = RegisterStatusMap.get(res.data.data)
       if (data) {
+        // kept on this device and saved to the account once the student is signed in
+        rememberSkillLevel(uname, level)
         updateNotification({
           id: 'register-status',
           color: 'teal',
@@ -155,6 +169,17 @@ const Register: FC = () => {
         value={uname}
         disabled={disabled}
         onChange={(event) => setUname(event.currentTarget.value)}
+      />
+      <Select
+        required
+        allowDeselect={false}
+        w="100%"
+        label={t('range.level.label')}
+        placeholder={t('range.level.choose')}
+        data={SKILL_LEVELS.map((value) => ({ value, label: t(`range.level.${value}`) }))}
+        value={level}
+        onChange={(value) => setLevel(value as SkillLevel | null)}
+        disabled={disabled}
       />
       <StrengthPasswordInput value={pwd} onChange={(event) => setPwd(event.currentTarget.value)} disabled={disabled} />
       <PasswordInput
