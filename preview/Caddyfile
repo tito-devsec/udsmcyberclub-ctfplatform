@@ -2,9 +2,18 @@
 # On a real server, replace ":80" with the site's domain name and Caddy gets an HTTPS
 # certificate for it automatically.
 :80 {
-	# the Labs section: learning paths, lab answers and lab machines
-	handle /api/labs/* {
-		reverse_proxy labs:8080
+	# Skill Paths: modules, answers, XP and practice machines
+	handle /api/range/* {
+		reverse_proxy range:8080
+	}
+
+	# The interface's script and style files can keep their names when it is rebuilt, so
+	# browsers must ask for a newer copy each time rather than trust the one they saved.
+	# Asking is cheap: the answer is "not modified" unless the file changed.
+	handle /static/* {
+		reverse_proxy gzctf:8080 {
+			header_down Cache-Control "no-cache"
+		}
 	}
 
 	# everything else is the platform: its pages, its API and its live updates

@@ -4,8 +4,8 @@ Runs the platform on your own machine with Docker:
 
 - the official GZCTF v1.9.1 image, with the web interface built from `../src/GZCTF/ClientApp` so the UDSM changes show up;
 - PostgreSQL;
-- the [Labs service](../services/labs), which serves the Labs section and its lab machines;
-- Caddy in front of both on <http://localhost:3000> ([Caddyfile](Caddyfile)): `/api/labs` goes to the Labs service, everything else to GZCTF.
+- the [CyberRange service](../services/cyberrange), which serves Skill Paths and their practice machines;
+- Caddy in front of both on <http://localhost:3000> ([Caddyfile](Caddyfile)): `/api/range` goes to the CyberRange service, everything else to GZCTF.
 
 ## First run
 
@@ -17,7 +17,7 @@ Runs the platform on your own machine with Docker:
    pnpm --dir ../src/GZCTF/ClientApp build
    ```
 
-3. Build the images the labs and demo challenges use as machines (see [Challenges](#challenges); `seed-beginner-ctf.mjs` also builds any that are missing), then start everything from this folder:
+3. Build the images the lessons and demo challenges use as machines (see [Challenges](#challenges); `seed-beginner-ctf.mjs` also builds any that are missing), then start everything from this folder:
 
    ```bash
    docker compose up -d --build
@@ -28,13 +28,13 @@ Runs the platform on your own machine with Docker:
 
 Stop with `docker compose down`. Add `-v` to also delete the database and uploaded files.
 
-After changing anything in `src/GZCTF/ClientApp`, run the build again and then `docker compose restart gzctf`. After changing a lab in `../labs`, run `docker compose restart labs`; after changing the Labs service itself, `docker compose up -d --build labs`.
+After changing anything in `src/GZCTF/ClientApp`, run the build again and then `docker compose restart gzctf`. Reload the page once the build has finished: a page loaded halfway through a build can show an error until it is reloaded. After changing a lesson in `../content`, run `docker compose restart range`; after changing the CyberRange service itself, `docker compose up -d --build range`.
 
-## Labs
+## Skill Paths
 
-**Labs** in the side menu is the learning section: paths of short lessons, each followed by questions, most with a machine of the student's own. Labs open one after another. The first path is **Web Security Beginner** (9 labs), which uses the web challenge images below as its machines. How to write labs: [labs/README.md](../labs/README.md); how the service works: [services/labs/README.md](../services/labs/README.md).
+**Skill Paths** in the side menu is the learning section. A path is a set of modules; a module has chapters of short sections, each followed by questions, and sections open one after another. Answers earn XP, which adds up to a level and a rank. The first path is **Web Security Beginner** (4 modules, 18 sections), which uses the web challenge images below as its machines. How to write lessons: [content/README.md](../content/README.md); how the service works: [services/cyberrange/README.md](../services/cyberrange/README.md).
 
-Students sign in with their platform account. Their progress is kept in the `labs` database, which the Labs service creates on first start next to the platform's.
+Students sign in with their platform account. Their progress is kept in the `cyberrange` database, which the service creates on first start next to the platform's. The `Admin` account is the superadmin, who can make tutors; set `SUPERADMINS` in `.env` to name someone else.
 
 ## Demo content
 

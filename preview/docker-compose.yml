@@ -1,5 +1,5 @@
-# Local preview of the UDSM Cyber Club CTF platform: the official GZCTF v1.9.1 image,
-# PostgreSQL, the Labs service, and Caddy in front of both on http://localhost:3000.
+# Local preview of UDSM CyberRange: the official GZCTF v1.9.1 image, PostgreSQL, the
+# CyberRange service, and Caddy in front of both on http://localhost:3000.
 # Start:  docker compose up -d --build   (run from this folder)
 # Stop:   docker compose down            (add -v to also wipe the database and uploads)
 # Secrets and test logins live in .env next to this file (copy .env.example to start).
@@ -86,28 +86,30 @@ services:
     # Talks to Docker through the socket only
     network_mode: none
 
-  # The Labs section: learning paths, lab answers, progress and lab machines.
-  # Lab content comes from ../labs; the service itself from ../services/labs.
-  labs:
-    build: ../services/labs
-    image: udsm-labs:local
+  # Skill Paths: modules and their questions, students' progress, XP and ranks, and
+  # practice machines. Lessons come from ../content; the service from ../services/cyberrange.
+  range:
+    build: ../services/cyberrange
+    image: udsm-cyberrange:local
     restart: unless-stopped
     environment:
       # its own database, created on first start, on the same PostgreSQL server
-      DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/labs"
+      DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/cyberrange"
       GZCTF_URL: http://gzctf:8080
-      LABS_SECRET: ${LABS_SECRET}
-      # address students use to reach their lab machine; on a real server, its domain or IP
+      RANGE_SECRET: ${RANGE_SECRET}
+      # platform admins who may hand out roles, by user name or user id, separated by commas
+      SUPERADMINS: ${SUPERADMINS:-Admin}
+      # address students use to reach their machine; on a real server, its domain or IP
       PUBLIC_ENTRY: 127.0.0.1
     volumes:
-      - ../labs:/content:ro
-      # starts and stops the lab machines
+      - ../content:/content:ro
+      # starts and stops the practice machines
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       db:
         condition: service_healthy
 
-  # The front door: /api/labs goes to the Labs service, everything else to the platform.
+  # The front door: /api/range goes to the CyberRange service, everything else to the platform.
   proxy:
     image: caddy:2.10-alpine
     restart: unless-stopped
@@ -119,7 +121,7 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
     depends_on:
       - gzctf
-      - labs
+      - range
 
 volumes:
   gzctf-files:
