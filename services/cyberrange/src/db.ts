@@ -1,21 +1,54 @@
 import pg from 'pg'
 import { config } from './config.js'
 
-// Only what students do is stored here. The labs themselves are files (see content.ts).
+// Only what students do is stored here. The lessons themselves are files (see content.ts).
 const SCHEMA = `
+-- one row for everyone who has signed in; accounts themselves belong to the platform
+CREATE TABLE IF NOT EXISTS users (
+  id             uuid        PRIMARY KEY,
+  name           text        NOT NULL,
+  -- student or tutor; admins and superadmins are worked out from the platform account
+  role           text        NOT NULL DEFAULT 'student',
+  -- beginner, intermediate or expert: chosen at registration
+  skill_level    text,
+  enrolled_path  text,
+  created_at     timestamptz NOT NULL DEFAULT now(),
+  last_active_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- questions answered correctly, with the XP each was worth at the time
 CREATE TABLE IF NOT EXISTS solves (
   user_id   uuid        NOT NULL,
-  lab       text        NOT NULL,
+  module    text        NOT NULL,
+  section   text        NOT NULL,
   question  text        NOT NULL,
+  xp        integer     NOT NULL,
   solved_at timestamptz NOT NULL DEFAULT now(),
-  PRIMARY KEY (user_id, lab, question)
+  PRIMARY KEY (user_id, module, section, question)
 );
+
+-- sections finished, with their bonus XP
+CREATE TABLE IF NOT EXISTS completions (
+  user_id      uuid        NOT NULL,
+  module       text        NOT NULL,
+  section      text        NOT NULL,
+  xp           integer     NOT NULL,
+  completed_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (user_id, module, section)
+);
+
+-- everything that earned XP, for totals and weekly sums
+CREATE OR REPLACE VIEW xp_events AS
+  SELECT user_id, xp, solved_at AS at FROM solves
+  UNION ALL
+  SELECT user_id, xp, completed_at AS at FROM completions;
 
 -- every answer submitted, right or wrong (the answer itself is not kept)
 CREATE TABLE IF NOT EXISTS attempts (
   id       bigserial   PRIMARY KEY,
   user_id  uuid        NOT NULL,
-  lab      text        NOT NULL,
+  module   text        NOT NULL,
+  section  text        NOT NULL,
   question text        NOT NULL,
   correct  boolean     NOT NULL,
   ip       text,
@@ -26,8 +59,8 @@ CREATE INDEX IF NOT EXISTS attempts_by_user ON attempts (user_id, at);
 -- at most one running machine per student
 CREATE TABLE IF NOT EXISTS machines (
   user_id      uuid        PRIMARY KEY,
-  path         text        NOT NULL,
-  lab          text        NOT NULL,
+  module       text        NOT NULL,
+  section      text        NOT NULL,
   container_id text        NOT NULL,
   entry        text        NOT NULL,
   started_at   timestamptz NOT NULL,
@@ -37,7 +70,7 @@ CREATE TABLE IF NOT EXISTS machines (
 
 export let db: pg.Pool
 
-// Creates the labs database on the same PostgreSQL server the first time.
+// Creates the database on the same PostgreSQL server the first time.
 async function ensureDatabase() {
   const url = new URL(config.databaseUrl)
   const name = decodeURIComponent(url.pathname.slice(1))
@@ -74,4 +107,6 @@ export async function openDatabase() {
   }
   db = new pg.Pool({ connectionString: config.databaseUrl, max: 10 })
   await db.query(SCHEMA)
+  // fails here, with PostgreSQL's own message, if TIMEZONE is not a time zone it knows
+  await db.query('SELECT now() AT TIME ZONE $1', [config.timezone])
 }

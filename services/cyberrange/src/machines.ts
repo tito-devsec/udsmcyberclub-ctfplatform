@@ -1,18 +1,18 @@
-// Lab machines: one Docker container per student, started on request and removed when it
-// expires. They run like the platform's challenge instances: on the isolated network (no
+// Practice machines: one Docker container per student, started on request and removed when
+// it expires. They run like the platform's challenge instances: on the isolated network (no
 // traffic between machines, no internet), with memory, CPU and process limits.
 
 import { createHmac } from 'node:crypto'
 import type { User } from './auth.js'
 import { config } from './config.js'
-import type { Lab, Path } from './content.js'
+import type { Module, Section } from './content.js'
 import { db } from './db.js'
 import { docker } from './docker.js'
 import { HttpError } from './http.js'
 
 export interface MachineInfo {
-  path: string
-  lab: string
+  module: string
+  section: string
   entry: string
   startedAt: string
   expiresAt: string
@@ -21,8 +21,8 @@ export interface MachineInfo {
 
 interface Row {
   user_id: string
-  path: string
-  lab: string
+  module: string
+  section: string
   container_id: string
   entry: string
   started_at: Date
@@ -31,15 +31,15 @@ interface Row {
 
 // [USER_HASH] in a machine's flag is worked out from the server's secret, so every student
 // gets a different flag and no flag has to be stored anywhere.
-export const userHash = (userId: string, lab: string) =>
-  createHmac('sha256', config.secret).update(`${userId}:${lab}`).digest('hex').slice(0, 12)
+export const userHash = (userId: string, purpose: string) =>
+  createHmac('sha256', config.secret).update(`${userId}:${purpose}`).digest('hex').slice(0, 12)
 
-export const machineFlag = (template: string, userId: string, lab: string) =>
-  template.replaceAll('[USER_HASH]', userHash(userId, lab))
+export const machineFlag = (template: string, userId: string, module: Module, section: Section) =>
+  template.replaceAll('[USER_HASH]', userHash(userId, `${module.slug}/${section.slug}`))
 
 const toInfo = (row: Row): MachineInfo => ({
-  path: row.path,
-  lab: row.lab,
+  module: row.module,
+  section: row.section,
   entry: row.entry,
   startedAt: row.started_at.toISOString(),
   expiresAt: row.expires_at.toISOString(),
@@ -77,13 +77,13 @@ export async function currentMachine(userId: string): Promise<MachineInfo | null
   return row && row.expires_at.getTime() > Date.now() ? toInfo(row) : null
 }
 
-export function startMachine(user: User, path: Path, lab: Lab): Promise<MachineInfo> {
-  const machine = lab.machine
-  if (!machine) throw new HttpError(400, 'This lab has no machine.')
+export function startMachine(user: User, module: Module, section: Section): Promise<MachineInfo> {
+  const machine = section.machine
+  if (!machine) throw new HttpError(400, 'This section has no machine.')
 
   return exclusive(user.id, async () => {
     const current = await rowOf(user.id)
-    if (current?.lab === lab.slug && current.expires_at.getTime() > Date.now()) {
+    if (current?.module === module.slug && current.section === section.slug && current.expires_at.getTime() > Date.now()) {
       const { status, data } = await docker<{ State?: { Running?: boolean } }>('GET', `/containers/${current.container_id}/json`)
       if (status === 200 && data.State?.Running) return toInfo(current)
     }
@@ -91,18 +91,19 @@ export function startMachine(user: User, path: Path, lab: Lab): Promise<MachineI
     if (current) await removeContainer(current.container_id)
     await db.query('DELETE FROM machines WHERE user_id = $1', [user.id])
 
-    const name = `lab-${lab.slug}-${userHash(user.id, 'container')}`
+    const name = `range-${userHash(user.id, 'container')}`
     await removeContainer(name) // a leftover with the same name, if any
 
     const port = `${machine.port}/tcp`
     const created = await docker<{ Id: string; message?: string }>('POST', `/containers/create?name=${name}`, {
       Image: machine.image,
-      Env: machine.flag ? [`GZCTF_FLAG=${machineFlag(machine.flag, user.id, lab.slug)}`] : [],
+      Env: machine.flag ? [`GZCTF_FLAG=${machineFlag(machine.flag, user.id, module, section)}`] : [],
       Labels: {
         // also picked up by the instance-limits service, like the platform's own instances
-        ChallengeId: `lab:${lab.slug}`,
-        'udsm.labs.user': user.id,
-        'udsm.labs.lab': lab.slug,
+        ChallengeId: `range:${module.slug}/${section.slug}`,
+        'udsm.range.user': user.id,
+        'udsm.range.module': module.slug,
+        'udsm.range.section': section.slug,
       },
       ExposedPorts: { [port]: {} },
       HostConfig: {
@@ -115,7 +116,7 @@ export function startMachine(user: User, path: Path, lab: Lab): Promise<MachineI
         SecurityOpt: ['no-new-privileges'],
       },
     })
-    if (created.status === 404) throw new HttpError(503, "This lab's machine is not installed on the server yet.")
+    if (created.status === 404) throw new HttpError(503, "This section's machine is not installed on the server yet.")
     if (created.status !== 201) throw new Error(`Docker could not create the machine: ${created.status} ${created.data?.message ?? ''}`)
 
     const id = created.data.Id
@@ -133,16 +134,16 @@ export function startMachine(user: User, path: Path, lab: Lab): Promise<MachineI
     const now = new Date()
     const row: Row = {
       user_id: user.id,
-      path: path.slug,
-      lab: lab.slug,
+      module: module.slug,
+      section: section.slug,
       container_id: id,
       entry: `${config.publicEntry}:${hostPort}`,
       started_at: now,
       expires_at: new Date(now.getTime() + config.machineMinutes * 60_000),
     }
     await db.query(
-      'INSERT INTO machines (user_id, path, lab, container_id, entry, started_at, expires_at) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-      [row.user_id, row.path, row.lab, row.container_id, row.entry, row.started_at, row.expires_at]
+      'INSERT INTO machines (user_id, module, section, container_id, entry, started_at, expires_at) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+      [row.user_id, row.module, row.section, row.container_id, row.entry, row.started_at, row.expires_at]
     )
     return toInfo(row)
   })
@@ -172,7 +173,7 @@ export function stopMachine(userId: string): Promise<void> {
   })
 }
 
-// Removes expired machines, and lab containers the database does not know about
+// Removes expired machines, and machine containers the database does not know about
 // (left behind if the service stopped in the middle of something).
 export async function reap() {
   const { rows } = await db.query<Row>('SELECT * FROM machines WHERE expires_at <= now()')
@@ -183,7 +184,7 @@ export async function reap() {
     })
   }
 
-  const filters = encodeURIComponent(JSON.stringify({ label: ['udsm.labs.user'] }))
+  const filters = encodeURIComponent(JSON.stringify({ label: ['udsm.range.user'] }))
   const { data } = await docker<{ Id: string; Created: number }[]>('GET', `/containers/json?all=true&filters=${filters}`)
   if (!Array.isArray(data)) return
   const known = new Set((await db.query<Row>('SELECT container_id FROM machines')).rows.map((r) => r.container_id))

@@ -1,0 +1,4 @@
+dist/
+node_modules/
+# the image is built with "npm ci", which needs the lock file
+!package-lock.json

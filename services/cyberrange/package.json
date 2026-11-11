@@ -1,8 +1,8 @@
 {
-  "name": "udsm-labs",
-  "version": "0.1.0",
+  "name": "udsm-cyberrange",
+  "version": "0.2.0",
   "private": true,
-  "description": "Labs service for the UDSM Cyber Club CTF platform: learning paths, hands-on labs and lab machines",
+  "description": "CyberRange service for the UDSM Cyber Club platform: skill paths, modules, XP and ranks, and students' practice machines",
   "license": "AGPL-3.0-only",
   "type": "module",
   "scripts": {

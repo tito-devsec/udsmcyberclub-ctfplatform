@@ -1,0 +1,96 @@
+# CyberRange service
+
+The server side of **Skill Paths** on UDSM CyberRange: skill paths and their modules, the questions in each section, students' progress, their XP, level and rank, and each student's own practice machine. The pages live in the web interface (`src/GZCTF/ClientApp/src/pages/paths` and `pages/modules`); the lessons are files in [content/](../../content).
+
+GZCTF itself is unchanged. This service runs next to it, behind the same proxy, which sends `/api/range/...` here and everything else to GZCTF.
+
+## How it works
+
+- **Sign-in:** there are no accounts here. For each request the service passes the visitor's GZCTF sign-in cookie to GZCTF (`/api/account/profile`) and uses the profile that comes back, cached for a minute. The first time it sees someone, it makes a row for them holding what GZCTF does not: their role, the skill level they chose when registering, and the path they are enrolled in.
+- **Lessons:** read from the content folder at start-up (see [content/README.md](../../content/README.md)). Mistakes in a file stop the service with a message naming the file and the problem. Accepted answers are kept only as SHA-256 hashes and are never sent to the browser.
+- **Progress:** stored in its own PostgreSQL database (`cyberrange`), created on first start on the same server as the platform's. It holds the questions each student answered and the sections they finished, with the XP each earned, every attempt (right or wrong, without the answer itself), and running machines.
+- **Unlocking:** inside a module, a section opens when the one before it is finished. Locked sections show only what to finish first, and refuse answers and machines. Modules themselves are always open, in any order.
+- **XP:** every question is worth what its author gave it, and finishing a section adds that section's bonus. XP is written down when it is earned, so editing a lesson later does not change what students already have.
+- **Machines:** one Docker container per student at a time, started on request, removed after 60 minutes unless extended (+30 minutes, in the last 10). They run on the `gzctf-isolated` network with traffic between containers off, no internet, 64 MB of memory, half a CPU core and 256 processes. The machine gets the student's flag in `GZCTF_FLAG`, so the platform's challenge images work as practice machines.
+- **Flags:** `[USER_HASH]` in a machine's flag is an HMAC of the student and the section with `RANGE_SECRET`. Every student's flag is different, and flags are never stored.
+- **Abuse:** answers are rate-limited (10, then one every 6 seconds per student); machine starts too (3, then one a minute). Requests that change something must be JSON, so other websites cannot send them on a student's behalf.
+
+## Levels and ranks
+
+Both come from a student's total XP ([src/xp.ts](src/xp.ts)).
+
+A level takes 100 XP more than the one before it: level 2 starts at 100 XP, level 3 at 300, level 4 at 600, level 5 at 1,000.
+
+| Rank | Starts at |
+| --- | --- |
+| Script Kiddie | 0 XP |
+| Hacker | 500 XP |
+| Pro Hacker | 1,500 XP |
+| Elite Hacker | 4,000 XP |
+| Guru | 8,000 XP |
+| Omniscient | 15,000 XP |
+
+## Roles
+
+| Role | Who | Can do |
+| --- | --- | --- |
+| student | everyone | learn |
+| tutor | whoever the superadmin names | also open any section without finishing the ones before it |
+| admin | a GZCTF admin | the same, and reload the content |
+| superadmin | a GZCTF admin listed in `SUPERADMINS` | the same, and give or take the tutor role, list everyone, and remove a deleted account's data |
+
+Admins are made in GZCTF's own admin pages. Only the tutor role is kept here.
+
+## API
+
+All under `/api/range`. Errors are `{ "title": "...", "status": 400 }`.
+
+| Request | Who | Does |
+| --- | --- | --- |
+| `GET /me` | signed in | role, skill level, enrolled path, XP, level, rank and this week's XP |
+| `PUT /me` | signed in | `{ "skillLevel": "beginner" }` and/or `{ "enrolledPath": "<path>" }` (`null` to leave) |
+| `GET /paths` | anyone | every path, with the student's progress |
+| `GET /paths/:path` | anyone | a path's modules, and where to carry on |
+| `GET /modules` | anyone | every module, with the student's progress |
+| `GET /modules/:module` | anyone | a module's chapters and sections, each `completed`, `available` or `locked` |
+| `GET /modules/:module/sections/:section` | signed in | a section's text and questions (without answers) |
+| `POST /modules/:module/sections/:section/questions/:id` | signed in | `{ "answer": "..." }`; says whether it was right and what it earned |
+| `POST /modules/:module/sections/:section/complete` | signed in | finishes a section that has no questions |
+| `POST /modules/:module/sections/:section/machine` | signed in | starts the student's machine for this section (and stops any other) |
+| `GET /machine` | signed in | the student's running machine, or `null` |
+| `POST /machine/extend` | signed in | adds 30 minutes, in the machine's last 10 |
+| `DELETE /machine` | signed in | stops it |
+| `POST /admin/reload` | admin | reads the content folder again |
+| `GET /admin/users` | superadmin | everyone who has signed in, with their XP |
+| `PUT /admin/users/:id/role` | superadmin | `{ "role": "tutor" }` or `{ "role": "student" }` |
+| `DELETE /admin/users/:id` | superadmin | removes everything kept here about someone |
+| `GET /health` | anyone | `{ "ok": true }` |
+
+## Settings
+
+Environment variables (the preview's `docker-compose.yml` sets them):
+
+| Variable | Meaning |
+| --- | --- |
+| `DATABASE_URL` | `postgres://user:password@host:5432/cyberrange` (required) |
+| `RANGE_SECRET` | at least 32 random characters, from which students' flags are made (required; keep it secret and unchanged) |
+| `SUPERADMINS` | GZCTF admins who are superadmins, by user name or user id, separated by commas (default `Admin`). Use ids on a real server: a name can be changed, an id cannot |
+| `TIMEZONE` | where a week starts on Monday, for weekly XP (default `Africa/Dar_es_Salaam`) |
+| `GZCTF_URL` | where to reach GZCTF (default `http://gzctf:8080`) |
+| `PUBLIC_ENTRY` | the address students use to reach machines: the server's domain or IP (default `127.0.0.1`) |
+| `CONTENT_DIR` | the content folder (default `/content`) |
+| `MACHINE_NETWORK` | Docker network for machines (default `gzctf-isolated`) |
+| `MACHINE_MINUTES`, `EXTEND_MINUTES`, `RENEWAL_WINDOW_MINUTES` | 60, 30 and 10 by default |
+| `MACHINE_CPUS`, `MACHINE_PIDS` | 0.5 and 256 by default |
+
+The service needs the Docker socket to start machines, which gives it control of Docker on that machine, like GZCTF.
+
+## Development
+
+```bash
+npm ci
+npm run check   # type check
+npm run build   # compiles to dist/
+```
+
+The Docker image (`Dockerfile`) builds and runs it; the preview builds it with `docker compose up -d --build`.

@@ -1,5 +1,5 @@
-# The Labs service: serves learning paths and labs, checks answers, keeps progress and
-# starts lab machines. Build context: this folder.
+# The CyberRange service: serves skill paths and modules, checks answers, keeps progress
+# and XP, and starts practice machines. Build context: this folder.
 FROM node:22-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json tsconfig.json ./

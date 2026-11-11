@@ -1,7 +1,7 @@
 // A small router: routes return JSON, errors become { title, status } like the platform's.
 
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { currentUser, PlatformUnavailable, type User } from './auth.js'
+import { currentUser, isStaff, PlatformUnavailable, type User } from './auth.js'
 
 export class HttpError extends Error {
   constructor(
@@ -17,7 +17,10 @@ export interface Context {
   params: Record<string, string>
   user(): Promise<User | null>
   signedIn(): Promise<User>
+  // tutors, admins and superadmins
+  staff(): Promise<User>
   admin(): Promise<User>
+  superadmin(): Promise<User>
   body<T>(): Promise<T>
 }
 
@@ -61,10 +64,8 @@ function send(res: ServerResponse, status: number, payload: unknown) {
 }
 
 export async function handle(req: IncomingMessage, res: ServerResponse) {
-  const url = new URL(req.url ?? '/', 'http://labs')
-  const found = routes
-    .filter((r) => r.pattern.test(url.pathname))
-    .find((r) => r.method === req.method)
+  const url = new URL(req.url ?? '/', 'http://range')
+  const found = routes.filter((r) => r.pattern.test(url.pathname)).find((r) => r.method === req.method)
 
   try {
     if (!found) {
@@ -80,6 +81,11 @@ export async function handle(req: IncomingMessage, res: ServerResponse) {
     const match = found.pattern.exec(url.pathname)!
     const params = Object.fromEntries(found.keys.map((key, i) => [key, match[i + 1]!]))
     let user: Promise<User | null> | undefined
+    const only = async (allowed: (user: User) => boolean, message: string) => {
+      const u = await ctx.signedIn()
+      if (!allowed(u)) throw new HttpError(403, message)
+      return u
+    }
     const ctx: Context = {
       req,
       params,
@@ -89,11 +95,9 @@ export async function handle(req: IncomingMessage, res: ServerResponse) {
         if (!u) throw new HttpError(401, 'Please sign in.')
         return u
       },
-      admin: async () => {
-        const u = await ctx.signedIn()
-        if (!u.admin) throw new HttpError(403, 'Only admins can do this.')
-        return u
-      },
+      staff: () => only(isStaff, 'Only tutors and admins can do this.'),
+      admin: () => only((u) => u.role === 'admin' || u.role === 'superadmin', 'Only admins can do this.'),
+      superadmin: () => only((u) => u.role === 'superadmin', 'Only the superadmin can do this.'),
       body: async <T>() => {
         const text = await readBody(req)
         try {
