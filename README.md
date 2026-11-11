@@ -2,7 +2,7 @@
 
 The capture-the-flag platform of the UDSM Cyber Club. Members use it for Jeopardy-style practice and club competitions, playing on their own or in teams.
 
-It is built on [GZCTF](https://github.com/GZTimeWalker/GZCTF) v1.9.1, an open-source CTF platform by GZTimeWalker. The backend is unchanged; all changes are in the web interface under `src/GZCTF/ClientApp`.
+It is built on [GZCTF](https://github.com/GZTimeWalker/GZCTF) v1.9.1, an open-source CTF platform by GZTimeWalker. GZCTF's backend is unchanged: the changes are in the web interface under `src/GZCTF/ClientApp`, plus a separate Labs service in [services/labs](services/labs).
 
 ## Changes from GZCTF
 
@@ -10,12 +10,13 @@ It is built on [GZCTF](https://github.com/GZTimeWalker/GZCTF) v1.9.1, an open-so
 - **English by default.** The interface opens in English for every visitor, whatever their browser language. Other languages are still available from the language menu.
 - **UDSM branding.** The footer shows the platform logo with "UD::CTF" instead of the GZ::CTF logo and name, and the default colour is UDSM blue (`#0864af`).
 - **Source link.** The About page links to this repository, as the AGPL requires for a modified version. The rest of that page describes GZCTF itself, with its license links, and should stay.
+- **Labs.** A learning section in the side menu: paths of short lessons, each followed by questions, most with a machine of the student's own, opening one after another. The lessons are files in [labs/](labs); the [Labs service](services/labs) serves them, checks answers, keeps progress and runs the machines. The first path is Web Security Beginner.
 
 ## Running it
 
-[preview/](preview) runs the platform locally with Docker: the official `gztime/gzctf:v1.9.1` image, PostgreSQL, and the web interface built from this repository. See [preview/README.md](preview/README.md).
+[preview/](preview) runs the platform locally with Docker: the official `gztime/gzctf:v1.9.1` image, PostgreSQL, the Labs service, Caddy in front, and the web interface built from this repository. See [preview/README.md](preview/README.md).
 
-A server works the same way: run the official v1.9.1 image and mount the built interface (`src/GZCTF/ClientApp/build`) at `/app/wwwroot`.
+A server works the same way: run the official v1.9.1 image with the built interface (`src/GZCTF/ClientApp/build`) mounted at `/app/wwwroot`, the Labs service next to it, and a proxy that sends `/api/labs` to the Labs service and everything else to GZCTF.
 
 ## Branding
 
