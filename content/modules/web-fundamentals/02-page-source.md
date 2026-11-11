@@ -16,4 +16,4 @@ Developers sometimes forget notes, test passwords, hidden links or internal addr
 
 ### Your turn
 
-Start your machine with the **Start machine** button. It runs the club's unfinished staff portal, which looks empty. Open it, read its source, and find the flag.
+Start your machine with the **Start machine** button below. It runs the club's unfinished staff portal, which looks empty. Open it, read its source, and find the flag.

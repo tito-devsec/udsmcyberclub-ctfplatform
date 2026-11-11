@@ -1,0 +1,78 @@
+title: Web Fundamentals
+summary: Requests, responses, and what a website tells you when you look closer than its pages.
+description: |
+  Before you can break a website, you need to see what your browser and the server say to
+  each other. This module shows you that conversation, then the two places beginners most
+  often find things nobody meant to publish: the page source and `robots.txt`.
+
+  **You will learn to**
+
+  - read an HTTP request and response, and tell what a status code means
+  - open a page's source and spot what the page does not draw
+  - use `robots.txt` to find the paths a site would rather keep quiet
+
+  You need a browser, and nothing else. Both chapters end on a machine of your own.
+category: web
+difficulty: easy
+minutes: 35
+icon: globe
+updated: "2026-11-12"
+order: 10
+chapters:
+  - title: How the Web Works
+    sections:
+      - title: Requests and responses
+        file: 01-requests-and-responses.md
+        questions:
+          - id: method
+            question: Which HTTP method does a browser use to load a page?
+            answer: GET
+            format: "***"
+          - id: not-found
+            question: Which status code means that the page does not exist?
+            answer: "404"
+            format: "***"
+      - title: What the browser does not show
+        file: 02-page-source.md
+        machine:
+          image: club/staff-portal:latest
+          port: 80
+          flag: udsm{always_check_the_source_[USER_HASH]}
+        questions:
+          - id: comment
+            question: Which four characters start a comment in HTML?
+            answer: "<!--"
+            format: "****"
+          - id: flag
+            question: Start your machine. What is the flag hidden in the Staff Portal's page source?
+            flag: true
+            xp: 40
+  - title: Recon with robots.txt
+    sections:
+      - title: How search engines read a site
+        file: 03-robots-txt.md
+        questions:
+          - id: file-name
+            question: What is the name of the file where a site lists what search engines should skip?
+            answer: [robots.txt, /robots.txt]
+            format: "******.***"
+          - id: directive
+            question: Which word in that file marks a path that crawlers should not visit?
+            answer: Disallow
+            format: "********"
+      - title: Find the hidden page
+        file: 04-hidden-page.md
+        machine:
+          image: club/hidden-pages:latest
+          port: 80
+          flag: udsm{robots_txt_is_public_[USER_HASH]}
+        questions:
+          - id: hidden-path
+            question: Which path does your machine's robots.txt hide?
+            answer: [/staff-notes/, /staff-notes, staff-notes, staff-notes/]
+            format: "/***********/"
+            xp: 20
+          - id: flag
+            question: What is the flag on the hidden page?
+            flag: true
+            xp: 40

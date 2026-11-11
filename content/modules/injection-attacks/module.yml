@@ -1,0 +1,83 @@
+title: Injection Attacks
+summary: What happens when a page pastes what you type into a shell command or a database query.
+description: |
+  Injection is one mistake with many faces: a program builds a command out of text, some of
+  that text comes from a visitor, and the visitor's text ends up being read as part of the
+  command. This module shows it against a system shell and against a database.
+
+  **You will learn to**
+
+  - run your own commands through a page that passes input to the shell
+  - log in without a password by changing the meaning of an SQL query
+  - name the fix for each: argument lists and parameterized queries
+
+  These are the hardest sections of the beginner path. Take your time with the reading.
+category: web
+difficulty: medium
+minutes: 55
+icon: syringe
+updated: "2026-11-12"
+order: 40
+chapters:
+  - title: Command Injection
+    sections:
+      - title: When input becomes a command
+        file: 01-input-becomes-a-command.md
+        questions:
+          - id: separator
+            question: Which character ends one shell command so another can start on the same line?
+            answer: ";"
+            format: "*"
+          - id: whoami
+            question: Which Linux command prints the name of the current user?
+            answer: whoami
+            format: "******"
+      - title: Ping more than an address
+        file: 02-ping-more-than-an-address.md
+        machine:
+          image: club/ping-tool:latest
+          port: 80
+          flag: udsm{never_trust_user_input_[USER_HASH]}
+        questions:
+          - id: user
+            question: Which user does the Ping Tool run commands as?
+            answer: root
+            format: "****"
+            xp: 20
+          - id: flag
+            question: What is the flag in /flag.txt?
+            flag: true
+            xp: 60
+  - title: SQL Injection
+    sections:
+      - title: How a login checks your password
+        file: 03-how-a-login-works.md
+        questions:
+          - id: quote
+            question: Which character starts and ends a piece of text in an SQL query?
+            answer: ["'", single quote, a single quote]
+            format: "*"
+          - id: comment
+            question: Which two characters start a comment in SQL?
+            answer: "--"
+            format: "**"
+          - id: defence
+            question: What are queries called that keep input separate from the SQL text?
+            answer: [parameterized queries, parameterised queries, parameterized, parameterised, prepared statements]
+            format: "************* *******"
+      - title: Log in without the password
+        file: 04-log-in-without-the-password.md
+        machine:
+          image: club/admin-login:latest
+          port: 80
+          flag: udsm{sql_injection_bypass_[USER_HASH]}
+        questions:
+          - id: table
+            question: Which table does the login query read from?
+            answer: users
+            format: "*****"
+            xp: 20
+          - id: flag
+            question: What is the flag you see as the admin?
+            flag: true
+            xp: 60

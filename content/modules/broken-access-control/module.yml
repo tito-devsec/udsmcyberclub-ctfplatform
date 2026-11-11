@@ -1,0 +1,83 @@
+title: Broken Access Control
+summary: Pages that hand over data or files without checking who is asking, or what they are asking for.
+description: |
+  Access control is the set of checks that decide who may see what. When one is missing, the
+  attack is often no more than changing a number or a file name in the address bar. This
+  module covers the two classics: IDOR and path traversal.
+
+  **You will learn to**
+
+  - recognise record IDs in addresses and test the ones next to yours
+  - climb out of a folder with `../` when a page opens files by name
+  - explain the check the server should have made in each case
+
+  Do Web Fundamentals first if HTTP requests are new to you.
+category: web
+difficulty: medium
+minutes: 45
+icon: shield-keyhole
+updated: "2026-11-12"
+order: 30
+chapters:
+  - title: IDOR
+    sections:
+      - title: Objects and who owns them
+        file: 01-idor.md
+        questions:
+          - id: meaning
+            question: What does the I at the start of IDOR stand for?
+            answer: Insecure
+            format: "********"
+          - id: category
+            question: In which OWASP Top 10 category does IDOR belong?
+            answer: Broken Access Control
+            format: "****** ****** *******"
+      - title: Read the president's note
+        file: 02-the-presidents-note.md
+        machine:
+          image: club/member-profiles:latest
+          port: 80
+          flag: udsm{check_who_owns_the_object_[USER_HASH]}
+        questions:
+          - id: your-number
+            question: What is your member number on the site?
+            answer: "7"
+            format: "*"
+            xp: 20
+          - id: first-member
+            question: What is the username of member number 1?
+            answer: admin
+            format: "*****"
+            xp: 20
+          - id: flag
+            question: What is the flag in the president's private note?
+            flag: true
+            xp: 40
+  - title: Path Traversal
+    sections:
+      - title: Files and folders
+        file: 03-files-and-folders.md
+        questions:
+          - id: parent
+            question: Which two characters mean "the folder above" in a path?
+            answer: ".."
+            format: "**"
+          - id: passwd
+            question: Which Linux file, listing the system's user accounts, is a classic first target of path traversal?
+            answer: [/etc/passwd, etc/passwd]
+            format: "/***/******"
+      - title: Climb out of the library
+        file: 04-climb-out-of-the-library.md
+        machine:
+          image: club/club-library:latest
+          port: 80
+          flag: udsm{dot_dot_slash_[USER_HASH]}
+        questions:
+          - id: levels
+            question: How many times do you need ../ to get from /app/books to / (the top of the file system)?
+            answer: ["2", two]
+            format: "*"
+          - id: flag
+            question: What is the flag in /flag.txt?
+            flag: true
+            xp: 60

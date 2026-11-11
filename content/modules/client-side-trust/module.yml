@@ -1,0 +1,109 @@
+title: Client-Side Trust
+summary: Headers, cookies and form fields all come from the visitor, and the visitor can change every one of them.
+description: |
+  A server sees only what a visitor's computer chooses to send. This module takes the three
+  things websites most often believe without checking (request headers, cookies and hidden
+  form fields) and has you change each one to get somewhere you should not be.
+
+  **You will learn to**
+
+  - set any request header with `curl`
+  - read and edit your cookies in the browser's developer tools
+  - change a hidden form field before the form is sent
+  - explain what the server should have checked instead
+
+  Do Web Fundamentals first if HTTP requests are new to you.
+category: web
+difficulty: easy
+minutes: 60
+icon: cookie
+updated: "2026-11-12"
+order: 20
+chapters:
+  - title: Request Headers
+    sections:
+      - title: Headers carry information
+        file: 01-request-headers.md
+        questions:
+          - id: browser-header
+            question: Which request header tells the server which browser sent the request?
+            answer: User-Agent
+            format: "****-*****"
+          - id: curl-option
+            question: Which curl option sets the User-Agent?
+            answer: [-A, --user-agent]
+            format: "**"
+      - title: Pretend to be the club browser
+        file: 02-club-browser.md
+        machine:
+          image: club/secret-agent:latest
+          port: 80
+          flag: udsm{headers_are_user_input_[USER_HASH]}
+        questions:
+          - id: browser-name
+            question: Which browser name does your machine's page ask for?
+            answer: UDSM-Club-Browser
+            format: "****-****-*******"
+            xp: 20
+          - id: flag
+            question: What is the flag the page shows to that browser?
+            flag: true
+            xp: 40
+  - title: Cookies
+    sections:
+      - title: How sites remember you
+        file: 03-cookies.md
+        questions:
+          - id: set-header
+            question: Which response header does a server use to give the browser a cookie?
+            answer: Set-Cookie
+            format: "***-******"
+          - id: send-header
+            question: Which request header carries cookies back to the server?
+            answer: Cookie
+            format: "******"
+      - title: Become an admin
+        file: 04-become-an-admin.md
+        machine:
+          image: club/members-only:latest
+          port: 80
+          flag: udsm{cookies_can_be_edited_[USER_HASH]}
+        questions:
+          - id: first-role
+            question: Which role does the site give you on your first visit?
+            answer: guest
+            format: "*****"
+            xp: 20
+          - id: flag
+            question: What is the flag in the members area?
+            flag: true
+            xp: 40
+  - title: Hidden Form Fields
+    sections:
+      - title: What a form sends
+        file: 05-form-fields.md
+        questions:
+          - id: input-type
+            question: Which input type is not shown on the page but is still sent with the form?
+            answer: hidden
+            format: "******"
+          - id: post-part
+            question: In a POST request, which part carries the form's fields, the headers or the body?
+            answer: body
+            format: "****"
+      - title: Shop smarter
+        file: 06-shop-smarter.md
+        machine:
+          image: club/club-shop:latest
+          port: 80
+          flag: udsm{hidden_fields_are_not_hidden_[USER_HASH]}
+        questions:
+          - id: price
+            question: How many coins does the flag cost in the shop?
+            answer: "1000"
+            format: "****"
+            xp: 20
+          - id: flag
+            question: What is the flag you bought?
+            flag: true
+            xp: 40

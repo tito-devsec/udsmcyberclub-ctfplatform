@@ -1,0 +1,17 @@
+title: Web Security Beginner
+summary: How websites work, and the classic mistakes that let attackers in. Every topic ends on a machine of your own.
+description: |
+  Start here if you are new to web security. Each section teaches one idea in a few minutes
+  of reading, then you use it on your own machine to find a flag. Four modules take you from
+  your first HTTP request to SQL injection.
+
+  Only ever test systems you own or have written permission to test. The practice machines
+  are yours: attack them as much as you like.
+difficulty: easy
+icon: spider-web
+order: 10
+modules:
+  - web-fundamentals
+  - client-side-trust
+  - broken-access-control
+  - injection-attacks
