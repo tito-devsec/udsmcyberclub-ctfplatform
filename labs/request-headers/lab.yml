@@ -1,0 +1,30 @@
+title: Request Headers
+summary: Every header in a request is written by the visitor, so none of them proves anything.
+difficulty: easy
+minutes: 20
+machine:
+  image: club/secret-agent:latest
+  port: 80
+  flag: udsm{headers_are_user_input_[USER_HASH]}
+tasks:
+  - title: Headers carry information
+    file: 1-headers.md
+    questions:
+      - id: browser-header
+        question: Which request header tells the server which browser sent the request?
+        answer: User-Agent
+        format: "****-*****"
+      - id: curl-option
+        question: Which curl option sets the User-Agent?
+        answer: [-A, --user-agent]
+        format: "**"
+  - title: Pretend to be the club browser
+    file: 2-agent.md
+    questions:
+      - id: browser-name
+        question: Which browser name does your machine's page ask for?
+        answer: UDSM-Club-Browser
+        format: "****-****-*******"
+      - id: flag
+        question: What is the flag the page shows to that browser?
+        flag: true

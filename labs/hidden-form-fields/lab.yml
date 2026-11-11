@@ -1,0 +1,30 @@
+title: Hidden Form Fields
+summary: What a form sends, including the parts you cannot see, and why the server must not trust it.
+difficulty: easy
+minutes: 20
+machine:
+  image: club/club-shop:latest
+  port: 80
+  flag: udsm{hidden_fields_are_not_hidden_[USER_HASH]}
+tasks:
+  - title: What a form sends
+    file: 1-forms.md
+    questions:
+      - id: input-type
+        question: Which input type is not shown on the page but is still sent with the form?
+        answer: hidden
+        format: "******"
+      - id: post-part
+        question: In a POST request, which part carries the form's fields, the headers or the body?
+        answer: body
+        format: "****"
+  - title: Shop smarter
+    file: 2-shop.md
+    questions:
+      - id: price
+        question: How many coins does the flag cost in the shop?
+        answer: "1000"
+        format: "****"
+      - id: flag
+        question: What is the flag you bought?
+        flag: true

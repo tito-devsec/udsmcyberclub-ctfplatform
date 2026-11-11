@@ -1,0 +1,34 @@
+title: IDOR
+summary: Pages that fetch a record by its number, without checking whose record it is.
+difficulty: easy
+minutes: 20
+machine:
+  image: club/member-profiles:latest
+  port: 80
+  flag: udsm{check_who_owns_the_object_[USER_HASH]}
+tasks:
+  - title: Objects and who owns them
+    file: 1-idor.md
+    questions:
+      - id: meaning
+        question: What does the I at the start of IDOR stand for?
+        answer: Insecure
+        format: "********"
+      - id: category
+        question: In which OWASP Top 10 category does IDOR belong?
+        answer: Broken Access Control
+        format: "****** ****** *******"
+  - title: Read the president's note
+    file: 2-profiles.md
+    questions:
+      - id: your-number
+        question: What is your member number on the site?
+        answer: "7"
+        format: "*"
+      - id: first-member
+        question: What is the username of member number 1?
+        answer: admin
+        format: "*****"
+      - id: flag
+        question: What is the flag in the president's private note?
+        flag: true

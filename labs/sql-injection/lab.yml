@@ -1,0 +1,34 @@
+title: SQL Injection
+summary: Logging in without a password, because the login builds its query from what you type.
+difficulty: medium
+minutes: 30
+machine:
+  image: club/admin-login:latest
+  port: 80
+  flag: udsm{sql_injection_bypass_[USER_HASH]}
+tasks:
+  - title: How a login checks your password
+    file: 1-sql.md
+    questions:
+      - id: quote
+        question: Which character starts and ends a piece of text in an SQL query?
+        answer: ["'", single quote, a single quote]
+        format: "*"
+      - id: comment
+        question: Which two characters start a comment in SQL?
+        answer: "--"
+        format: "**"
+      - id: defence
+        question: What are queries called that keep input separate from the SQL text?
+        answer: [parameterized queries, parameterised queries, parameterized, parameterised, prepared statements]
+        format: "************* *******"
+  - title: Log in without the password
+    file: 2-login.md
+    questions:
+      - id: table
+        question: Which table does the login query read from?
+        answer: users
+        format: "*****"
+      - id: flag
+        question: What is the flag you see as the admin?
+        flag: true

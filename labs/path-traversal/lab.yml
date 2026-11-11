@@ -1,0 +1,30 @@
+title: Path Traversal
+summary: Climbing out of a folder with ../ when a page opens files by name.
+difficulty: medium
+minutes: 25
+machine:
+  image: club/club-library:latest
+  port: 80
+  flag: udsm{dot_dot_slash_[USER_HASH]}
+tasks:
+  - title: Files and folders
+    file: 1-paths.md
+    questions:
+      - id: parent
+        question: Which two characters mean "the folder above" in a path?
+        answer: ".."
+        format: "**"
+      - id: passwd
+        question: Which Linux file, listing the system's user accounts, is a classic first target of path traversal?
+        answer: [/etc/passwd, etc/passwd]
+        format: "/***/******"
+  - title: Climb out of the library
+    file: 2-library.md
+    questions:
+      - id: levels
+        question: How many times do you need ../ to get from /app/books to / (the top of the file system)?
+        answer: ["2", two]
+        format: "*"
+      - id: flag
+        question: What is the flag in /flag.txt?
+        flag: true
