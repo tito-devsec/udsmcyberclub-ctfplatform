@@ -1,6 +1,6 @@
 # UDSM CyberRange
 
-The learning and capture-the-flag platform of the UDSM Cyber Club. Members learn on Skill Paths, where short lessons end on a machine of their own and earn XP, and play Jeopardy-style games on their own or in teams.
+The learning and capture-the-flag platform of the UDSM Cyber Club. Members learn on Skill Paths, where short lessons end on a machine of their own, practise in Labs, earn XP towards ranks, badges and certificates, and play Jeopardy-style games on their own or in teams.
 
 It is built on [GZCTF](https://github.com/GZTimeWalker/GZCTF) v1.9.1, an open-source CTF platform by GZTimeWalker. GZCTF's backend is unchanged: the changes are in the web interface under `src/GZCTF/ClientApp`, plus a separate CyberRange service in [services/cyberrange](services/cyberrange).
 
@@ -12,6 +12,11 @@ It is built on [GZCTF](https://github.com/GZTimeWalker/GZCTF) v1.9.1, an open-so
 - **Source link.** The About page links to this repository, as the AGPL requires for a modified version. The rest of that page describes GZCTF itself, with its license links, and should stay.
 - **Skill Paths.** A learning section in the side menu. A skill path is a set of modules; a module has chapters of short sections, each followed by questions, and half of them come with a machine of the student's own. Right answers earn XP, which adds up to levels and ranks, from Script Kiddie to Omniscient. The lessons are files in [content/](content); the [CyberRange service](services/cyberrange) serves them, checks answers, keeps progress and XP, and runs the machines. The first path is Web Security Beginner.
 - **Skill level.** People choose beginner, intermediate or expert when they register, and are offered a path that suits it.
+- **Labs.** Machines and challenges to solve without a lesson, grouped by category (web, crypto, forensics, OSINT, reverse engineering, pwn, steganography, misc, hardware, ICS, AI and Web3). A lab has a scenario, a machine of the student's own or files to download, and tasks that end with the flag. The first 20 are in web, crypto, forensics and OSINT.
+- **Profiles, badges and certificates.** Everyone has a public profile with their score, rank, level, weekly streak, badges, and the modules, paths and labs they finished. Every finished module and skill path earns a certificate that can be printed and checked by its number.
+- **Ranking.** The top three stand on a podium and everyone else follows in a list. The Hall of Fame is the top 50 of last week and changes when a week ends; there are also lists for this week so far and for all time.
+- **Tutors and verified members.** The superadmin names tutors and gives the verified tick on a Members page that only they see. Admins are still made in GZCTF's admin pages.
+- **Home page.** The site opens on the Skill Paths dashboard. Games, posts and teams are one click away in the side menu.
 
 ## Running it
 
@@ -43,6 +48,6 @@ These files are restricted components of GZCTF under [LicenseRef-GZCTF-Restricte
 
 See [NOTICE](NOTICE), [LICENSE_ADDENDUM.txt](LICENSE_ADDENDUM.txt) and [TRADEMARKS.md](TRADEMARKS.md).
 
-The icons on the Skill Paths pages are [Uicons by Flaticon](https://www.flaticon.com/uicons). They are used under the Flaticon licence, which asks for the credit shown on those pages and on the About page, and are not covered by the AGPL. [tools/uicons](tools/uicons) copies the ones in use out of Flaticon's package.
+The icons on the Skill Paths, Labs, profile and ranking pages are [Uicons by Flaticon](https://www.flaticon.com/uicons). They are used under the Flaticon licence, which asks for the credit shown on those pages and on the About page, and are not covered by the AGPL. [tools/uicons](tools/uicons) copies the ones in use out of Flaticon's package.
 
 This service is based on the open core of GZCTF (AGPLv3). GZCTF is a trademark of its respective owner. No endorsement is implied.

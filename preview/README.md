@@ -4,7 +4,7 @@ Runs the platform on your own machine with Docker:
 
 - the official GZCTF v1.9.1 image, with the web interface built from `../src/GZCTF/ClientApp` so the UDSM changes show up;
 - PostgreSQL;
-- the [CyberRange service](../services/cyberrange), which serves Skill Paths and their practice machines;
+- the [CyberRange service](../services/cyberrange), which serves Skill Paths, Labs, profiles and the ranking, and runs the practice machines;
 - Caddy in front of both on <http://localhost:3000> ([Caddyfile](Caddyfile)): `/api/range` goes to the CyberRange service, everything else to GZCTF.
 
 ## First run
@@ -28,13 +28,17 @@ Runs the platform on your own machine with Docker:
 
 Stop with `docker compose down`. Add `-v` to also delete the database and uploaded files.
 
-After changing anything in `src/GZCTF/ClientApp`, run the build again and then `docker compose restart gzctf`. Reload the page once the build has finished: a page loaded halfway through a build can show an error until it is reloaded. After changing a lesson in `../content`, run `docker compose restart range`; after changing the CyberRange service itself, `docker compose up -d --build range`.
+After changing anything in `src/GZCTF/ClientApp`, run the build again and then `docker compose restart gzctf`. Reload the page once the build has finished: a page loaded halfway through a build can show an error until it is reloaded. After changing a lesson or a lab in `../content`, run `docker compose restart range`; after changing the CyberRange service itself, `docker compose up -d --build range`.
 
-## Skill Paths
+## Skill Paths and Labs
 
 **Skill Paths** in the side menu is the learning section. A path is a set of modules; a module has chapters of short sections, each followed by questions, and sections open one after another. Answers earn XP, which adds up to a level and a rank. The first path is **Web Security Beginner** (4 modules, 18 sections), which uses the web challenge images below as its machines. How to write lessons: [content/README.md](../content/README.md); how the service works: [services/cyberrange/README.md](../services/cyberrange/README.md).
 
-Students sign in with their platform account. Their progress is kept in the `cyberrange` database, which the service creates on first start next to the platform's. The `Admin` account is the superadmin, who can make tutors; set `SUPERADMINS` in `.env` to name someone else.
+**Labs**, also in the side menu, are machines and challenges with no lesson: a scenario, a machine or files, and tasks that end with the flag. There are 20, in web, crypto, forensics and OSINT, and they use the same images as the challenges below. The other categories are listed as coming.
+
+The site opens on the Skill Paths dashboard. From the avatar menu, **Profile** shows a student's score, rank, streak, badges and certificates, and its **Ranking** button opens the ranking. The Hall of Fame there is last week's top 50, so it stays empty until the first full week has been played.
+
+Students sign in with their platform account. Their progress is kept in the `cyberrange` database, which the service creates on first start next to the platform's. The `Admin` account is the superadmin. Only they see the **Members** tab, where they make tutors and give the verified tick; set `SUPERADMINS` in `.env` to name someone else.
 
 ## Demo content
 
