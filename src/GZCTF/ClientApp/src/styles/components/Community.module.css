@@ -400,8 +400,40 @@
   border-radius: 12px;
 }
 
-.avatar {
+.avatarBox {
+  position: relative;
   align-self: start;
+  width: 148px;
+  height: 148px;
+}
+
+/* on your own profile: the button that changes the picture */
+.avatarEdit {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  font-size: 1.1rem;
+  color: var(--mantine-color-white);
+  cursor: pointer;
+  border: 3px solid var(--r-card);
+  border-radius: 50%;
+  background: var(--mantine-primary-color-filled);
+
+  &:hover {
+    background: var(--mantine-primary-color-filled-hover);
+  }
+
+  &:disabled {
+    cursor: progress;
+    opacity: 0.7;
+  }
+}
+
+.avatar {
   width: 148px;
   height: 148px;
   border-radius: 50%;
@@ -872,139 +904,284 @@
 
 /* ---- certificate ---- */
 
+/* The sheet is A4 on its side. Everything inside is sized in cqw, hundredths of the sheet's
+   width, so it looks the same on a screen, on paper and in a PDF. */
 .certificate {
   position: relative;
+  display: grid;
+  grid-template-columns: 68fr 32fr;
+  container-type: inline-size;
   width: 100%;
   max-width: 1000px;
   aspect-ratio: 1.414;
   margin: 0 auto;
-  padding: 26px;
+  overflow: hidden;
   color: #152033;
   background: #fff;
   border-radius: 6px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  page: certificate;
 }
 
-.certificateInner {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  justify-items: center;
-  height: 100%;
-  padding: 34px 48px 30px;
-  text-align: center;
-  border: 2px solid #0864af;
-  outline: 1px solid #0864af;
-  outline-offset: 6px;
-  background:
-    radial-gradient(circle at 0% 0%, rgba(8, 100, 175, 0.1), transparent 34%),
-    radial-gradient(circle at 100% 100%, rgba(8, 100, 175, 0.1), transparent 34%);
-}
-
-.certBrand {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 1.5rem;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  color: #152033;
-
-  & span {
-    color: #0864af;
-  }
-}
-
-.certMain {
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  gap: 10px;
-}
-
-.certHeading {
-  margin: 0;
-  font-size: clamp(1.6rem, 3.4vw, 2.5rem);
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #0864af;
-}
-
-.certSmall {
-  font-size: 1rem;
-  color: #5d6d86;
-}
-
-.certName {
-  margin: 4px 0;
-  padding: 0 40px 8px;
-  font-size: clamp(1.8rem, 4vw, 3rem);
-  font-weight: 800;
-  line-height: 1.15;
-  color: #152033;
-  border-bottom: 2px solid #0864af;
-}
-
-.certTitle {
-  margin: 2px 0 0;
-  font-size: clamp(1.2rem, 2.4vw, 1.8rem);
-  font-weight: 700;
-  color: #152033;
-}
-
-.certFoot {
+.certPaper {
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
+  min-width: 0;
+  padding: 4.2cqw 4.6cqw 3cqw 5cqw;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(8, 100, 175, 0.1), transparent 42%),
+    radial-gradient(circle at 70% 100%, rgba(8, 100, 175, 0.08), transparent 46%), #f6f9fd;
+}
+
+.certTop {
+  display: flex;
   justify-content: space-between;
-  gap: 24px;
-  width: 100%;
-  font-size: 0.85rem;
-  text-align: left;
-  color: #5d6d86;
+  gap: 2cqw;
+  font-size: 1.2cqw;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #3b4a61;
 
   & strong {
-    display: block;
-    font-size: 0.95rem;
+    font-family: var(--mantine-font-family-monospace);
+    letter-spacing: 0.04em;
     color: #152033;
   }
 }
 
-.certSeal {
-  display: grid;
-  place-items: center;
-  width: 78px;
-  height: 78px;
-  font-size: 2rem;
-  color: #fff;
-  border-radius: 50%;
-  background: #0864af;
-  box-shadow:
-    0 0 0 4px #fff,
-    0 0 0 6px #0864af;
+.certHeading {
+  margin: 3.4cqw 0 2cqw;
+  font-size: 2.9cqw;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #0b2a4a;
 }
 
-.certPowered {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  text-align: right;
+.certSmall {
+  font-size: 1.55cqw;
+  line-height: 1.5;
+  color: #3b4a61;
 
   & strong {
-    display: inline;
-    letter-spacing: 0.14em;
+    color: #152033;
   }
 }
 
-/* printing a certificate: just the sheet, on one landscape page */
+.certName {
+  margin: 0.6cqw 0 1.8cqw;
+  overflow: hidden;
+  font-size: 4cqw;
+  font-weight: 800;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #0864af;
+}
+
+.certTitle {
+  margin: 0.2cqw 0;
+  font-size: 2.1cqw;
+  font-weight: 800;
+  line-height: 1.25;
+  color: #152033;
+}
+
+.certAbout {
+  max-width: 50cqw;
+  margin: 2cqw 0 0;
+  font-size: 1.3cqw;
+  line-height: 1.55;
+  color: #4a5a72;
+}
+
+.certSigns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 22cqw));
+  gap: 5cqw;
+  margin-top: auto;
+}
+
+.certSignature {
+  display: flex;
+  align-items: flex-end;
+  height: 6cqw;
+  padding-bottom: 0.4cqw;
+  border-bottom: 0.14cqw solid #152033;
+
+  & img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    object-position: left bottom;
+  }
+}
+
+.certSignName {
+  margin-top: 0.8cqw;
+  font-size: 1.6cqw;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #152033;
+}
+
+.certSignTitle {
+  font-size: 1.25cqw;
+  color: #3b4a61;
+}
+
+.certVerify {
+  margin-top: 2cqw;
+  font-size: 1.02cqw;
+  color: #5d6d86;
+}
+
+/* the blue side: the university, the seal and the club */
+.certSide {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4.2cqw 2cqw 3.4cqw;
+  color: #fff;
+  background:
+    radial-gradient(circle at 80% 12%, rgba(95, 176, 245, 0.35), transparent 42%),
+    radial-gradient(circle at 10% 95%, rgba(95, 176, 245, 0.22), transparent 46%),
+    linear-gradient(165deg, #0b2a4a 0%, #0a3d73 48%, #0864af 100%);
+}
+
+.certUdsm {
+  display: grid;
+  justify-items: center;
+  gap: 1.2cqw;
+  font-size: 1.05cqw;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-align: center;
+  text-transform: uppercase;
+
+  & span {
+    display: grid;
+    place-items: center;
+    width: 14cqw;
+    height: 14cqw;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 0 0.5cqw rgba(255, 255, 255, 0.18);
+  }
+
+  & img {
+    width: 9.6cqw;
+    height: auto;
+  }
+}
+
+/* the seal sits on the line between the sheet and the blue side */
+.certSeal {
+  position: absolute;
+  top: 46%;
+  left: -7.2cqw;
+  width: 14.4cqw;
+  filter: drop-shadow(0 0.6cqw 1.2cqw rgba(4, 20, 40, 0.45));
+
+  & svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+}
+
+.certSealLogo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+
+  & img,
+  & svg {
+    width: 5.4cqw !important;
+    max-width: none !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+}
+
+.certClub {
+  display: grid;
+  justify-items: center;
+  gap: 0.6cqw;
+  font-size: 1.9cqw;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+
+  & b {
+    color: #7cc0fb;
+  }
+
+  & small {
+    font-size: 1cqw;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.78);
+  }
+
+  & small strong {
+    letter-spacing: 0.16em;
+    color: #fff;
+  }
+
+  & img,
+  & svg {
+    width: 4.6cqw !important;
+    max-width: none !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+}
+
+/* printing a certificate: only the sheet, filling one landscape page */
+@page certificate {
+  size: A4 landscape;
+  margin: 0;
+}
+
 @media print {
   .noPrint {
     display: none !important;
   }
 
+  :global(html[data-print='certificate']),
+  :global(html[data-print='certificate'] body) {
+    height: 100%;
+    overflow: hidden;
+    background: #fff !important;
+  }
+
+  :global(html[data-print='certificate'] body *) {
+    visibility: hidden;
+  }
+
+  :global(html[data-print='certificate']) .certificate,
+  :global(html[data-print='certificate']) .certificate * {
+    visibility: visible;
+  }
+
   .certificate {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
     max-width: none;
-    box-shadow: none;
+    height: 100vh;
+    aspect-ratio: auto;
     border-radius: 0;
+    box-shadow: none;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }

@@ -147,6 +147,8 @@ export const useProfile = (name?: string) =>
 export const profileApi = {
   update: (changes: { bio?: string; country?: string | null; links?: ProfileLinks }) =>
     rangeCall<Profile>('PUT', `${RANGE_API}/me/profile`, changes),
+  // after changing the picture on the platform: shows it here at once
+  sync: () => rangeCall<Profile>('POST', `${RANGE_API}/me/sync`),
 }
 
 export const profileUrl = (name: string) => `/profile/${encodeURIComponent(name)}`
@@ -231,10 +233,22 @@ export const useRanking = (scope: RankingScope, page: number, size: number, sear
 
 // ---- certificates ----
 
+// Someone who signs certificates: the club's president, and the college's principal.
+export interface Signatory {
+  slot: 'president' | 'principal'
+  name: string
+  title: string
+  // where the picture of their signature is
+  signature: string | null
+}
+
 export interface CertificateDetail extends Certificate {
   // the name on the certificate, and the user name behind it
   name: string
   userName: string
+  // who signed it: the signatories on the day it was issued
+  signatories: Signatory[]
+  summary: string | null
   category: Category | null
   difficulty: Difficulty | null
   minutes: number | null
@@ -245,6 +259,22 @@ export const useCertificate = (id?: string) =>
   useRange<CertificateDetail>(id ? `${RANGE_API}/certificates/${id}` : null)
 
 export const certificateUrl = (id: string) => `/certificates/${id}`
+
+export const useSignatories = (enabled = true) => useRange<Signatory[]>(enabled ? `${RANGE_API}/signatories` : null)
+
+type SignatoryChanges = Partial<Record<Signatory['slot'], { name?: string; title?: string }>>
+
+// for the superadmin
+export const signatoriesApi = {
+  save: (changes: SignatoryChanges) => rangeCall<Signatory[]>('PUT', `${RANGE_API}/admin/signatories`, changes),
+  // `image` is the picture as a "data:" address
+  upload: (slot: Signatory['slot'], image: string) =>
+    rangeCall<Signatory[]>('PUT', `${RANGE_API}/admin/signatories/${slot}/signature`, { image }),
+  remove: (slot: Signatory['slot']) =>
+    rangeCall<Signatory[]>('DELETE', `${RANGE_API}/admin/signatories/${slot}/signature`),
+  // puts today's signatories on every certificate issued so far
+  apply: () => rangeCall<{ certificates: number }>('POST', `${RANGE_API}/admin/signatories/apply`),
+}
 
 // a certificate's number, in groups of four: A1B2-C3D4-E5F6-0718
 export const certificateNumber = (id: string) => (id.toUpperCase().match(/.{1,4}/g) ?? []).join('-')
@@ -272,6 +302,9 @@ export const useMembers = (enabled: boolean) => useRange<Member[]>(enabled ? `${
 export const membersApi = {
   setRole: (id: string, role: 'tutor' | 'student') =>
     rangeCall<{ id: string; name: string; role: string }>('PUT', `${RANGE_API}/admin/users/${id}/role`, { role }),
+  // a platform admin, or an ordinary member again
+  setAdmin: (id: string, admin: boolean) =>
+    rangeCall<{ id: string; name: string; admin: boolean }>('PUT', `${RANGE_API}/admin/users/${id}/admin`, { admin }),
   setVerified: (id: string, verified: boolean) =>
     rangeCall<{ id: string; name: string; verified: boolean }>('PUT', `${RANGE_API}/admin/users/${id}/verified`, {
       verified,

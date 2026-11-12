@@ -1,4 +1,5 @@
-import { Button, Modal, Select, Stack, Textarea, TextInput, Tooltip } from '@mantine/core'
+import { Button, FileButton, Modal, Select, Stack, Textarea, TextInput, Tooltip } from '@mantine/core'
+import { showNotification } from '@mantine/notifications'
 import cx from 'clsx'
 import { FC, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -28,12 +29,17 @@ import {
 import { coverIcon, percentOf, useRangeRefresh } from '@Utils/Range'
 import { showErrorMsg } from '@Utils/Shared'
 import { usePageTitle } from '@Hooks/usePageTitle'
+import { useUser } from '@Hooks/useUser'
+import api from '@Api'
 import classes from '@Styles/Community.module.css'
 import range from '@Styles/Range.module.css'
 
 type Tab = 'modules' | 'module-certificates' | 'paths' | 'path-certificates' | 'labs' | 'badges'
 
 const LINK_KEYS: (keyof ProfileLinks)[] = ['github', 'linkedin', 'x', 'website']
+// what the platform accepts as a profile picture
+const PICTURE_TYPES = 'image/png,image/jpeg,image/webp,image/gif'
+const PICTURE_SIZE = 3 * 1024 * 1024
 
 // A certificate in a list: what it is for, when it was earned and its number.
 const CertificateCard: FC<{ certificate: Certificate }> = ({ certificate }) => {
@@ -58,10 +64,13 @@ interface EditProps {
   opened: boolean
   onClose: () => void
   onSaved: (profile: Profile) => void
+  // changing the picture
+  onPicture: (file: File | null) => void
+  uploading: boolean
 }
 
 // The owner's own details: a short bio, their country and their links.
-const EditProfile: FC<EditProps> = ({ profile, opened, onClose, onSaved }) => {
+const EditProfile: FC<EditProps> = ({ profile, opened, onClose, onSaved, onPicture, uploading }) => {
   const { t, i18n } = useTranslation()
   const [bio, setBio] = useState(profile.bio)
   const [country, setCountry] = useState<string | null>(profile.country)
@@ -91,6 +100,23 @@ const EditProfile: FC<EditProps> = ({ profile, opened, onClose, onSaved }) => {
   return (
     <Modal opened={opened} onClose={onClose} title={t('range.profile.edit')} size="lg">
       <Stack>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <PlayerAvatar
+            name={profile.name}
+            avatar={profile.avatar}
+            style={{ width: 72, height: 72, borderRadius: '50%', fontSize: '1.8rem', flexShrink: 0 }}
+          />
+          <div>
+            <FileButton onChange={onPicture} accept={PICTURE_TYPES}>
+              {(props) => (
+                <Button {...props} variant="default" loading={uploading} leftSection={<Uicon name="camera" />}>
+                  {t('range.profile.change_picture')}
+                </Button>
+              )}
+            </FileButton>
+            <div style={{ marginTop: 6, fontSize: '0.85rem', opacity: 0.7 }}>{t('range.profile.picture_hint')}</div>
+          </div>
+        </div>
         <Textarea
           label={t('range.profile.bio')}
           placeholder={t('range.profile.bio_hint')}
@@ -133,8 +159,30 @@ const ProfilePage: FC = () => {
   const { t, i18n } = useTranslation()
   const { data, error, mutate } = useProfile(name)
   const refresh = useRangeRefresh()
+  const { mutate: mutateUser } = useUser()
   const [tab, setTab] = useState<Tab>('modules')
   const [editing, setEditing] = useState(false)
+  const [uploading, setUploading] = useState(false)
+
+  // The picture belongs to the platform account: it is sent there, then read back here.
+  const changePicture = async (file: File | null) => {
+    if (!file) return
+    if (file.size > PICTURE_SIZE) {
+      showNotification({ color: 'red', message: t('range.profile.picture_too_large') })
+      return
+    }
+    setUploading(true)
+    try {
+      await api.account.accountAvatar({ file })
+      await mutate(await profileApi.sync(), { revalidate: false })
+      await mutateUser()
+      showNotification({ color: 'teal', message: t('range.profile.picture_saved') })
+    } catch (failure) {
+      showErrorMsg(failure, t)
+    } finally {
+      setUploading(false)
+    }
+  }
 
   // what is on screen may still be the profile that was open before this one
   const profile = data?.name.toLowerCase() === name.toLowerCase() ? data : undefined
@@ -171,12 +219,31 @@ const ProfilePage: FC = () => {
             <div style={{ display: 'grid', gap: 24 }}>
               {/* who they are, with their four numbers */}
               <section className={classes.profileHead}>
-                <PlayerAvatar
-                  name={profile.name}
-                  avatar={profile.avatar}
-                  className={classes.avatar}
-                  style={{ fontSize: '3.6rem' }}
-                />
+                <div className={classes.avatarBox}>
+                  <PlayerAvatar
+                    name={profile.name}
+                    avatar={profile.avatar}
+                    className={classes.avatar}
+                    style={{ fontSize: '3.6rem' }}
+                  />
+                  {profile.self && (
+                    <FileButton onChange={changePicture} accept={PICTURE_TYPES}>
+                      {(props) => (
+                        <Tooltip label={t('range.profile.change_picture')} withArrow>
+                          <button
+                            type="button"
+                            {...props}
+                            className={classes.avatarEdit}
+                            disabled={uploading}
+                            aria-label={t('range.profile.change_picture')}
+                          >
+                            <Uicon name="camera" />
+                          </button>
+                        </Tooltip>
+                      )}
+                    </FileButton>
+                  )}
+                </div>
                 <div className={classes.who}>
                   <h1 className={classes.name}>{profile.name}</h1>
                   {profile.verified && (
@@ -522,6 +589,8 @@ const ProfilePage: FC = () => {
                     mutate(next, { revalidate: false })
                     refresh()
                   }}
+                  onPicture={changePicture}
+                  uploading={uploading}
                 />
               )}
             </div>
