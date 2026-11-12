@@ -1,0 +1,32 @@
+title: "Member Profiles"
+summary: "Every member has a profile page. The president keeps a private note on theirs."
+scenario: |
+  Every club member has a profile page, and you are logged in as a guest. The club president keeps a private note on their profile, which only they should be able to read.
+
+  Start the machine and read it.
+category: web
+difficulty: medium
+minutes: 25
+icon: id-badge
+updated: "2026-11-12"
+order: 60
+machine:
+  image: club/member-profiles:latest
+  port: 80
+  flag: udsm{check_who_owns_the_object_[USER_HASH]}
+tasks:
+  - id: parameter
+    question: "Which parameter in the address picks the profile to show?"
+    answer: ["id"]
+    format: "**"
+    xp: 10
+  - id: treasurer
+    question: "What is the username of the club treasurer?"
+    answer: ["baraka"]
+    format: "******"
+    hint: "Members are numbered. Try the numbers below yours."
+    xp: 20
+  - id: flag
+    question: "What is the flag in the president's private note?"
+    flag: true
+    xp: 60

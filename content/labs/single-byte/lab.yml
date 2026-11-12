@@ -1,0 +1,37 @@
+title: "Single Byte"
+summary: "A flag XORed with a key that is only one byte long."
+scenario: |
+  The club treasurer encrypted the flag with XOR and a secret key. To make it easy to remember, the key is a single byte.
+
+  Start the machine to see the result, written in hex. You already know how every flag starts.
+category: crypto
+difficulty: medium
+minutes: 25
+icon: binary
+updated: "2026-11-12"
+order: 130
+machine:
+  image: club/single-byte:latest
+  port: 80
+  flag: udsm{one_byte_keys_are_weak_[USER_HASH]}
+tasks:
+  - id: operation
+    question: "Which bitwise operation did the treasurer use?"
+    answer: ["xor", "exclusive or"]
+    format: "***"
+    xp: 10
+  - id: keys
+    question: "How many different one-byte keys are there?"
+    answer: ["256"]
+    format: "***"
+    xp: 10
+  - id: known
+    question: "Which five characters does every flag start with?"
+    answer: ["udsm{"]
+    format: "*****"
+    xp: 10
+  - id: flag
+    question: "What is the flag?"
+    flag: true
+    hint: "XOR the first byte of the ciphertext with the letter u to get the key."
+    xp: 60

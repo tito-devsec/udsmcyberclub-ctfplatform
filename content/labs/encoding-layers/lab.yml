@@ -1,0 +1,32 @@
+title: "Encoding Layers"
+summary: "A flag \"encrypted\" three times. None of the three needs a key."
+scenario: |
+  A member says they "encrypted" the flag three times, so it must be extra safe.
+
+  Start the machine to see what they sent, and take the layers off one at a time.
+category: crypto
+difficulty: easy
+minutes: 20
+icon: layers
+updated: "2026-11-12"
+order: 120
+machine:
+  image: club/encoding-layers:latest
+  port: 80
+  flag: udsm{encoding_is_not_encryption_[USER_HASH]}
+tasks:
+  - id: outer
+    question: "Which encoding is the outer layer, the first one to undo?"
+    answer: ["hex", "hexadecimal", "base16", "base 16"]
+    format: "***"
+    hint: "Which characters appear in it?"
+    xp: 10
+  - id: base32
+    question: "Which encoding uses only the capital letters A to Z and the digits 2 to 7?"
+    answer: ["base32", "base 32", "base-32"]
+    format: "******"
+    xp: 10
+  - id: flag
+    question: "What is the flag?"
+    flag: true
+    xp: 40

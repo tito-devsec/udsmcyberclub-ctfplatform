@@ -1,0 +1,32 @@
+title: "Club Shop"
+summary: "You have 10 coins. The flag costs 1000."
+scenario: |
+  The club shop sells stickers for 5 coins and the flag for 1000. You have 10 coins.
+
+  Start the machine and buy the flag anyway.
+category: web
+difficulty: easy
+minutes: 20
+icon: shopping-cart
+updated: "2026-11-12"
+order: 50
+machine:
+  image: club/club-shop:latest
+  port: 80
+  flag: udsm{hidden_fields_are_not_hidden_[USER_HASH]}
+tasks:
+  - id: balance
+    question: "How many coins do you start with?"
+    answer: ["10", "ten"]
+    format: "**"
+    xp: 5
+  - id: field
+    question: "Which hidden form field decides what you pay?"
+    answer: ["price"]
+    format: "*****"
+    hint: "Right-click a Buy button and choose Inspect."
+    xp: 15
+  - id: flag
+    question: "What is the flag you bought?"
+    flag: true
+    xp: 50

@@ -1,0 +1,37 @@
+title: "Not a PDF"
+summary: "Homework that no PDF reader will open."
+scenario: |
+  A member emailed their homework as a PDF, but no PDF reader will open it. They insist the file is fine.
+
+  Start the machine and download `homework.pdf`. Find out what it really is.
+category: forensics
+difficulty: easy
+minutes: 15
+icon: file-zipper
+updated: "2026-11-12"
+order: 210
+machine:
+  image: club/not-a-pdf:latest
+  port: 80
+  flag: udsm{check_the_magic_bytes_[USER_HASH]}
+tasks:
+  - id: magic
+    question: "Which two letters does the file really start with?"
+    answer: ["PK"]
+    format: "**"
+    hint: "The file command, or a hex viewer, shows the first bytes."
+    xp: 10
+  - id: type
+    question: "What kind of file is it really?"
+    answer: ["zip", "a zip", "zip archive", "a zip archive", "zip file", "a zip file"]
+    format: "***"
+    xp: 10
+  - id: inside
+    question: "Which file inside it holds the answers?"
+    answer: ["answers.txt", "homework/answers.txt"]
+    format: "*******.***"
+    xp: 10
+  - id: flag
+    question: "What is the flag?"
+    flag: true
+    xp: 40

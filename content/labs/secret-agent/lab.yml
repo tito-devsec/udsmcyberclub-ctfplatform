@@ -1,0 +1,32 @@
+title: "Secret Agent"
+summary: "A page that only opens in the club's own browser, which nobody has ever seen."
+scenario: |
+  This page only opens in the official club browser. Nobody has ever seen a copy of it, but that has never stopped a hacker.
+
+  Start the machine and convince the page that you are using the right browser.
+category: web
+difficulty: easy
+minutes: 20
+icon: spy
+updated: "2026-11-12"
+order: 30
+machine:
+  image: club/secret-agent:latest
+  port: 80
+  flag: udsm{headers_are_user_input_[USER_HASH]}
+tasks:
+  - id: header
+    question: "Which request header names the browser that sent the request?"
+    answer: ["User-Agent", "user agent"]
+    format: "****-*****"
+    xp: 10
+  - id: browser
+    question: "What is the name of the browser the page asks for?"
+    answer: ["UDSM-Club-Browser"]
+    format: "****-****-*******"
+    xp: 15
+  - id: flag
+    question: "What is the flag the page shows to that browser?"
+    flag: true
+    hint: "curl -A sets the User-Agent of a request."
+    xp: 50

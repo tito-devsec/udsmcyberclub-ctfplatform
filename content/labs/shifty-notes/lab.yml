@@ -1,0 +1,32 @@
+title: "Shifty Notes"
+summary: "A note on the notice board in which every letter has moved."
+scenario: |
+  We found this note pinned to the club notice board. Every letter looks wrong, but the spaces and punctuation are where you would expect them.
+
+  Start the machine to see the note, and read it.
+category: crypto
+difficulty: easy
+minutes: 15
+icon: key-lock-crypto
+updated: "2026-11-12"
+order: 110
+machine:
+  image: club/shifty-notes:latest
+  port: 80
+  flag: udsm{caesar_is_easy_to_break_[USER_HASH]}
+tasks:
+  - id: cipher
+    question: "Which classical cipher moves every letter the same number of places along the alphabet?"
+    answer: ["caesar", "caesar cipher", "the caesar cipher", "caesar shift", "shift cipher"]
+    format: "******"
+    xp: 10
+  - id: shifts
+    question: "How many useful shifts are there for the 26 letters of the alphabet?"
+    answer: ["25", "twenty-five", "twenty five"]
+    format: "**"
+    xp: 10
+  - id: flag
+    question: "What is the flag in the note?"
+    flag: true
+    hint: "CyberChef's ROT13 operation takes any amount. Try them until the note reads well."
+    xp: 40

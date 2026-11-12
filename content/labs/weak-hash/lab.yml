@@ -1,0 +1,32 @@
+title: "Weak Hash"
+summary: "A vault locked with a password. All we have is its MD5 hash."
+scenario: |
+  The club vault is locked with a password, and all we have is its MD5 hash, from an old database backup.
+
+  Start the machine, find the password and open the vault.
+category: crypto
+difficulty: easy
+minutes: 20
+icon: password
+updated: "2026-11-12"
+order: 140
+machine:
+  image: club/weak-hash:latest
+  port: 80
+  flag: udsm{weak_passwords_get_cracked_[USER_HASH]}
+tasks:
+  - id: length
+    question: "How many hexadecimal characters long is an MD5 hash?"
+    answer: ["32"]
+    format: "**"
+    xp: 10
+  - id: wordlist
+    question: "What do you call a file of common passwords that you try one after another?"
+    answer: ["wordlist", "a wordlist", "word list", "a word list", "dictionary", "a dictionary", "password list"]
+    format: "********"
+    xp: 10
+  - id: flag
+    question: "What is the flag inside the vault?"
+    flag: true
+    hint: "Sites such as CrackStation look common hashes up in seconds."
+    xp: 50

@@ -1,0 +1,32 @@
+title: "Ping Tool"
+summary: "A page that runs ping for you, and passes whatever you type to the shell."
+scenario: |
+  Someone wrote a quick page that checks whether a computer is online: you type an address, and it runs `ping` on the server.
+
+  Start the machine and make it run something other than `ping`. The flag is in `/flag.txt`.
+category: web
+difficulty: medium
+minutes: 25
+icon: terminal
+updated: "2026-11-12"
+order: 80
+machine:
+  image: club/ping-tool:latest
+  port: 80
+  flag: udsm{never_trust_user_input_[USER_HASH]}
+tasks:
+  - id: separator
+    question: "Which character ends one shell command so another can start on the same line?"
+    answer: [";"]
+    format: "*"
+    xp: 10
+  - id: user
+    question: "Which user does the page run commands as?"
+    answer: ["root"]
+    format: "****"
+    hint: "The whoami command prints it."
+    xp: 15
+  - id: flag
+    question: "What is the flag in /flag.txt?"
+    flag: true
+    xp: 60

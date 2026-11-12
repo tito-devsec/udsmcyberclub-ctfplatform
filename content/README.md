@@ -1,6 +1,8 @@
 # Content
 
-The lessons behind **Skill Paths**. A skill path is a list of modules. A module has chapters, each chapter has sections, and a section is a short text followed by questions. Answering them earns XP.
+The lessons behind **Skill Paths** and the challenges behind **Labs**.
+
+A skill path is a list of modules. A module has chapters, each chapter has sections, and a section is a short text followed by questions. A lab has no lesson: it is a scenario, a machine or some files, and a few tasks that end with the flag. Answering questions and tasks earns XP.
 
 The CyberRange service ([services/cyberrange](../services/cyberrange)) reads this folder when it starts. After editing, restart it, or sign in as an admin and send `POST /api/range/admin/reload`.
 
@@ -11,6 +13,8 @@ content/
   paths/<path>.yml              a skill path: its modules, in order
   modules/<module>/module.yml   a module: its chapters, their sections and the questions
   modules/<module>/<file>.md    the text of one section (Markdown)
+  labs/<lab>/lab.yml            a lab: its scenario, its machine and its tasks
+  labs/<lab>/files/             optional: files students download for the lab
 ```
 
 Folder and file names use lowercase letters, digits and dashes. A module can be in several paths, or in none: every module is also in the catalogue.
@@ -78,6 +82,43 @@ chapters:
 - **Machine flags** are where the real proof is. The machine receives its flag in the `GZCTF_FLAG` environment variable, like a platform challenge, so the images in [preview/examples](../preview/examples) work as practice machines unchanged. `[USER_HASH]` is calculated from the server's secret, so every student's flag is different, and a flag is never stored or published.
 - **Machines** run like challenge instances: one per student at a time, 60 minutes plus extensions, no traffic between them, no internet, and limited CPU, memory and processes. A machine's image must be built on the server first (`docker build -t club/hidden-pages:latest preview/examples/hidden-pages`).
 
+## A lab
+
+```yaml
+title: Staff Portal
+summary: One or two lines for the lab's card.
+scenario: |
+  What the student is told before they start. Markdown works here.
+  Say what there is to attack, never how.
+category: web            # the same list as for modules; labs are grouped by it
+difficulty: easy
+minutes: 15
+icon: code-simple        # optional: without it, the category's icon is used
+updated: "2026-11-12"    # optional, in quotes
+order: 10                # position in the catalogue
+bonus: 0                 # optional: extra XP for solving the whole lab (default 0)
+machine:                 # optional: leave it out for a challenge solved from files or research
+  image: club/staff-portal:latest
+  port: 80
+  flag: udsm{always_check_the_source_[USER_HASH]}
+tasks:                   # written like a section's questions
+  - id: hiding-place
+    question: What kind of HTML element keeps the developers' note off the page?
+    answer: [comment, html comment]
+    format: "*******"
+    xp: 10
+  - id: flag
+    question: What is the flag?
+    flag: true           # needs a machine
+    xp: 40
+```
+
+- **The address** of a lab is its folder name: `labs/staff-portal` is at `/labs/staff-portal`. Do not rename the folder once students have solved it.
+- **With a machine** the catalogue calls it a Machine, without one a Challenge. A flag task needs a machine: its flag is the student's own, made the same way as in a section.
+- **Files** in the lab's `files/` folder are offered for download on its page. Their names use letters, digits, dots, dashes and `_`. Anyone can download them, signed in or not, so never put an answer in a file's name.
+- **Tasks** can be answered in any order. The lab is solved when they all are, and it then counts towards the student's badges.
+- **A category with no labs** is still listed in the catalogue, marked as coming.
+
 ## XP
 
 The author decides what everything is worth. As a guide, this is what the first path uses:
@@ -89,6 +130,8 @@ The author decides what everything is worth. As a guide, this is what the first 
 | a flag, easy | 40 |
 | a flag, medium | 60 |
 | finishing a section | 10 |
+| a lab's task answered by looking or researching | 10 to 30 |
+| a lab's flag | 40 to 60 |
 
 XP adds up to levels and ranks, which are described in the [service's README](../services/cyberrange/README.md#levels-and-ranks).
 

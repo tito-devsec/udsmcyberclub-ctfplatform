@@ -1,0 +1,32 @@
+title: "Staff Portal"
+summary: "An unfinished staff portal that looks empty. Developers often leave behind more than they think."
+scenario: |
+  The club is building a staff portal for its committee. It is "not finished yet", but it is already online, and the page you get looks empty.
+
+  Start the machine, open the portal and find what the developers left behind. Everything you need is in what the server sends to your browser.
+category: web
+difficulty: easy
+minutes: 15
+icon: code-simple
+updated: "2026-11-12"
+order: 10
+machine:
+  image: club/staff-portal:latest
+  port: 80
+  flag: udsm{always_check_the_source_[USER_HASH]}
+tasks:
+  - id: shortcut
+    question: "Which keyboard shortcut opens a page's source in Chrome and Firefox on Windows?"
+    answer: ["ctrl+u", "ctrl u", "ctrl-u"]
+    format: "****+*"
+    hint: "It is the Ctrl key and one letter."
+    xp: 10
+  - id: hiding-place
+    question: "What kind of HTML element keeps the developers' note off the page?"
+    answer: ["comment", "a comment", "html comment", "an html comment"]
+    format: "*******"
+    xp: 10
+  - id: flag
+    question: "What is the flag?"
+    flag: true
+    xp: 40

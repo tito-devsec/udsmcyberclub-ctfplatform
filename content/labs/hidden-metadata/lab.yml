@@ -1,0 +1,31 @@
+title: "Hidden Metadata"
+summary: "A photo of the club whiteboard. The flag is in it, but not where you can see it."
+scenario: |
+  Someone posted a photo of the club whiteboard and said the flag is "in the picture". It is, just not anywhere you can see.
+
+  Start the machine, download `whiteboard.png` and read what the file says about itself.
+category: forensics
+difficulty: easy
+minutes: 15
+icon: picture
+updated: "2026-11-12"
+order: 230
+machine:
+  image: club/hidden-metadata:latest
+  port: 80
+  flag: udsm{metadata_tells_stories_[USER_HASH]}
+tasks:
+  - id: author
+    question: "Who made the image, according to its metadata?"
+    answer: ["UDSM Cyber Club", "the UDSM Cyber Club"]
+    hint: "exiftool lists every metadata field."
+    xp: 10
+  - id: field
+    question: "Which metadata field holds the flag?"
+    answer: ["comment"]
+    format: "*******"
+    xp: 10
+  - id: flag
+    question: "What is the flag?"
+    flag: true
+    xp: 40

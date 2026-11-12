@@ -1,0 +1,27 @@
+title: "Where Is This?"
+summary: "A postcard with no caption. Where was the photo taken?"
+scenario: |
+  A member sent this postcard with no caption, and says the place is famous.
+
+  Download `postcard.jpg` and find out where it was taken.
+category: osint
+difficulty: easy
+minutes: 15
+icon: map-marker
+updated: "2026-11-12"
+order: 330
+tasks:
+  - id: tag
+    question: "Which kind of metadata in a photo records where it was taken?"
+    answer: ["gps", "gps coordinates", "gps position", "exif gps", "geotag", "geotags", "location"]
+    format: "***"
+    xp: 10
+  - id: mountain
+    question: "Which mountain is in the photo?"
+    answer: ["Kilimanjaro", "Mount Kilimanjaro", "Mt Kilimanjaro", "Mt. Kilimanjaro", "Kibo"]
+    hint: "exiftool shows the GPS position. Paste it into a map."
+    xp: 30
+  - id: country
+    question: "In which country is it?"
+    answer: ["Tanzania", "the United Republic of Tanzania", "United Republic of Tanzania"]
+    xp: 10

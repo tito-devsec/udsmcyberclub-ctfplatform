@@ -1,0 +1,32 @@
+title: "Members Only"
+summary: "The members area is for admins only, and the site has decided you are a guest."
+scenario: |
+  The club's members area is for admins only. The site remembers who you are between visits, and it has decided you are a guest.
+
+  Start the machine, find out where that decision is kept, and change it.
+category: web
+difficulty: easy
+minutes: 20
+icon: cookie
+updated: "2026-11-12"
+order: 40
+machine:
+  image: club/members-only:latest
+  port: 80
+  flag: udsm{cookies_can_be_edited_[USER_HASH]}
+tasks:
+  - id: cookie
+    question: "What is the name of the cookie that says who you are?"
+    answer: ["role"]
+    format: "****"
+    hint: "Press F12 and look under Application (Chrome) or Storage (Firefox)."
+    xp: 15
+  - id: value
+    question: "Which value of that cookie lets you into the members area?"
+    answer: ["admin"]
+    format: "*****"
+    xp: 15
+  - id: flag
+    question: "What is the flag in the members area?"
+    flag: true
+    xp: 50

@@ -1,0 +1,23 @@
+title: "Campus History"
+summary: "Find out when the University of Dar es Salaam became a university of its own."
+scenario: |
+  Public records answer a lot of questions, if you know where to look.
+
+  The University of Dar es Salaam started out as a college of another university. Find out when it became a national university of its own.
+category: osint
+difficulty: easy
+minutes: 10
+icon: graduation-cap
+updated: "2026-11-12"
+order: 310
+tasks:
+  - id: year
+    question: "In which year did the University of Dar es Salaam become an independent national university?"
+    answer: ["1970"]
+    format: "****"
+    hint: "The university's own website and encyclopedia articles about it tell its history."
+    xp: 30
+  - id: day
+    question: "On which day of that year? Write it like 1 July."
+    answer: ["1 July", "1st July", "July 1", "July 1st", "01 July", "1 July 1970"]
+    xp: 20

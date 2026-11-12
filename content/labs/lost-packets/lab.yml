@@ -1,0 +1,38 @@
+title: "Lost Packets"
+summary: "A recording of the club Wi-Fi while someone logged in over plain HTTP."
+scenario: |
+  We recorded the traffic on the club Wi-Fi while a member logged in to the old club intranet, which never got HTTPS.
+
+  Start the machine, download the capture and find the password they used.
+category: forensics
+difficulty: medium
+minutes: 30
+icon: network
+updated: "2026-11-12"
+order: 240
+machine:
+  image: club/lost-packets:latest
+  port: 80
+  flag: udsm{plaintext_http_leaks_[USER_HASH]}
+tasks:
+  - id: server
+    question: "What is the IP address of the intranet server?"
+    answer: ["192.168.10.5"]
+    format: "***.***.**.*"
+    hint: "Open the capture in Wireshark and filter for http."
+    xp: 10
+  - id: host
+    question: "What is the intranet's host name?"
+    answer: ["intranet.club.local"]
+    format: "********.****.*****"
+    xp: 10
+  - id: username
+    question: "Which username logged in?"
+    answer: ["treasurer"]
+    format: "*********"
+    xp: 10
+  - id: flag
+    question: "What password did they use? It is the flag."
+    flag: true
+    hint: "Form data is URL-encoded: %7B is { and %7D is }."
+    xp: 60

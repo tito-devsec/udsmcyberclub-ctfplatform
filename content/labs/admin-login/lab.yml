@@ -1,0 +1,32 @@
+title: "Admin Login"
+summary: "Only the admin can see the flag, and nobody knows the admin's password."
+scenario: |
+  Only the admin can see the flag, and the admin's password is long and random. Visitors can log in as `guest` with the password `guest`.
+
+  The login page builds an SQL query from what you type. Start the machine and log in as the admin without the password.
+category: web
+difficulty: medium
+minutes: 30
+icon: database
+updated: "2026-11-12"
+order: 90
+machine:
+  image: club/admin-login:latest
+  port: 80
+  flag: udsm{sql_injection_bypass_[USER_HASH]}
+tasks:
+  - id: table
+    question: "Which table does the login query read from?"
+    answer: ["users"]
+    format: "*****"
+    hint: "Log in as guest and open the Debug section under the form."
+    xp: 10
+  - id: comment
+    question: "Which two characters start a comment in SQL?"
+    answer: ["--"]
+    format: "**"
+    xp: 10
+  - id: flag
+    question: "What is the flag you see as the admin?"
+    flag: true
+    xp: 70

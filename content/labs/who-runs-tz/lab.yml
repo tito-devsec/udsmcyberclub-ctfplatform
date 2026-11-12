@@ -1,0 +1,24 @@
+title: "Who Runs .tz?"
+summary: "Every country's internet domain has a manager. Find out who manages .tz."
+scenario: |
+  Every top-level domain, from `.com` to `.tz`, has an organisation that manages it, and the list is public.
+
+  Find out who manages Tanzania's `.tz` domain, according to the official record.
+category: osint
+difficulty: easy
+minutes: 10
+icon: world
+updated: "2026-11-12"
+order: 320
+tasks:
+  - id: database
+    question: "Which organisation publishes the Root Zone Database of every top-level domain?"
+    answer: ["IANA", "Internet Assigned Numbers Authority", "the Internet Assigned Numbers Authority"]
+    format: "****"
+    xp: 15
+  - id: manager
+    question: "Which organisation manages .tz, according to that database? Give its short name."
+    answer: ["TCRA", "Tanzania Communications Regulatory Authority", "the Tanzania Communications Regulatory Authority"]
+    format: "****"
+    hint: "Look for the sponsoring organisation on the page for .tz."
+    xp: 25

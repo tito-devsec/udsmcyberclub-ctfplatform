@@ -1,0 +1,35 @@
+title: "Strings Attached"
+summary: "Firmware from the club room's door lock, with a debug token somewhere inside."
+scenario: |
+  We copied the firmware off the electronic lock on the club room door. The vendor's support page says it contains a debug token.
+
+  Start the machine, download `firmware.bin` and find the readable text hidden in the binary.
+category: forensics
+difficulty: easy
+minutes: 15
+icon: microchip
+updated: "2026-11-12"
+order: 220
+machine:
+  image: club/strings-attached:latest
+  port: 80
+  flag: udsm{strings_finds_hidden_text_[USER_HASH]}
+tasks:
+  - id: tool
+    question: "Which command prints the readable text in any file?"
+    answer: ["strings"]
+    format: "*******"
+    xp: 10
+  - id: version
+    question: "What is the firmware's version number?"
+    answer: ["2.4.1", "v2.4.1"]
+    format: "*.*.*"
+    xp: 10
+  - id: vendor
+    question: "Which company made the lock?"
+    answer: ["Door Systems Ltd.", "Door Systems Ltd", "Door Systems"]
+    xp: 10
+  - id: flag
+    question: "What is the debug token?"
+    flag: true
+    xp: 40

@@ -1,0 +1,31 @@
+title: "Hidden Pages"
+summary: "The club website says it has nothing to hide, and asks search engines to stay away from part of it."
+scenario: |
+  The club website claims it has no secret pages. Its developers did ask search engines to stay away from part of it, though, and that request is public.
+
+  Start the machine and find the page the site would rather nobody saw.
+category: web
+difficulty: easy
+minutes: 15
+icon: spider-web
+updated: "2026-11-12"
+order: 20
+machine:
+  image: club/hidden-pages:latest
+  port: 80
+  flag: udsm{robots_txt_is_public_[USER_HASH]}
+tasks:
+  - id: file
+    question: "Which file tells search engines what to skip? Give its full path."
+    answer: ["/robots.txt", "robots.txt"]
+    format: "/******.***"
+    xp: 10
+  - id: path
+    question: "Which path does the site ask crawlers to stay away from?"
+    answer: ["/staff-notes/", "/staff-notes", "staff-notes", "staff-notes/"]
+    format: "/***********/"
+    xp: 15
+  - id: flag
+    question: "What is the flag on that page?"
+    flag: true
+    xp: 40

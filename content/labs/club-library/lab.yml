@@ -1,0 +1,31 @@
+title: "Club Library"
+summary: "A library that opens members' notes by file name. The flag is outside its folder."
+scenario: |
+  The club library lets you read members' notes in the browser. The notes are kept in `/app/books` on the server, and the flag is in `/flag.txt`, at the top of the file system.
+
+  Start the machine and read a file the library was never meant to open.
+category: web
+difficulty: medium
+minutes: 25
+icon: books
+updated: "2026-11-12"
+order: 70
+machine:
+  image: club/club-library:latest
+  port: 80
+  flag: udsm{dot_dot_slash_[USER_HASH]}
+tasks:
+  - id: parameter
+    question: "Which parameter in the address names the file to open?"
+    answer: ["book"]
+    format: "****"
+    xp: 10
+  - id: payload
+    question: "What do you put after book= to open /flag.txt?"
+    answer: ["../../flag.txt", "../../../flag.txt", "../../../../flag.txt", "../../../../../flag.txt", "../../../../../../flag.txt"]
+    hint: "Each ../ climbs one folder up, from /app/books."
+    xp: 20
+  - id: flag
+    question: "What is the flag?"
+    flag: true
+    xp: 60
