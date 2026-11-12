@@ -7,6 +7,19 @@
 		reverse_proxy range:8080
 	}
 
+	# Changing, deleting or resetting the password of a user on the platform passes through
+	# the CyberRange service first. Any admin may look after members, but only the
+	# superadmin changes a role or an admin's account. It then sends the request on to the
+	# platform itself.
+	@userchange {
+		method PUT DELETE
+		path /api/admin/users/*
+	}
+	handle @userchange {
+		rewrite * /api/range/gate{path}
+		reverse_proxy range:8080
+	}
+
 	# The interface's script and style files can keep their names when it is rebuilt, so
 	# browsers must ask for a newer copy each time rather than trust the one they saved.
 	# Asking is cheap: the answer is "not modified" unless the file changed.
