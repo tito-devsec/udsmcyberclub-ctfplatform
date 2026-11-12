@@ -34,7 +34,7 @@ import api from '@Api'
 import classes from '@Styles/Community.module.css'
 import range from '@Styles/Range.module.css'
 
-type Tab = 'modules' | 'module-certificates' | 'paths' | 'path-certificates' | 'labs' | 'badges'
+type Tab = 'modules' | 'module-certificates' | 'paths' | 'path-certificates' | 'game-certificates' | 'labs' | 'badges'
 
 const LINK_KEYS: (keyof ProfileLinks)[] = ['github', 'linkedin', 'x', 'website']
 // what the platform accepts as a profile picture
@@ -191,6 +191,7 @@ const ProfilePage: FC = () => {
 
   const moduleCertificates = profile?.certificates.filter((c) => c.kind === 'module') ?? []
   const pathCertificates = profile?.certificates.filter((c) => c.kind === 'path') ?? []
+  const gameCertificates = profile?.certificates.filter((c) => c.kind === 'game') ?? []
   const earned = profile?.badges.filter((badge) => badge.earnedAt) ?? []
   const links = profile ? LINK_KEYS.filter((key) => profile.links[key]) : []
 
@@ -200,6 +201,7 @@ const ProfilePage: FC = () => {
         { id: 'module-certificates', count: moduleCertificates.length },
         { id: 'paths', count: profile.paths.length },
         { id: 'path-certificates', count: pathCertificates.length },
+        { id: 'game-certificates', count: gameCertificates.length },
         { id: 'labs', count: profile.labs.length },
         { id: 'badges', count: earned.length },
       ]
@@ -471,7 +473,7 @@ const ProfilePage: FC = () => {
 
               {/* everything they finished */}
               <section>
-                <div className={range.pills} style={{ justifyContent: 'center', marginBottom: 24 }}>
+                <div className={cx(range.pills, classes.profileTabs)}>
                   {tabs.map((item) => (
                     <button
                       key={item.id}
@@ -528,6 +530,17 @@ const ProfilePage: FC = () => {
                     </div>
                   ) : (
                     empty(t('range.profile.empty.path-certificates'))
+                  ))}
+
+                {tab === 'game-certificates' &&
+                  (gameCertificates.length > 0 ? (
+                    <div className={range.grid}>
+                      {gameCertificates.map((certificate) => (
+                        <CertificateCard key={certificate.id} certificate={certificate} />
+                      ))}
+                    </div>
+                  ) : (
+                    empty(t('range.profile.empty.game-certificates'))
                   ))}
 
                 {tab === 'labs' &&

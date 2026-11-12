@@ -107,27 +107,65 @@
     "covers": "Modules in this path",
     "date": "Date",
     "for": {
+      "game": "has taken part in the capture-the-flag game",
       "module": "has successfully completed the module",
       "path": "has successfully completed the skill path"
     },
     "given_to": "This acknowledges that",
     "heading": "Certificate of Completion",
+    "heading_game": "Certificate of Participation",
     "id": "Certificate ID",
+    "individual": "Played individually",
     "issued": "Issued {{date}}",
     "kind": {
+      "game": "Certificate of participation",
       "module": "Module certificate",
       "path": "Path certificate"
     },
     "name_hint": "This certificate shows your user name. To have your real name printed on it, add it under",
     "not_found": "There is no certificate with this number.",
     "offered_by": "offered by",
+    "organised_by": "organised by",
     "page_title": "Certificate: {{title}}",
     "print": "Print or save as PDF",
     "profile": "{{name}}'s profile",
+    "seal": "UDSM CYBER CLUB • CERTIFICATE OF COMPLETION •",
+    "seal_game": "UDSM CYBER CLUB • CERTIFICATE OF PARTICIPATION •",
+    "team": "Team: {{team}}",
     "title": "Certificate",
     "university": "University of Dar es Salaam",
     "verified": "This certificate is genuine. UDSM CyberRange issued it to {{name}}.",
     "verify_at": "Verify this certificate at {{address}}"
+  },
+  "certificates": {
+    "column": {
+      "dates": "Dates",
+      "issued": "Issued"
+    },
+    "games": "Certificates of participation",
+    "games_lead": "When a game is over, issue a certificate of participation to everyone who took part: the members of each accepted team who joined it. They find it on their profile. Issuing again only adds the people who do not have one yet.",
+    "issue": "Issue certificates",
+    "issue_again": "Issue again",
+    "issue_confirm": "Issue a certificate of participation to everyone who took part in {{title}}?",
+    "issued_note_one": "{{count}} new certificate issued ({{total}} in all).",
+    "issued_note_other": "{{count}} new certificates issued ({{total}} in all).",
+    "kind": {
+      "game": "Game",
+      "module": "Module",
+      "path": "Skill path"
+    },
+    "lead": "See what each certificate looks like before anyone receives one, issue certificates of participation when a game is over, and set who signs them.",
+    "name": "Name to show",
+    "no_games": "There are no games on the platform yet.",
+    "none": "There is nothing of this kind yet.",
+    "not_over": "Certificates of participation are issued once the game is over.",
+    "open": "Open certificates",
+    "preview": "Preview",
+    "sample_name": "Student Name",
+    "sample_number": "PREVIEW",
+    "sample_team": "Team Name",
+    "subject": "Which one",
+    "title": "Certificates"
   },
   "count": {
     "hands_on_one": "{{count}} hands-on",
@@ -320,6 +358,7 @@
     "country_hint": "Choose your country",
     "edit": "Edit profile",
     "empty": {
+      "game-certificates": "Taking part in a game earns a certificate of participation once it is over. None yet.",
       "labs": "No lab solved yet.",
       "module-certificates": "Every finished module earns a certificate. None yet.",
       "modules": "No module finished yet.",
@@ -352,6 +391,7 @@
     "score": "Score",
     "tab": {
       "badges": "Badges",
+      "game-certificates": "Game certificates",
       "labs": "Labs",
       "module-certificates": "Module certificates",
       "modules": "Completed modules",
@@ -642,9 +682,12 @@
       "approved": "Approved",
       "changed": "Unpublished changes",
       "draft": "Draft",
+      "ended": "Over",
       "published": "Published",
       "rejected": "Sent back",
-      "submitted": "Waiting for review"
+      "running": "Running",
+      "submitted": "Waiting for review",
+      "upcoming": "Upcoming"
     },
     "summary": "Summary",
     "summary_hint": "One or two lines, shown on its card.",

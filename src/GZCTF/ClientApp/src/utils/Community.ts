@@ -1,7 +1,9 @@
 // Labs, profiles, the ranking and certificates: the rest of the CyberRange service's API.
+import { TFunction } from 'i18next'
 import {
   AnswerResult,
   Category,
+  coverIcon,
   Difficulty,
   MachineInfo,
   ModuleStatus,
@@ -86,7 +88,8 @@ export interface Badge {
 
 export interface Certificate {
   id: string
-  kind: 'module' | 'path'
+  // a finished module or skill path, or taking part in a game
+  kind: 'module' | 'path' | 'game'
   ref: string
   title: string
   issuedAt: string
@@ -246,9 +249,15 @@ export interface CertificateDetail extends Certificate {
   // the name on the certificate, and the user name behind it
   name: string
   userName: string
+  // whether its holder has a profile here (players of a game may never have opened CyberRange)
+  profile: boolean
   // who signed it: the signatories on the day it was issued
   signatories: Signatory[]
   summary: string | null
+  // the symbol of the module or skill path
+  icon: string | null
+  // for a certificate of participation: when the game was, and the team they played in
+  game: GameFacts | null
   category: Category | null
   difficulty: Difficulty | null
   minutes: number | null
@@ -259,6 +268,57 @@ export const useCertificate = (id?: string) =>
   useRange<CertificateDetail>(id ? `${RANGE_API}/certificates/${id}` : null)
 
 export const certificateUrl = (id: string) => `/certificates/${id}`
+
+export interface GameFacts {
+  start: string | null
+  end: string | null
+  team: string | null
+}
+
+// The symbol in the middle of a certificate's seal: the module's or skill path's own, or a
+// flag for a game.
+export const certificateIcon = (certificate: {
+  kind: Certificate['kind']
+  icon: string | null
+  category?: Category | null
+}): UiconName =>
+  certificate.kind === 'game' ? 'flag-alt' : coverIcon(certificate.icon, certificate.category ?? undefined)
+
+// "12 Nov 2026 – 14 Nov 2026 · Team: Byte Bandits", for a certificate of participation
+export const gameFacts = (game: GameFacts, t: TFunction, language: string) =>
+  [
+    game.start && game.end && `${shortDate(game.start, language)} – ${shortDate(game.end, language)}`,
+    game.team ? t('range.certificate.team', { team: game.team }) : t('range.certificate.individual'),
+  ]
+    .filter(Boolean)
+    .join(' · ')
+
+// ---- games, for the superadmin: their certificates of participation ----
+
+export interface CertificateGame {
+  id: number
+  title: string
+  summary: string
+  hidden: boolean
+  start: string
+  end: string
+  individual: boolean
+  stage: 'upcoming' | 'running' | 'ended'
+  // certificates of participation issued so far
+  issued: number
+}
+
+export const useCertificateGames = (enabled: boolean) =>
+  useRange<CertificateGame[]>(enabled ? `${RANGE_API}/admin/games` : null)
+
+export const gameCertificatesApi = {
+  // to everyone who took part, once the game is over; again, to whoever has none yet
+  issue: (game: number) =>
+    rangeCall<{ participants: number; added: number; issued: number }>(
+      'POST',
+      `${RANGE_API}/admin/games/${game}/certificates`
+    ),
+}
 
 export const useSignatories = (enabled = true) => useRange<Signatory[]>(enabled ? `${RANGE_API}/signatories` : null)
 
