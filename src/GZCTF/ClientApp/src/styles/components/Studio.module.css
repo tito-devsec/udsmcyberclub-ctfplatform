@@ -84,7 +84,8 @@
   }
 
   &[data-status='changed'],
-  &[data-status='submitted'] {
+  &[data-status='submitted'],
+  &[data-status='running'] {
     color: light-dark(#8a5a00, #ffd43b);
     background: light-dark(rgba(250, 176, 5, 0.18), rgba(250, 176, 5, 0.16));
   }

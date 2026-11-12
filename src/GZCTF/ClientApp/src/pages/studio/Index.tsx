@@ -6,7 +6,6 @@ import { Link, useNavigate } from 'react-router'
 import { Uicon } from '@Components/Uicon'
 import { Note, PoweredBy } from '@Components/range/Parts'
 import { RangePage } from '@Components/range/RangePage'
-import { SignatoriesCard } from '@Components/range/Signatories'
 import { StatusChip } from '@Components/range/Studio'
 import { ago, shortDate } from '@Utils/Community'
 import { useMe } from '@Utils/Range'
@@ -235,7 +234,19 @@ const StudioPage: FC = () => {
               )}
             </section>
 
-            {superadmin && <SignatoriesCard />}
+            {superadmin && (
+              <section className={classes.panel}>
+                <div className={classes.panelHead}>
+                  <h2>{t('range.certificates.title')}</h2>
+                  <Button component={Link} to="/studio/certificates" radius="sm" leftSection={<Uicon name="diploma" />}>
+                    {t('range.certificates.open')}
+                  </Button>
+                </div>
+                <p className={range.dim} style={{ margin: 0, maxWidth: 820 }}>
+                  {t('range.certificates.lead')}
+                </p>
+              </section>
+            )}
           </div>
         )}
 
