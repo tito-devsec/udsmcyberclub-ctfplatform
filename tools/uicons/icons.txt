@@ -141,3 +141,16 @@ users-alt
 github brands
 linkedin brands
 twitter-alt brands
+
+# the studio, profile pictures and certificate signatures
+camera
+plus
+upload
+arrow-small-up
+gamepad
+disk
+paper-plane
+signature
+chalkboard-user
+undo
+eye-crossed
