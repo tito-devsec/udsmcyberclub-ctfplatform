@@ -3,11 +3,11 @@ import cx from 'clsx'
 import { FC, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
-import { Markdown } from '@Components/MarkdownRenderer'
 import { Uicon } from '@Components/Uicon'
 import { ChapterBlock } from '@Components/range/Outline'
 import { CategoryLabel, Cover, Label, Note, PoweredBy, StripedProgress, Xp } from '@Components/range/Parts'
 import { RangePage } from '@Components/range/RangePage'
+import { SafeMarkdown } from '@Components/range/SafeMarkdown'
 import {
   coverIcon,
   DifficultyIcon,
@@ -191,7 +191,7 @@ const ModulePage: FC = () => {
                     </div>
                   </div>
 
-                  {module.description && <Markdown source={module.description} className={classes.prose} />}
+                  {module.description && <SafeMarkdown source={module.description} className={classes.prose} />}
 
                   {module.paths.length > 0 && (
                     <div>

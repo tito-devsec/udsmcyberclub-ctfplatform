@@ -3,10 +3,10 @@ import cx from 'clsx'
 import { FC, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
-import { Markdown } from '@Components/MarkdownRenderer'
 import { ModuleRow } from '@Components/range/Cards'
 import { Cover, Facts, Note, PathLabel, PoweredBy, StripedProgress } from '@Components/range/Parts'
 import { RangePage } from '@Components/range/RangePage'
+import { SafeMarkdown } from '@Components/range/SafeMarkdown'
 import { coverIcon, pathUrl, percentOf, rangeApi, sectionUrl, usePath, useRangeRefresh } from '@Utils/Range'
 import { showErrorMsg } from '@Utils/Shared'
 import { usePageTitle } from '@Hooks/usePageTitle'
@@ -143,7 +143,7 @@ const SkillPath: FC = () => {
                   <h2 className={classes.sectionTitle} style={{ marginBottom: 16 }}>
                     {t('range.path.about')}
                   </h2>
-                  <Markdown source={path.description} className={classes.prose} />
+                  <SafeMarkdown source={path.description} className={classes.prose} />
                 </section>
               )}
             </div>

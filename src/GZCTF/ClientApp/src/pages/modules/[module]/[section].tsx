@@ -3,7 +3,6 @@ import cx from 'clsx'
 import { FC, useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
-import { Markdown } from '@Components/MarkdownRenderer'
 import { Uicon } from '@Components/Uicon'
 import { WithRole } from '@Components/WithRole'
 import { useCelebrate } from '@Components/range/Celebrate'
@@ -12,6 +11,7 @@ import { ChapterBlock } from '@Components/range/Outline'
 import { Cover, Note, PoweredBy, StripedProgress, Xp } from '@Components/range/Parts'
 import { QuestionItem } from '@Components/range/QuestionItem'
 import { RangePage } from '@Components/range/RangePage'
+import { SafeMarkdown } from '@Components/range/SafeMarkdown'
 import {
   AnswerResult,
   coverIcon,
@@ -167,7 +167,7 @@ const SectionReader: FC = () => {
                 </div>
                 <h1 className={classes.readerTitle}>{section.title}</h1>
 
-                <Markdown source={section.content ?? ''} className={classes.prose} />
+                <SafeMarkdown source={section.content ?? ''} className={classes.prose} />
 
                 {section.machine && (
                   <div className={classes.block}>

@@ -3,7 +3,6 @@ import cx from 'clsx'
 import { FC, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
-import { Markdown } from '@Components/MarkdownRenderer'
 import { Uicon } from '@Components/Uicon'
 import { useCelebrate } from '@Components/range/Celebrate'
 import { categoryTone, PlayerLink } from '@Components/range/Community'
@@ -11,6 +10,7 @@ import { MachineBlock } from '@Components/range/MachineBlock'
 import { Note, PoweredBy, StripedProgress, Xp } from '@Components/range/Parts'
 import { QuestionItem } from '@Components/range/QuestionItem'
 import { RangePage } from '@Components/range/RangePage'
+import { SafeMarkdown } from '@Components/range/SafeMarkdown'
 import { labsApi, labUrl, shortDate, useLab } from '@Utils/Community'
 import {
   AnswerResult,
@@ -138,7 +138,7 @@ const LabPage: FC = () => {
 
                   <section className={classes.panel}>
                     <h2 className={classes.panelTitle}>{t('range.lab.scenario')}</h2>
-                    <Markdown source={lab.scenario} className={range.prose} />
+                    <SafeMarkdown source={lab.scenario} className={range.prose} />
                   </section>
 
                   {lab.files.length > 0 && (
