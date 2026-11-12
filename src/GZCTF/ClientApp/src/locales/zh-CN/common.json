@@ -121,7 +121,8 @@
       "clean_cache": "清除缓存",
       "login": "登录",
       "logout": "登出",
-      "profile": "用户信息"
+      "profile": "用户信息",
+      "settings": "账户设置"
     },
     "admin": "管理",
     "game": "赛事",

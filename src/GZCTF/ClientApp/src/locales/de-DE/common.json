@@ -121,7 +121,8 @@
       "clean_cache": "Cache leeren",
       "login": "Anmelden",
       "logout": "Abmelden",
-      "profile": "Profil"
+      "profile": "Profil",
+      "settings": "Kontoeinstellungen"
     },
     "admin": "Admin",
     "game": "Spiele",

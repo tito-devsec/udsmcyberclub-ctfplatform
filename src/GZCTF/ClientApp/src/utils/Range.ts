@@ -53,6 +53,9 @@ export interface RangeUser extends Standing {
   skillLevel: SkillLevel | null
   enrolledPath: string | null
   weekXp: number
+  // place in the all-time ranking, out of how many people
+  position: number | null
+  of: number
 }
 
 export interface ModuleSummary {
@@ -160,6 +163,8 @@ export interface MachineInfo {
   section: string
   title: string
   moduleTitle: string
+  // the lab the machine belongs to, when it is not a module's
+  lab: string | null
   entry: string
   startedAt: string
   expiresAt: string
@@ -175,9 +180,10 @@ export class RangeApiError extends Error {
   }
 }
 
-const BASE = '/api/range'
+export const RANGE_API = '/api/range'
+const BASE = RANGE_API
 
-async function call<T>(method: string, url: string, body?: unknown): Promise<T> {
+export async function rangeCall<T>(method: string, url: string, body?: unknown): Promise<T> {
   const res = await fetch(url, {
     method,
     credentials: 'same-origin',
@@ -192,11 +198,11 @@ async function call<T>(method: string, url: string, body?: unknown): Promise<T> 
 
 // Answers differ from one student to the next, so what is remembered is kept per student.
 type Key = readonly [url: string, userId: string]
-const fetcher = <T>([url]: Key) => call<T>('GET', url)
+const fetcher = <T>([url]: Key) => rangeCall<T>('GET', url)
 
 const still: SWRConfiguration = { refreshInterval: 0, revalidateOnFocus: false, shouldRetryOnError: false }
 
-function useRange<T>(url: string | null, config: SWRConfiguration = still) {
+export function useRange<T>(url: string | null, config: SWRConfiguration = still) {
   const { user } = useUser()
   const key: Key | null = url ? [url, user?.userId ?? ''] : null
   return useSWR<T, RangeApiError>(key, fetcher, config)
@@ -239,14 +245,14 @@ const sectionApi = (module: string, section: string) => `${BASE}/modules/${modul
 
 export const rangeApi = {
   updateMe: (changes: { skillLevel?: SkillLevel; enrolledPath?: string | null }) =>
-    call<RangeUser>('PUT', `${BASE}/me`, changes),
+    rangeCall<RangeUser>('PUT', `${BASE}/me`, changes),
   answer: (module: string, section: string, question: string, answer: string) =>
-    call<AnswerResult>('POST', `${sectionApi(module, section)}/questions/${question}`, { answer }),
-  complete: (module: string, section: string) => call<Outcome>('POST', `${sectionApi(module, section)}/complete`),
+    rangeCall<AnswerResult>('POST', `${sectionApi(module, section)}/questions/${question}`, { answer }),
+  complete: (module: string, section: string) => rangeCall<Outcome>('POST', `${sectionApi(module, section)}/complete`),
   startMachine: (module: string, section: string) =>
-    call<MachineInfo>('POST', `${sectionApi(module, section)}/machine`),
-  extendMachine: () => call<MachineInfo>('POST', `${BASE}/machine/extend`),
-  stopMachine: () => call<null>('DELETE', `${BASE}/machine`),
+    rangeCall<MachineInfo>('POST', `${sectionApi(module, section)}/machine`),
+  extendMachine: () => rangeCall<MachineInfo>('POST', `${BASE}/machine/extend`),
+  stopMachine: () => rangeCall<null>('DELETE', `${BASE}/machine`),
 }
 
 export const pathUrl = (path: string) => `/paths/${path}`

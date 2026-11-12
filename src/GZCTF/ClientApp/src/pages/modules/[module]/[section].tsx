@@ -1,5 +1,4 @@
 import { Button, Drawer, Tooltip } from '@mantine/core'
-import { showNotification } from '@mantine/notifications'
 import cx from 'clsx'
 import { FC, useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -7,6 +6,7 @@ import { Link, useParams } from 'react-router'
 import { Markdown } from '@Components/MarkdownRenderer'
 import { Uicon } from '@Components/Uicon'
 import { WithRole } from '@Components/WithRole'
+import { useCelebrate } from '@Components/range/Celebrate'
 import { MachineBlock } from '@Components/range/MachineBlock'
 import { ChapterBlock } from '@Components/range/Outline'
 import { Cover, Note, PoweredBy, StripedProgress, Xp } from '@Components/range/Parts'
@@ -17,7 +17,6 @@ import {
   coverIcon,
   MachineInfo,
   moduleUrl,
-  Outcome,
   percentOf,
   rangeApi,
   sectionUrl,
@@ -52,44 +51,7 @@ const SectionReader: FC = () => {
     window.scrollTo(0, 0)
   }, [moduleSlug, sectionSlug])
 
-  const celebrate = useCallback(
-    (outcome: Outcome) => {
-      if (outcome.xp > 0) {
-        showNotification({
-          color: 'teal',
-          title: outcome.sectionCompleted ? t('range.section.completed') : t('range.question.correct'),
-          message: t('range.xp.gained', { xp: outcome.xp }),
-          icon: <Uicon name="check" />,
-        })
-      }
-      if (outcome.moduleCompleted) {
-        showNotification({
-          color: 'teal',
-          title: t('range.module.completed_title'),
-          message: t('range.module.completed_content'),
-          icon: <Uicon name="trophy" />,
-          autoClose: 8000,
-        })
-      }
-      if (outcome.rankUp && outcome.standing) {
-        showNotification({
-          color: 'violet',
-          title: t('range.rank.up_title'),
-          message: t('range.rank.up_content', { rank: outcome.standing.rank }),
-          icon: <Uicon name="crown" />,
-          autoClose: 10000,
-        })
-      } else if (outcome.levelUp && outcome.standing) {
-        showNotification({
-          title: t('range.rank.level_up_title'),
-          message: t('range.rank.level_up_content', { level: outcome.standing.level }),
-          icon: <Uicon name="sparkles" />,
-          autoClose: 8000,
-        })
-      }
-    },
-    [t]
-  )
+  const celebrate = useCelebrate('section')
 
   const onAnswered = useCallback(
     async (result: AnswerResult) => {
@@ -209,7 +171,13 @@ const SectionReader: FC = () => {
 
                 {section.machine && (
                   <div className={classes.block}>
-                    <MachineBlock module={moduleSlug} section={sectionSlug} machine={machine} onChange={onMachine} />
+                    <MachineBlock
+                      module={moduleSlug}
+                      section={sectionSlug}
+                      machine={machine}
+                      start={() => rangeApi.startMachine(moduleSlug, sectionSlug)}
+                      onChange={onMachine}
+                    />
                   </div>
                 )}
 
@@ -222,10 +190,9 @@ const SectionReader: FC = () => {
                     {section.questions.map((question, index) => (
                       <QuestionItem
                         key={`${section.slug}:${question.id}`}
-                        module={moduleSlug}
-                        section={sectionSlug}
                         number={index + 1}
                         question={question}
+                        submit={(answer) => rangeApi.answer(moduleSlug, sectionSlug, question.id, answer)}
                         onAnswered={onAnswered}
                       />
                     ))}

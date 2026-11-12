@@ -6,6 +6,83 @@
     "sign_in_to_start": "Sign in to start",
     "start": "Start learning"
   },
+  "badge": {
+    "all": "{{earned}} of {{total}} earned",
+    "all-rounder": {
+      "how": "Solve labs in four different categories.",
+      "name": "All-Rounder"
+    },
+    "crypto": {
+      "how": "Solve three crypto labs.",
+      "name": "Codebreaker"
+    },
+    "earned": "Earned {{date}}",
+    "elite-hacker": {
+      "how": "Reach the Elite Hacker rank.",
+      "name": "Elite Hacker"
+    },
+    "first-answer": {
+      "how": "Answer your first question.",
+      "name": "First Steps"
+    },
+    "first-flag": {
+      "how": "Capture your first flag from a machine.",
+      "name": "Flag Hunter"
+    },
+    "first-lab": {
+      "how": "Solve your first lab.",
+      "name": "Lab Rat"
+    },
+    "first-module": {
+      "how": "Finish your first module.",
+      "name": "Module Complete"
+    },
+    "first-path": {
+      "how": "Finish a whole skill path.",
+      "name": "Pathfinder"
+    },
+    "five-labs": {
+      "how": "Solve five labs.",
+      "name": "Hands On"
+    },
+    "forensics": {
+      "how": "Solve three forensics labs.",
+      "name": "Investigator"
+    },
+    "guru": {
+      "how": "Reach the Guru rank.",
+      "name": "Guru"
+    },
+    "hacker": {
+      "how": "Reach the Hacker rank.",
+      "name": "Hacker"
+    },
+    "hall-of-fame": {
+      "how": "Finish a week in the top three.",
+      "name": "Hall of Famer"
+    },
+    "omniscient": {
+      "how": "Reach the Omniscient rank.",
+      "name": "Omniscient"
+    },
+    "osint": {
+      "how": "Solve three OSINT labs.",
+      "name": "Detective"
+    },
+    "pro-hacker": {
+      "how": "Reach the Pro Hacker rank.",
+      "name": "Pro Hacker"
+    },
+    "streak": {
+      "how": "Keep a streak going for four weeks.",
+      "name": "On Fire"
+    },
+    "title": "Badges",
+    "web": {
+      "how": "Solve three web labs.",
+      "name": "Web Explorer"
+    }
+  },
   "catalogue": {
     "empty": "No modules match these filters.",
     "lead": "Every module on the platform. Take them in any order, or follow a skill path."
@@ -24,6 +101,28 @@
     "stego": "Steganography",
     "web": "Web",
     "web3": "Web3"
+  },
+  "certificate": {
+    "copy": "Copy link",
+    "covers": "Modules in this path",
+    "date": "Date issued",
+    "for": {
+      "module": "has completed the module",
+      "path": "has completed the skill path"
+    },
+    "given_to": "This certifies that",
+    "heading": "Certificate of Completion",
+    "issued": "Issued {{date}}",
+    "kind": {
+      "module": "Module certificate",
+      "path": "Path certificate"
+    },
+    "not_found": "There is no certificate with this number.",
+    "page_title": "Certificate: {{title}}",
+    "print": "Print or save as PDF",
+    "profile": "{{name}}'s profile",
+    "title": "Certificate",
+    "verified": "This certificate is genuine. UDSM CyberRange issued it to {{name}}."
   },
   "count": {
     "hands_on_one": "{{count}} hands-on",
@@ -51,18 +150,68 @@
   },
   "home": {
     "all_modules": "View all modules",
+    "all_news": "View all posts",
     "in_progress": "Modules in progress",
     "lead": "Short sections teach one idea at a time. Then you use it on a machine of your own, answer the questions, and earn XP towards your next rank.",
     "my_path": "My path",
+    "news": "Latest news",
     "nothing_started": "You have no module in progress. Start one from your path or from the catalogue.",
     "paths_lead": "Skill paths are groups of modules, in order, that build one cybersecurity skill.",
-    "title": "Learn security by doing it",
+    "title": "Learn cybersecurity hands-on",
     "welcome": "Welcome, {{name}}"
   },
   "kind": {
     "hands_on": "Hands-on",
     "lesson": "Lesson",
     "path": "Skill path"
+  },
+  "lab": {
+    "all": "All labs",
+    "back": "Back to labs",
+    "bonus": "bonus for solving the whole lab",
+    "categories": "Categories",
+    "category": "Category",
+    "coming": "There are no labs in this category yet. They are on the way.",
+    "count_one": "{{count}} lab",
+    "count_other": "{{count}} labs",
+    "details": "Lab details",
+    "earned": "XP earned",
+    "empty": "No labs match these filters.",
+    "files": "Files",
+    "first_solve": "First solved by",
+    "kind": {
+      "challenge": "Challenge",
+      "machine": "Machine"
+    },
+    "lead": "Machines and challenges to solve on your own, by category. There are no lessons here: bring what you learned in Skill Paths.",
+    "machine_note": "A private copy of this lab's target, started only for you.",
+    "not_found": "There is no such lab.",
+    "not_solved": "Nobody has solved it yet. Be the first.",
+    "progress": "Your progress",
+    "reward": "XP reward",
+    "scenario": "Scenario",
+    "search": "Search labs",
+    "sign_in_one": "Sign in to answer this lab's task.",
+    "sign_in_other": "Sign in to answer this lab's {{count}} tasks.",
+    "solved": "Solved",
+    "solved_by": "Solved by",
+    "solved_content": "You answered every task of this lab.",
+    "solved_note": "You solved this lab and earned {{xp}} XP.",
+    "solved_of": "{{solved}} of {{total}} solved",
+    "solved_title": "Lab solved",
+    "solvers_one": "Solved by {{count}} student",
+    "solvers_other": "Solved by {{count}} students",
+    "status": {
+      "completed": "Solved",
+      "new": "Not started",
+      "started": "In progress"
+    },
+    "students_one": "{{count}} student",
+    "students_other": "{{count}} students",
+    "task": "Task {{n}}",
+    "tasks": "Tasks",
+    "type": "Type",
+    "updated": "Updated"
   },
   "level": {
     "ask_content": "It decides which skill path is suggested to you first. You can change it at any time.",
@@ -95,6 +244,21 @@
     "time_left": "Time left:",
     "title": "Your machine"
   },
+  "members": {
+    "admin_role": "Admins already have every tutor right.",
+    "admin_verified": "Admins are always verified.",
+    "column": {
+      "level": "Level chosen",
+      "member": "Member",
+      "role": "Role"
+    },
+    "lead": "Everyone who has opened CyberRange. Choose who is a tutor and who carries the verified tick. Admins are made in the platform's own admin pages.",
+    "make_tutor": "Make {{name}} a tutor",
+    "refused": "Only the superadmin can open this page.",
+    "summary": "Members: {{members}} · Tutors: {{tutors}} · Verified: {{verified}}",
+    "title": "Members",
+    "verify": "Verify {{name}}"
+  },
   "module": {
     "collapse_all": "Collapse all sections",
     "completed_content": "You finished every section of this module.",
@@ -114,6 +278,8 @@
     "updated": "Last updated {{date}}"
   },
   "nav": {
+    "labs": "Labs",
+    "members": "Members",
     "modules": "Modules",
     "paths": "Skill Paths"
   },
@@ -133,6 +299,56 @@
     "see_full": "See full path"
   },
   "powered_by": "Powered by",
+  "profile": {
+    "account": "Account settings",
+    "active": "Active {{when}}",
+    "answered": "{{questions}} questions answered, {{flags}} flags captured",
+    "bio": "Bio",
+    "bio_hint": "A line or two about you.",
+    "certificates": "Certificates earned",
+    "country": "Country",
+    "country_hint": "Choose your country",
+    "edit": "Edit profile",
+    "empty": {
+      "labs": "No lab solved yet.",
+      "module-certificates": "Every finished module earns a certificate. None yet.",
+      "modules": "No module finished yet.",
+      "path-certificates": "Every finished skill path earns a certificate. None yet.",
+      "paths": "No skill path started yet."
+    },
+    "joined": "Joined {{date}}",
+    "level": "Level",
+    "link": {
+      "github": "GitHub",
+      "github_hint": "Your GitHub user name",
+      "linkedin": "LinkedIn",
+      "linkedin_hint": "The name at the end of your LinkedIn address",
+      "website": "Website",
+      "website_hint": "https://",
+      "x": "X",
+      "x_hint": "Your X user name, without the @"
+    },
+    "modules": "Modules completed",
+    "no_links": "No social media links added yet.",
+    "not_found": "There is no such student.",
+    "of_one": "of {{count}}",
+    "of_other": "of {{count}}",
+    "progress": "Progress by category",
+    "rank": "Rank",
+    "save": "Save",
+    "score": "Score",
+    "tab": {
+      "badges": "Badges",
+      "labs": "Labs",
+      "module-certificates": "Module certificates",
+      "modules": "Completed modules",
+      "path-certificates": "Path certificates",
+      "paths": "Learning paths"
+    },
+    "title": "Profile",
+    "verified": "Verified member",
+    "verified_short": "Verified"
+  },
   "progress": {
     "completed": "{{percent}}% completed"
   },
@@ -151,6 +367,9 @@
     "level_up_title": "Level up",
     "level_xp": "Level XP",
     "next": "{{xp}} XP to {{rank}}",
+    "position_one": "#{{position}} of {{count}}",
+    "position_other": "#{{position}} of {{count}}",
+    "profile": "My profile",
     "rank": "Rank",
     "top": "You hold the highest rank.",
     "total": "Total",
@@ -158,6 +377,54 @@
     "up_title": "New rank",
     "week": "This week",
     "week_xp": "{{xp}} XP"
+  },
+  "ranking": {
+    "column": {
+      "active": "Last active",
+      "badge": "Badge",
+      "country": "Country",
+      "player": "Username",
+      "rank": "Rank",
+      "score": "Score",
+      "tasks": "Tasks completed"
+    },
+    "empty": {
+      "all": "Nobody has joined the ranking yet.",
+      "hall": "Nobody earned XP last week. The first Hall of Fame is announced when this week ends.",
+      "search": "Nobody matches that name.",
+      "week": "Nobody has earned XP this week yet."
+    },
+    "heading": {
+      "all": "All-time ranking",
+      "hall": "Hall of Fame",
+      "week": "This week"
+    },
+    "next": "Next Hall of Fame",
+    "page": "Page {{page}} of {{pages}}",
+    "per_page_one": "Show {{count}} entry",
+    "per_page_other": "Show {{count}} entries",
+    "period": {
+      "all": "Everyone, by all the XP they have earned.",
+      "hall": "The top 50 of last week, {{start}} to {{end}}. It stays as it is until this week ends.",
+      "week": "This week so far, {{start}} to {{end}}."
+    },
+    "search": "Search by name",
+    "size": "Entries per page",
+    "tab": {
+      "all": "All time",
+      "hall": "Hall of Fame",
+      "week": "This week"
+    },
+    "tasks_done_one": "{{count}} task completed",
+    "tasks_done_other": "{{count}} tasks completed",
+    "title": "Ranking",
+    "you": "You are #{{position}}"
+  },
+  "role": {
+    "admin": "Admin",
+    "student": "Student",
+    "superadmin": "Superadmin",
+    "tutor": "Tutor"
   },
   "section": {
     "answered": "{{solved}} / {{total}} answered",
@@ -183,6 +450,14 @@
     "completed": "Completed",
     "new": "Not started",
     "started": "In progress"
+  },
+  "streak": {
+    "best_one": "Personal best: {{count}} week",
+    "best_other": "Personal best: {{count}} weeks",
+    "this_week": "This week's XP",
+    "title": "Weekly streak",
+    "weeks_one": "{{count}} week",
+    "weeks_other": "{{count}} weeks"
   },
   "xp": {
     "gained": "+{{xp}} XP"

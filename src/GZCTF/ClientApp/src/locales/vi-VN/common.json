@@ -121,7 +121,8 @@
       "clean_cache": "Xóa bộ nhớ đệm",
       "login": "Đăng nhập",
       "logout": "Đăng xuất",
-      "profile": "Hồ sơ"
+      "profile": "Hồ sơ",
+      "settings": "Cài đặt tài khoản"
     },
     "admin": "Quản trị viên",
     "game": "Trò chơi",

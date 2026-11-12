@@ -121,7 +121,8 @@
       "clean_cache": "Vider le cache",
       "login": "Connexion",
       "logout": "Déconnexion",
-      "profile": "Profil"
+      "profile": "Profil",
+      "settings": "Paramètres du compte"
     },
     "admin": "Admin",
     "game": "Jeux",

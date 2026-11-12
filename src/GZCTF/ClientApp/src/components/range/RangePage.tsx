@@ -3,22 +3,32 @@ import { FC, PropsWithChildren } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
 import { WithNavBar } from '@Components/WithNavbar'
+import { PlayerAvatar } from '@Components/range/Community'
 import { SkillLevelPrompt } from '@Components/range/SkillLevel'
+import { profileUrl } from '@Utils/Community'
+import { useMe } from '@Utils/Range'
+import { useUser } from '@Hooks/useUser'
 import classes from '@Styles/Range.module.css'
 
+// The places in CyberRange, and the addresses that belong to each.
 const TABS = [
-  { label: 'range.nav.paths', link: '/paths' },
-  { label: 'range.nav.modules', link: '/modules' },
+  { label: 'range.nav.paths', link: '/', under: ['/paths'] },
+  { label: 'range.nav.modules', link: '/modules', under: ['/modules'] },
+  { label: 'range.nav.labs', link: '/labs', under: ['/labs'] },
+  { label: 'range.ranking.title', link: '/ranking', under: ['/ranking'] },
 ]
 
-// The bar across the top of the CyberRange pages: its name, and the way around it.
+// The bar across the top of the CyberRange pages: its name, the way around it, and the
+// student's own profile.
 const RangeHeader: FC = () => {
   const { t } = useTranslation()
   const { pathname } = useLocation()
+  const { data: me } = useMe()
+  const { user } = useUser()
 
   return (
     <header className={classes.header}>
-      <Link to="/paths" className={classes.wordmark}>
+      <Link to="/" className={classes.wordmark}>
         UDSM Cyber<span>Range</span>
       </Link>
       <nav className={classes.nav}>
@@ -27,11 +37,31 @@ const RangeHeader: FC = () => {
             key={tab.link}
             to={tab.link}
             className={classes.pill}
-            data-active={pathname === tab.link || pathname.startsWith(`${tab.link}/`) || undefined}
+            data-active={pathname === tab.link || tab.under.some((prefix) => pathname.startsWith(prefix)) || undefined}
           >
             {t(tab.label)}
           </Link>
         ))}
+        {me?.role === 'superadmin' && (
+          <Link to="/members" className={classes.pill} data-active={pathname.startsWith('/members') || undefined}>
+            {t('range.nav.members')}
+          </Link>
+        )}
+        {me && (
+          <Link
+            to={profileUrl(me.name)}
+            className={classes.pill}
+            data-active={pathname.startsWith('/profile') || undefined}
+            style={{ paddingLeft: 8 }}
+          >
+            <PlayerAvatar
+              name={me.name}
+              avatar={user?.avatar ?? null}
+              style={{ width: 28, height: 28, borderRadius: '50%', fontSize: '0.8rem' }}
+            />
+            {me.name}
+          </Link>
+        )}
       </nav>
     </header>
   )

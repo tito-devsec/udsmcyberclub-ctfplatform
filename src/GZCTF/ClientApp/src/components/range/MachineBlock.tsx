@@ -9,10 +9,15 @@ import { showErrorMsg } from '@Utils/Shared'
 import classes from '@Styles/Range.module.css'
 
 interface MachineBlockProps {
+  // the names this machine is kept under: a module and section, or a lab
   module: string
   section: string
   machine: MachineInfo | null | undefined
+  // starts the machine of this section or lab
+  start: () => Promise<MachineInfo>
   onChange: (machine: MachineInfo | null) => void
+  // what the machine is, when it is not a section's
+  description?: string
 }
 
 const pad = (n: number) => String(n).padStart(2, '0')
@@ -25,7 +30,7 @@ function timeLeft(expiresAt: string, now: number) {
 }
 
 // The student's own target for a hands-on section: start it, reach it, extend it, stop it.
-export const MachineBlock: FC<MachineBlockProps> = ({ module, section, machine, onChange }) => {
+export const MachineBlock: FC<MachineBlockProps> = ({ module, section, machine, start, onChange, description }) => {
   const { t } = useTranslation()
   const [busy, setBusy] = useState<'start' | 'extend' | 'stop' | null>(null)
   // the countdown's clock, moved on every second while a machine runs
@@ -48,7 +53,7 @@ export const MachineBlock: FC<MachineBlockProps> = ({ module, section, machine, 
   const run = async (action: 'start' | 'extend' | 'stop') => {
     setBusy(action)
     try {
-      if (action === 'start') onChange(await rangeApi.startMachine(module, section))
+      if (action === 'start') onChange(await start())
       else if (action === 'extend') onChange(await rangeApi.extendMachine())
       else {
         await rangeApi.stopMachine()
@@ -71,7 +76,7 @@ export const MachineBlock: FC<MachineBlockProps> = ({ module, section, machine, 
         </span>
         <div>
           <div style={{ fontSize: '1.15rem', fontWeight: 700 }}>{t('range.machine.title')}</div>
-          <div className={classes.dim}>{t('range.machine.description')}</div>
+          <div className={classes.dim}>{description ?? t('range.machine.description')}</div>
         </div>
       </div>
 

@@ -3,20 +3,22 @@ import { FC, FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Uicon } from '@Components/Uicon'
 import { Label, Xp } from '@Components/range/Parts'
-import { AnswerResult, Question, rangeApi } from '@Utils/Range'
+import { AnswerResult, Question } from '@Utils/Range'
 import { showErrorMsg } from '@Utils/Shared'
 import classes from '@Styles/Range.module.css'
 
 interface QuestionItemProps {
-  module: string
-  section: string
   number: number
   question: Question
+  // sends an answer to this question and says whether it was right
+  submit: (answer: string) => Promise<AnswerResult>
   onAnswered: (result: AnswerResult) => void
+  // "Question" for a section, "Task" for a lab
+  label?: string
 }
 
 // One question of a section: what it asks, what it is worth, and a box for the answer.
-export const QuestionItem: FC<QuestionItemProps> = ({ module, section, number, question, onAnswered }) => {
+export const QuestionItem: FC<QuestionItemProps> = ({ number, question, submit, onAnswered, label }) => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(!question.solved)
   const [answer, setAnswer] = useState('')
@@ -24,12 +26,12 @@ export const QuestionItem: FC<QuestionItemProps> = ({ module, section, number, q
   const [wrong, setWrong] = useState(false)
   const [showHint, setShowHint] = useState(false)
 
-  const submit = async (event: FormEvent) => {
+  const send = async (event: FormEvent) => {
     event.preventDefault()
     if (!answer.trim() || sending) return
     setSending(true)
     try {
-      const result = await rangeApi.answer(module, section, question.id, answer)
+      const result = await submit(answer)
       setWrong(!result.correct)
       if (result.correct) setAnswer('')
       onAnswered(result)
@@ -45,7 +47,7 @@ export const QuestionItem: FC<QuestionItemProps> = ({ module, section, number, q
       <button type="button" className={classes.questionHead} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           {question.solved && <Uicon name="check-circle-solid" style={{ color: 'var(--r-done)' }} />}
-          {t('range.question.number', { n: number })}
+          {label ?? t('range.question.number', { n: number })}
           {question.flag && <Label icon="flag-alt">{t('range.question.flag')}</Label>}
         </span>
         <Xp value={question.xp} plus pill />
@@ -62,7 +64,7 @@ export const QuestionItem: FC<QuestionItemProps> = ({ module, section, number, q
               {t('range.question.correct')}
             </span>
           ) : (
-            <form onSubmit={submit}>
+            <form onSubmit={send}>
               <div className={classes.answerRow}>
                 <input
                   className={classes.answerInput}

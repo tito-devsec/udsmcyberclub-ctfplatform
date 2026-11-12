@@ -1,4 +1,4 @@
-import { Button, Modal, Stack, Text } from '@mantine/core'
+import { Button, FocusTrap, Modal, Stack, Text } from '@mantine/core'
 import { FC, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Uicon } from '@Components/Uicon'
@@ -98,6 +98,8 @@ export const SkillLevelPrompt: FC = () => {
       title={t('range.level.ask_title')}
     >
       <Stack>
+        {/* otherwise the first level takes the focus and looks as if it were chosen */}
+        <FocusTrap.InitialFocus />
         <Text size="sm" c="dimmed">
           {t('range.level.ask_content')}
         </Text>

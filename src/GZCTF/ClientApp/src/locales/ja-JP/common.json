@@ -121,7 +121,8 @@
       "clean_cache": "キャッシュを削除",
       "login": "ログイン",
       "logout": "ログアウト",
-      "profile": "ユーザー情報"
+      "profile": "ユーザー情報",
+      "settings": "アカウント設定"
     },
     "admin": "管理",
     "game": "ゲーム",

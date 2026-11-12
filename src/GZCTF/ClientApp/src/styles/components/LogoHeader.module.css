@@ -6,3 +6,10 @@
 .title {
   color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-light-0));
 }
+
+/* "UDSM CyberRange" has to fit next to the menu button on a phone */
+.range {
+  @mixin smaller-than $mantine-breakpoint-xs {
+    font-size: 1.35rem;
+  }
+}

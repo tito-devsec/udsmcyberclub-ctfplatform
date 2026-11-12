@@ -121,7 +121,8 @@
       "clean_cache": "Hapus Cache",
       "login": "Masuk",
       "logout": "Keluar",
-      "profile": "Profil"
+      "profile": "Profil",
+      "settings": "Pengaturan akun"
     },
     "admin": "Admin",
     "game": "Games",

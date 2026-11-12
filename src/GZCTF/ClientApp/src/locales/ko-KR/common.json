@@ -121,7 +121,8 @@
       "clean_cache": "캐시 초기화",
       "login": "로그인",
       "logout": "로그아웃",
-      "profile": "프로필"
+      "profile": "프로필",
+      "settings": "계정 설정"
     },
     "admin": "관리자",
     "game": "대회",

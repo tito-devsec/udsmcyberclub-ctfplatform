@@ -1,8 +1,10 @@
 import { Menu, Skeleton } from '@mantine/core'
 import { FC, useId } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 import { Uicon } from '@Components/Uicon'
 import { StripedProgress, Xp } from '@Components/range/Parts'
+import { profileUrl } from '@Utils/Community'
 import { rangeApi, RankIcons, SKILL_LEVELS, SkillLevel, SkillLevelIcon, useMe } from '@Utils/Range'
 import { showErrorMsg } from '@Utils/Shared'
 import { uicons, UICON_SIZE } from '@Utils/Uicons'
@@ -44,6 +46,16 @@ export const RankEmblem: FC<{ rank: number; size?: number; title?: string }> = (
     </svg>
   )
 }
+
+// A rank's name, in the colour of its emblem.
+export const RankTitle: FC<{ rank: number; name: string; className?: string }> = ({ rank, name, className }) => (
+  <span
+    className={className ? `${classes.rankTitle} ${className}` : classes.rankTitle}
+    data-rank={Math.min(Math.max(rank, 0), RANK_COLOURS.length - 1)}
+  >
+    {name}
+  </span>
+)
 
 // The student's level, XP, rank and week, next to the list of paths.
 export const RankCard: FC = () => {
@@ -102,6 +114,15 @@ export const RankCard: FC = () => {
           {me.nextRank
             ? t('range.rank.next', { rank: me.nextRank.name, xp: me.nextRank.xp - me.xp })
             : t('range.rank.top')}
+        </div>
+
+        <div className={classes.between}>
+          <Link to="/ranking" className={classes.link}>
+            {me.position ? t('range.rank.position', { position: me.position, count: me.of }) : t('range.ranking.title')}
+          </Link>
+          <Link to={profileUrl(me.name)} className={classes.link}>
+            {t('range.rank.profile')}
+          </Link>
         </div>
 
         <div style={{ borderTop: '1px solid var(--r-border)', paddingTop: 14 }}>

@@ -481,6 +481,9 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 4px 0;
+  /* every fact has a divider on its left; the first one on each line is cut off here */
+  overflow: hidden;
+  margin-left: -12px;
   font-size: 0.95rem;
   color: var(--r-dim);
 }
@@ -489,13 +492,10 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
+  margin-left: -1px;
+  padding: 0 12px;
   white-space: nowrap;
-
-  & + & {
-    margin-left: 12px;
-    padding-left: 12px;
-    border-left: 1px solid var(--r-border);
-  }
+  border-left: 1px solid var(--r-border);
 }
 
 /* ---- module card ---- */
@@ -642,6 +642,16 @@
   }
 }
 
+/* the enrolled path, at the top of its card */
+.rowLarge {
+  grid-template-columns: 88px minmax(0, 1fr) minmax(110px, 200px) 20px;
+  padding: 8px;
+
+  @mixin smaller-than $mantine-breakpoint-xs {
+    grid-template-columns: 64px minmax(0, 1fr) 20px;
+  }
+}
+
 .rowTitle {
   overflow: hidden;
   font-size: 1.05rem;
@@ -711,6 +721,35 @@
   }
 }
 
+/* a rank's name in the colour of its emblem, from Script Kiddie to Omniscient */
+.rankTitle {
+  font-style: italic;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  color: light-dark(#536079, #a4b1c7);
+
+  &[data-rank='1'] {
+    color: light-dark(#0864af, #5fb0f5);
+  }
+
+  &[data-rank='2'] {
+    color: light-dark(#0c7f8d, #45dccf);
+  }
+
+  &[data-rank='3'] {
+    color: light-dark(#5a3fd0, #b497ff);
+  }
+
+  &[data-rank='4'] {
+    color: light-dark(#b96a0c, #ffcc66);
+  }
+
+  &[data-rank='5'] {
+    color: light-dark(#c62a62, #ff9166);
+  }
+}
+
 .between {
   display: flex;
   align-items: center;
@@ -760,6 +799,11 @@
 
   &:hover {
     border-color: var(--mantine-primary-color-filled);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mantine-primary-color-filled);
+    outline-offset: 2px;
   }
 
   &[data-active] {
@@ -991,7 +1035,8 @@
   border-bottom: 1px solid var(--r-border);
 }
 
-.prose {
+/* written under .theme so that these rules win over the app's own typography */
+.theme .prose {
   font-size: 1.05rem;
   line-height: 1.75;
   color: var(--r-body);
@@ -1026,7 +1071,7 @@
   }
 
   & strong {
-    color: var(--r-text);
+    color: var(--r-accent);
   }
 
   & a {
@@ -1046,7 +1091,8 @@
     margin: 1.2em 0;
     padding: 16px 18px;
     border-radius: 8px;
-    background: var(--r-card);
+    /* the highlighter writes its own background on the element itself */
+    background-color: var(--r-card) !important;
     border: 1px solid var(--r-border);
   }
 
@@ -1447,6 +1493,7 @@
 .powered {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 10px;
   margin-top: 56px;
@@ -1469,5 +1516,10 @@
 
   & a {
     color: inherit;
+  }
+
+  @mixin smaller-than $mantine-breakpoint-xs {
+    flex-basis: 100%;
+    text-align: right;
   }
 }

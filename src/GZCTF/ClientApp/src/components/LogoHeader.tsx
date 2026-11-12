@@ -19,9 +19,9 @@ export const LogoHeader = forwardRef<HTMLDivElement, GroupProps>((props, ref) =>
             <span className={classes.brand}>::</span>CTF
           </>
         ) : (
-          <>
+          <span className={classes.range}>
             UDSM Cyber<span className={classes.brand}>Range</span>
-          </>
+          </span>
         )}
       </Title>
     </Group>

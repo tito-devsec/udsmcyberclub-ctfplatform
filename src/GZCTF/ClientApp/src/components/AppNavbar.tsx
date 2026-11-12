@@ -13,8 +13,8 @@ import {
   mdiAccountCircleOutline,
   mdiAccountGroupOutline,
   mdiCached,
+  mdiCogOutline,
   mdiFlagOutline,
-  mdiHomeVariantOutline,
   mdiInformationOutline,
   mdiLogin,
   mdiLogout,
@@ -93,25 +93,21 @@ export const AppNavbar: FC<AppControlProps> = ({ openColorModal }) => {
   const { setLanguage, supportedLanguages } = useLanguage()
 
   const items: NavbarItem[] = [
-    { icon: mdiHomeVariantOutline, label: 'common.tab.home', link: '/' },
-    { icon: mdiNoteTextOutline, label: 'common.tab.post', link: '/posts' },
+    // Skill Paths is the home page
+    { uicon: 'graduation-cap', label: 'common.tab.paths', link: '/', also: ['/paths', '/modules'] },
+    { uicon: 'flask', label: 'common.tab.labs', link: '/labs' },
     { icon: mdiFlagOutline, label: 'common.tab.game', link: '/games' },
-    { uicon: 'graduation-cap', label: 'common.tab.paths', link: '/paths', also: ['/modules'] },
+    { icon: mdiNoteTextOutline, label: 'common.tab.post', link: '/posts' },
     { icon: mdiAccountGroupOutline, label: 'common.tab.team', link: '/teams' },
     { icon: mdiInformationOutline, label: 'common.tab.about', link: '/about' },
     { icon: mdiWrenchOutline, label: 'common.tab.admin', link: '/admin/games', admin: true },
   ]
 
-  const getLabel = (path: string) =>
-    items.find((item) =>
-      item.link === '/'
-        ? path === '/'
-        : item.link.startsWith('/admin')
-          ? path.startsWith('/admin')
-          : path.startsWith(item.link) || item.also?.some((link) => path.startsWith(link))
-    )?.label
+  const matches = (item: NavbarItem, path: string) =>
+    (item.link === '/' ? path === '/' : path.startsWith(item.link.startsWith('/admin') ? '/admin' : item.link)) ||
+    Boolean(item.also?.some((link) => path.startsWith(link)))
 
-  const active = location.pathname === '/' ? items[0].label : (getLabel(location.pathname) ?? '')
+  const active = items.find((item) => matches(item, location.pathname))?.label ?? ''
 
   const links = items
     .filter((m) => !m.admin || user?.role === Role.Admin)
@@ -198,10 +194,17 @@ export const AppNavbar: FC<AppControlProps> = ({ openColorModal }) => {
                   <Menu.Label>{user?.userName}</Menu.Label>
                   <Menu.Item
                     component={Link}
-                    to="/account/profile"
+                    to="/profile"
                     leftSection={<Icon path={mdiAccountCircleOutline} size={1} />}
                   >
                     {t('common.tab.account.profile')}
+                  </Menu.Item>
+                  <Menu.Item
+                    component={Link}
+                    to="/account/profile"
+                    leftSection={<Icon path={mdiCogOutline} size={1} />}
+                  >
+                    {t('common.tab.account.settings')}
                   </Menu.Item>
                 </>
               )}
