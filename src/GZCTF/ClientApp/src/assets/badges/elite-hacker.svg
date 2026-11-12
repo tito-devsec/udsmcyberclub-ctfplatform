@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Elite Hacker achievement badge">
+  <defs>
+    <linearGradient id="elite-hacker-rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FEF08A"/><stop offset="0.5" stop-color="#FACC15"/><stop offset="1" stop-color="#B45309"/></linearGradient>
+    <linearGradient id="elite-hacker-bevel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#B45309"/><stop offset="0.5" stop-color="#FACC15"/><stop offset="1" stop-color="#FEF08A"/></linearGradient>
+    <radialGradient id="elite-hacker-core" cx="0.5" cy="0.38" r="0.72">
+      <stop offset="0" stop-color="#92400E"/><stop offset="1" stop-color="#2A1203"/>
+    </radialGradient>
+    <linearGradient id="elite-hacker-ink" gradientUnits="userSpaceOnUse" x1="0" y1="-48" x2="0" y2="48">
+      <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#FEF08A"/>
+    </linearGradient>
+  </defs>
+
+  <polygon points="256,18 297.75,46.11 347.08,36.12 374.89,78.07 424.29,87.71 433.93,137.11 475.88,164.92 465.89,214.25 494,256 465.89,297.75 475.88,347.08 433.93,374.89 424.29,424.29 374.89,433.93 347.08,475.88 297.75,465.89 256,494 214.25,465.89 164.92,475.88 137.11,433.93 87.71,424.29 78.07,374.89 36.12,347.08 46.11,297.75 18,256 46.11,214.25 36.12,164.92 78.07,137.11 87.71,87.71 137.11,78.07 164.92,36.12 214.25,46.11" fill="url(#elite-hacker-rim)" stroke="url(#elite-hacker-rim)" stroke-width="8" stroke-linejoin="round"/>
+  <circle cx="256" cy="256" r="200" fill="url(#elite-hacker-bevel)"/>
+  <circle cx="256" cy="256" r="180" fill="url(#elite-hacker-core)"/>
+  <circle cx="256" cy="256" r="166" fill="none" stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="2"/>
+  <g fill="#FEF08A"><path d="M211.07 371.48L214.83 381.3L225.34 381.85L217.16 388.46L219.89 398.62L211.07 392.88L202.25 398.62L204.98 388.46L196.81 381.85L207.31 381.3Z" transform="rotate(19 211.07 386.48)"/><path d="M256 379L259.76 388.82L270.27 389.36L262.09 395.98L264.82 406.14L256 400.4L247.18 406.14L249.91 395.98L241.73 389.36L252.24 388.82Z" transform="rotate(0 256 394)"/><path d="M300.93 371.48L304.69 381.3L315.19 381.85L307.02 388.46L309.75 398.62L300.93 392.88L292.11 398.62L294.84 388.46L286.66 381.85L297.17 381.3Z" transform="rotate(-19 300.93 386.48)"/></g>
+  <g transform="translate(256 238) scale(2)" fill="none" stroke="url(#elite-hacker-ink)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M-38 -14L-24 24H24L38 -14L16 4L0 -26L-16 4Z" fill="url(#elite-hacker-ink)" fill-opacity="0.22"/>
+      <path d="M-24 36H24"/>
+      <g fill="url(#elite-hacker-ink)" stroke="none"><circle cx="-38" cy="-22" r="4.5"/><circle cy="-35" r="5"/><circle cx="38" cy="-22" r="4.5"/></g>
+  </g>
+</svg>

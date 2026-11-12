@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Pathfinder achievement badge">
+  <defs>
+    <linearGradient id="pathfinder-rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#67E8F9"/><stop offset="0.5" stop-color="#06B6D4"/><stop offset="1" stop-color="#0E7490"/></linearGradient>
+    <linearGradient id="pathfinder-bevel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0E7490"/><stop offset="0.5" stop-color="#06B6D4"/><stop offset="1" stop-color="#67E8F9"/></linearGradient>
+    <radialGradient id="pathfinder-core" cx="0.5" cy="0.38" r="0.72">
+      <stop offset="0" stop-color="#0E7490"/><stop offset="1" stop-color="#083344"/>
+    </radialGradient>
+    <linearGradient id="pathfinder-ink" gradientUnits="userSpaceOnUse" x1="0" y1="-48" x2="0" y2="48">
+      <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#67E8F9"/>
+    </linearGradient>
+  </defs>
+
+  <circle cx="256" cy="256" r="230" fill="url(#pathfinder-rim)"/>
+  <g fill="#FFFFFF" fill-opacity="0.6"><circle cx="473" cy="256" r="3.4"/><circle cx="470.33" cy="289.95" r="3.4"/><circle cx="462.38" cy="323.06" r="3.4"/><circle cx="449.35" cy="354.52" r="3.4"/><circle cx="431.56" cy="383.55" r="3.4"/><circle cx="409.44" cy="409.44" r="3.4"/><circle cx="383.55" cy="431.56" r="3.4"/><circle cx="354.52" cy="449.35" r="3.4"/><circle cx="323.06" cy="462.38" r="3.4"/><circle cx="289.95" cy="470.33" r="3.4"/><circle cx="256" cy="473" r="3.4"/><circle cx="222.05" cy="470.33" r="3.4"/><circle cx="188.94" cy="462.38" r="3.4"/><circle cx="157.48" cy="449.35" r="3.4"/><circle cx="128.45" cy="431.56" r="3.4"/><circle cx="102.56" cy="409.44" r="3.4"/><circle cx="80.44" cy="383.55" r="3.4"/><circle cx="62.65" cy="354.52" r="3.4"/><circle cx="49.62" cy="323.06" r="3.4"/><circle cx="41.67" cy="289.95" r="3.4"/><circle cx="39" cy="256" r="3.4"/><circle cx="41.67" cy="222.05" r="3.4"/><circle cx="49.62" cy="188.94" r="3.4"/><circle cx="62.65" cy="157.48" r="3.4"/><circle cx="80.44" cy="128.45" r="3.4"/><circle cx="102.56" cy="102.56" r="3.4"/><circle cx="128.45" cy="80.44" r="3.4"/><circle cx="157.48" cy="62.65" r="3.4"/><circle cx="188.94" cy="49.62" r="3.4"/><circle cx="222.05" cy="41.67" r="3.4"/><circle cx="256" cy="39" r="3.4"/><circle cx="289.95" cy="41.67" r="3.4"/><circle cx="323.06" cy="49.62" r="3.4"/><circle cx="354.52" cy="62.65" r="3.4"/><circle cx="383.55" cy="80.44" r="3.4"/><circle cx="409.44" cy="102.56" r="3.4"/><circle cx="431.56" cy="128.45" r="3.4"/><circle cx="449.35" cy="157.48" r="3.4"/><circle cx="462.38" cy="188.94" r="3.4"/><circle cx="470.33" cy="222.05" r="3.4"/></g>
+  <circle cx="256" cy="256" r="204" fill="url(#pathfinder-bevel)"/>
+  <circle cx="256" cy="256" r="186" fill="url(#pathfinder-core)"/>
+  <circle cx="256" cy="256" r="172" fill="none" stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="2"/>
+  <g transform="translate(256 256) scale(2.35)" fill="none" stroke="url(#pathfinder-ink)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+      <g transform="translate(0 4)">
+        <circle cx="-30" cy="34" r="7" fill="url(#pathfinder-ink)" fill-opacity="0.22"/>
+        <path d="M-22 34H8A12 12 0 0 0 8 10H-12A12 12 0 0 1 -12 -14H22"/>
+        <path d="M22 -12C14 -22 8 -27 8 -34A14 14 0 0 1 36 -34C36 -27 30 -22 22 -12Z" fill="url(#pathfinder-ink)" fill-opacity="0.22"/>
+        <circle cx="22" cy="-34" r="4.5" fill="url(#pathfinder-ink)" stroke="none"/>
+      </g>
+  </g>
+</svg>

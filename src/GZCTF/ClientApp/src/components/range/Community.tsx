@@ -5,7 +5,8 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { Uicon } from '@Components/Uicon'
 import { Label, Xp } from '@Components/range/Parts'
-import { BadgeLook, labUrl, LabSummary, profileUrl } from '@Utils/Community'
+import { BadgeArt } from '@Utils/Artwork'
+import { labUrl, LabSummary, profileUrl } from '@Utils/Community'
 import { Category, coverIcon, DifficultyIcon } from '@Utils/Range'
 import { UICON_SIZE, UiconName, uicons } from '@Utils/Uicons'
 import classes from '@Styles/Community.module.css'
@@ -74,7 +75,7 @@ export const LabCard: FC<{ lab: LabSummary }> = ({ lab }) => {
 
 const HEXAGON = 'M48 3 87 25.5v45L48 93 9 70.5v-45z'
 
-// A medal: an icon on a hexagon in two colours. Used for badges.
+// A medal: an icon on a hexagon in two colours, for a badge the club has no artwork for yet.
 export const Medal: FC<{ icon: UiconName; colours: [string, string]; size?: number; title?: string }> = ({
   icon,
   colours,
@@ -107,11 +108,16 @@ export const Medal: FC<{ icon: UiconName; colours: [string, string]; size?: numb
   )
 }
 
-// A badge's medal, by the badge's name.
-export const BadgeMedal: FC<{ id: string; size?: number }> = ({ id, size }) => {
+// A badge's medal, by the badge's name: the club's artwork for it.
+export const BadgeMedal: FC<{ id: string; size?: number }> = ({ id, size = 64 }) => {
   const { t } = useTranslation()
-  const look = BadgeLook[id] ?? { icon: 'star' as const, colours: ['#8b9ab3', '#4a576d'] as [string, string] }
-  return <Medal icon={look.icon} colours={look.colours} size={size} title={t(`range.badge.${id}.name`)} />
+  const name = t(`range.badge.${id}.name`)
+  const art = BadgeArt[id]
+  return art ? (
+    <img src={art} width={size} height={size} alt={name} style={{ display: 'block', flexShrink: 0 }} />
+  ) : (
+    <Medal icon="star" colours={['#8b9ab3', '#4a576d']} size={size} title={name} />
+  )
 }
 
 // the two colours of the gold, silver and bronze medals

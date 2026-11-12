@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="All-Rounder achievement badge">
+  <defs>
+    <linearGradient id="all-rounder-rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F1F5F9"/><stop offset="0.5" stop-color="#94A3B8"/><stop offset="1" stop-color="#475569"/></linearGradient>
+    <linearGradient id="all-rounder-bevel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#475569"/><stop offset="0.5" stop-color="#94A3B8"/><stop offset="1" stop-color="#F1F5F9"/></linearGradient>
+    <radialGradient id="all-rounder-core" cx="0.5" cy="0.38" r="0.72">
+      <stop offset="0" stop-color="#334155"/><stop offset="1" stop-color="#0B1220"/>
+    </radialGradient>
+    <linearGradient id="all-rounder-ink" gradientUnits="userSpaceOnUse" x1="0" y1="-48" x2="0" y2="48">
+      <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E2E8F0"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M256 36C310 70 380 84 440 84V250C440 360 360 440 256 484C152 440 72 360 72 250V84C132 84 202 70 256 36Z" fill="url(#all-rounder-rim)" stroke="url(#all-rounder-rim)" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M256 36C310 70 380 84 440 84V250C440 360 360 440 256 484C152 440 72 360 72 250V84C132 84 202 70 256 36Z" transform="translate(256 258) scale(0.9) translate(-256 -258)" fill="url(#all-rounder-bevel)"/>
+  <path d="M256 36C310 70 380 84 440 84V250C440 360 360 440 256 484C152 440 72 360 72 250V84C132 84 202 70 256 36Z" transform="translate(256 258) scale(0.8) translate(-256 -258)" fill="url(#all-rounder-core)"/>
+  <g fill="#E2E8F0"><path d="M205 377.5L208.53 386.65L218.31 387.17L210.71 393.35L213.23 402.83L205 397.5L196.77 402.83L199.29 393.35L191.69 387.17L201.47 386.65Z"/><path d="M239 384.5L242.53 393.65L252.31 394.17L244.71 400.35L247.23 409.83L239 404.5L230.77 409.83L233.29 400.35L225.69 394.17L235.47 393.65Z"/><path d="M273 384.5L276.53 393.65L286.31 394.17L278.71 400.35L281.23 409.83L273 404.5L264.77 409.83L267.29 400.35L259.69 394.17L269.47 393.65Z"/><path d="M307 377.5L310.53 386.65L320.31 387.17L312.71 393.35L315.23 402.83L307 397.5L298.77 402.83L301.29 393.35L293.69 387.17L303.47 386.65Z"/></g>
+  <g transform="translate(256 236) scale(2)" fill="none" stroke="url(#all-rounder-ink)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="-21" cy="-21" r="14" stroke="#93C5FD" fill="#93C5FD" fill-opacity="0.22"/>
+      <rect x="8" y="-34" width="26" height="26" rx="4" stroke="#FDE047" fill="#FDE047" fill-opacity="0.22"/>
+      <path d="M-21 7L-6 33H-36Z" stroke="#5EEAD4" fill="#5EEAD4" fill-opacity="0.22"/>
+      <path d="M21 5L36 20L21 35L6 20Z" stroke="#C4B5FD" fill="#C4B5FD" fill-opacity="0.22"/>
+  </g>
+</svg>

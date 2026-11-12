@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Investigator achievement badge">
+  <defs>
+    <linearGradient id="investigator-rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5EEAD4"/><stop offset="0.5" stop-color="#14B8A6"/><stop offset="1" stop-color="#0F766E"/></linearGradient>
+    <linearGradient id="investigator-bevel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0F766E"/><stop offset="0.5" stop-color="#14B8A6"/><stop offset="1" stop-color="#5EEAD4"/></linearGradient>
+    <radialGradient id="investigator-core" cx="0.5" cy="0.38" r="0.72">
+      <stop offset="0" stop-color="#0F766E"/><stop offset="1" stop-color="#042F2E"/>
+    </radialGradient>
+    <linearGradient id="investigator-ink" gradientUnits="userSpaceOnUse" x1="0" y1="-48" x2="0" y2="48">
+      <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#5EEAD4"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M256 36C310 70 380 84 440 84V250C440 360 360 440 256 484C152 440 72 360 72 250V84C132 84 202 70 256 36Z" fill="url(#investigator-rim)" stroke="url(#investigator-rim)" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M256 36C310 70 380 84 440 84V250C440 360 360 440 256 484C152 440 72 360 72 250V84C132 84 202 70 256 36Z" transform="translate(256 258) scale(0.9) translate(-256 -258)" fill="url(#investigator-bevel)"/>
+  <path d="M256 36C310 70 380 84 440 84V250C440 360 360 440 256 484C152 440 72 360 72 250V84C132 84 202 70 256 36Z" transform="translate(256 258) scale(0.8) translate(-256 -258)" fill="url(#investigator-core)"/>
+  <g fill="#5EEAD4"><path d="M222 381L225.53 390.15L235.31 390.67L227.71 396.85L230.23 406.33L222 401L213.77 406.33L216.29 396.85L208.69 390.67L218.47 390.15Z"/><path d="M256 388L259.53 397.15L269.31 397.67L261.71 403.85L264.23 413.33L256 408L247.77 413.33L250.29 403.85L242.69 397.67L252.47 397.15Z"/><path d="M290 381L293.53 390.15L303.31 390.67L295.71 396.85L298.23 406.33L290 401L281.77 406.33L284.29 396.85L276.69 390.67L286.47 390.15Z"/></g>
+  <g transform="translate(256 236) scale(2)" fill="none" stroke="url(#investigator-ink)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="-8" cy="-8" r="27" fill="url(#investigator-ink)" fill-opacity="0.18"/>
+      <path d="M12 12L37 37" stroke-width="10"/>
+      <path d="M-23.5 -10.5A16 16 0 0 1 -10.5 -23.5"/>
+  </g>
+</svg>

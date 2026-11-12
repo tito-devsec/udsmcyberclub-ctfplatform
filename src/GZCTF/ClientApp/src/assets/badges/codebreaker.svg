@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Codebreaker achievement badge">
+  <defs>
+    <linearGradient id="codebreaker-rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FDE047"/><stop offset="0.5" stop-color="#EAB308"/><stop offset="1" stop-color="#A16207"/></linearGradient>
+    <linearGradient id="codebreaker-bevel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#A16207"/><stop offset="0.5" stop-color="#EAB308"/><stop offset="1" stop-color="#FDE047"/></linearGradient>
+    <radialGradient id="codebreaker-core" cx="0.5" cy="0.38" r="0.72">
+      <stop offset="0" stop-color="#A16207"/><stop offset="1" stop-color="#422006"/>
+    </radialGradient>
+    <linearGradient id="codebreaker-ink" gradientUnits="userSpaceOnUse" x1="0" y1="-48" x2="0" y2="48">
+      <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#FDE047"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M256 36C310 70 380 84 440 84V250C440 360 360 440 256 484C152 440 72 360 72 250V84C132 84 202 70 256 36Z" fill="url(#codebreaker-rim)" stroke="url(#codebreaker-rim)" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M256 36C310 70 380 84 440 84V250C440 360 360 440 256 484C152 440 72 360 72 250V84C132 84 202 70 256 36Z" transform="translate(256 258) scale(0.9) translate(-256 -258)" fill="url(#codebreaker-bevel)"/>
+  <path d="M256 36C310 70 380 84 440 84V250C440 360 360 440 256 484C152 440 72 360 72 250V84C132 84 202 70 256 36Z" transform="translate(256 258) scale(0.8) translate(-256 -258)" fill="url(#codebreaker-core)"/>
+  <g fill="#FDE047"><path d="M222 381L225.53 390.15L235.31 390.67L227.71 396.85L230.23 406.33L222 401L213.77 406.33L216.29 396.85L208.69 390.67L218.47 390.15Z"/><path d="M256 388L259.53 397.15L269.31 397.67L261.71 403.85L264.23 413.33L256 408L247.77 413.33L250.29 403.85L242.69 397.67L252.47 397.15Z"/><path d="M290 381L293.53 390.15L303.31 390.67L295.71 396.85L298.23 406.33L290 401L281.77 406.33L284.29 396.85L276.69 390.67L286.47 390.15Z"/></g>
+  <g transform="translate(256 236) scale(2)" fill="none" stroke="url(#codebreaker-ink)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+      <g transform="translate(-6 0)">
+        <rect x="-26" y="-4" width="52" height="42" rx="7" fill="url(#codebreaker-ink)" fill-opacity="0.22"/>
+        <path d="M-16 -4V-22A16 16 0 0 1 16 -22V-16"/>
+        <circle cy="13" r="4.5" fill="url(#codebreaker-ink)" stroke="none"/>
+        <path d="M0 15V25"/>
+        <path d="M25 -30L31 -37M30 -21L39 -24M30 -11L38 -8"/>
+      </g>
+  </g>
+</svg>

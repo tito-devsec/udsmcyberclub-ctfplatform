@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Hacker achievement badge">
+  <defs>
+    <linearGradient id="hacker-rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F7D3B0"/><stop offset="0.5" stop-color="#CD7F32"/><stop offset="1" stop-color="#7C3F12"/></linearGradient>
+    <linearGradient id="hacker-bevel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7C3F12"/><stop offset="0.5" stop-color="#CD7F32"/><stop offset="1" stop-color="#F7D3B0"/></linearGradient>
+    <radialGradient id="hacker-core" cx="0.5" cy="0.38" r="0.72">
+      <stop offset="0" stop-color="#7C3F12"/><stop offset="1" stop-color="#2A1206"/>
+    </radialGradient>
+    <linearGradient id="hacker-ink" gradientUnits="userSpaceOnUse" x1="0" y1="-48" x2="0" y2="48">
+      <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#F7D3B0"/>
+    </linearGradient>
+  </defs>
+
+  <polygon points="256,18 297.75,46.11 347.08,36.12 374.89,78.07 424.29,87.71 433.93,137.11 475.88,164.92 465.89,214.25 494,256 465.89,297.75 475.88,347.08 433.93,374.89 424.29,424.29 374.89,433.93 347.08,475.88 297.75,465.89 256,494 214.25,465.89 164.92,475.88 137.11,433.93 87.71,424.29 78.07,374.89 36.12,347.08 46.11,297.75 18,256 46.11,214.25 36.12,164.92 78.07,137.11 87.71,87.71 137.11,78.07 164.92,36.12 214.25,46.11" fill="url(#hacker-rim)" stroke="url(#hacker-rim)" stroke-width="8" stroke-linejoin="round"/>
+  <circle cx="256" cy="256" r="200" fill="url(#hacker-bevel)"/>
+  <circle cx="256" cy="256" r="180" fill="url(#hacker-core)"/>
+  <circle cx="256" cy="256" r="166" fill="none" stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="2"/>
+  <g fill="#F7D3B0"><path d="M256 379L259.76 388.82L270.27 389.36L262.09 395.98L264.82 406.14L256 400.4L247.18 406.14L249.91 395.98L241.73 389.36L252.24 388.82Z" transform="rotate(0 256 394)"/></g>
+  <g transform="translate(256 238) scale(2)" fill="none" stroke="url(#hacker-ink)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M-24 -6L-18 -34Q-9 -40 0 -34Q9 -40 18 -34L24 -6Z" fill="url(#hacker-ink)" fill-opacity="0.22"/>
+      <path d="M-40 -6H40M-21.5 -18H21.5"/>
+      <circle cx="-18" cy="22" r="11" fill="url(#hacker-ink)" fill-opacity="0.22"/>
+      <circle cx="18" cy="22" r="11" fill="url(#hacker-ink)" fill-opacity="0.22"/>
+      <path d="M-7 20Q0 14 7 20"/>
+  </g>
+</svg>

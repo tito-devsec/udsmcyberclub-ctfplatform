@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Omniscient achievement badge">
+  <defs>
+    <linearGradient id="omniscient-rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#67E8F9"/><stop offset="0.5" stop-color="#A78BFA"/><stop offset="1" stop-color="#F472B6"/></linearGradient>
+    <linearGradient id="omniscient-bevel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F472B6"/><stop offset="0.5" stop-color="#A78BFA"/><stop offset="1" stop-color="#67E8F9"/></linearGradient>
+    <radialGradient id="omniscient-core" cx="0.5" cy="0.38" r="0.72">
+      <stop offset="0" stop-color="#312E81"/><stop offset="1" stop-color="#0B0A1F"/>
+    </radialGradient>
+    <linearGradient id="omniscient-ink" gradientUnits="userSpaceOnUse" x1="0" y1="-48" x2="0" y2="48">
+      <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#A5F3FC"/>
+    </linearGradient>
+  </defs>
+
+  <polygon points="256,18 297.75,46.11 347.08,36.12 374.89,78.07 424.29,87.71 433.93,137.11 475.88,164.92 465.89,214.25 494,256 465.89,297.75 475.88,347.08 433.93,374.89 424.29,424.29 374.89,433.93 347.08,475.88 297.75,465.89 256,494 214.25,465.89 164.92,475.88 137.11,433.93 87.71,424.29 78.07,374.89 36.12,347.08 46.11,297.75 18,256 46.11,214.25 36.12,164.92 78.07,137.11 87.71,87.71 137.11,78.07 164.92,36.12 214.25,46.11" fill="url(#omniscient-rim)" stroke="url(#omniscient-rim)" stroke-width="8" stroke-linejoin="round"/>
+  <circle cx="256" cy="256" r="200" fill="url(#omniscient-bevel)"/>
+  <circle cx="256" cy="256" r="180" fill="url(#omniscient-core)"/>
+  <circle cx="256" cy="256" r="166" fill="none" stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="2"/>
+  <g fill="#A5F3FC"><path d="M171.04 349.75L174.8 359.57L185.3 360.11L177.13 366.72L179.86 376.88L171.04 371.15L162.22 376.88L164.95 366.72L156.77 360.11L167.28 359.57Z" transform="rotate(38 171.04 364.75)"/><path d="M211.07 371.48L214.83 381.3L225.34 381.85L217.16 388.46L219.89 398.62L211.07 392.88L202.25 398.62L204.98 388.46L196.81 381.85L207.31 381.3Z" transform="rotate(19 211.07 386.48)"/><path d="M256 379L259.76 388.82L270.27 389.36L262.09 395.98L264.82 406.14L256 400.4L247.18 406.14L249.91 395.98L241.73 389.36L252.24 388.82Z" transform="rotate(0 256 394)"/><path d="M300.93 371.48L304.69 381.3L315.19 381.85L307.02 388.46L309.75 398.62L300.93 392.88L292.11 398.62L294.84 388.46L286.66 381.85L297.17 381.3Z" transform="rotate(-19 300.93 386.48)"/><path d="M340.96 349.75L344.72 359.57L355.23 360.11L347.05 366.72L349.78 376.88L340.96 371.15L332.14 376.88L334.87 366.72L326.7 360.11L337.2 359.57Z" transform="rotate(-38 340.96 364.75)"/></g>
+  <g transform="translate(256 238) scale(2)" fill="none" stroke="url(#omniscient-ink)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M0 0C-9 -12 -16 -19 -27 -19A19 19 0 1 0 -27 19C-16 19 -9 12 0 0C9 -12 16 -19 27 -19A19 19 0 1 1 27 19C16 19 9 12 0 0Z" fill="url(#omniscient-ink)" fill-opacity="0.18"/>
+      <g fill="url(#omniscient-ink)" stroke="none">
+        <path d="M0 -45L2.4 -37.4L10 -35L2.4 -32.6L0 -25L-2.4 -32.6L-10 -35L-2.4 -37.4Z"/>
+        <path d="M0 28L1.84 33.16L7 35L1.84 36.84L0 42L-1.84 36.84L-7 35L-1.84 33.16Z"/>
+        <circle cx="-27" cy="-35" r="2.6"/><circle cx="27" cy="-35" r="2.6"/>
+        <circle cx="-27" cy="35" r="2.6"/><circle cx="27" cy="35" r="2.6"/>
+      </g>
+  </g>
+</svg>

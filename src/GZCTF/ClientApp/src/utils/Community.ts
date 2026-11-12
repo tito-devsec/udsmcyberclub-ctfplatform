@@ -170,28 +170,6 @@ export const linkIcon: Record<keyof ProfileLinks, UiconName> = {
   website: 'link',
 }
 
-// What each badge looks like: its icon, and the two colours of its medal.
-export const BadgeLook: Record<string, { icon: UiconName; colours: [string, string] }> = {
-  'first-answer': { icon: 'seedling', colours: ['#6fdc8c', '#1f8a4c'] },
-  'first-flag': { icon: 'flag-alt', colours: ['#5fb0f5', '#0864af'] },
-  'first-module': { icon: 'book-open-cover', colours: ['#5fb0f5', '#0864af'] },
-  'first-path': { icon: 'route', colours: ['#b497ff', '#5a3fd0'] },
-  'first-lab': { icon: 'flask', colours: ['#45dccf', '#0c8a99'] },
-  'five-labs': { icon: 'rocket', colours: ['#45dccf', '#0c8a99'] },
-  web: { icon: 'globe', colours: ['#5fb0f5', '#0864af'] },
-  crypto: { icon: 'key', colours: ['#ffcc66', '#d7811a'] },
-  forensics: { icon: 'fingerprint', colours: ['#b497ff', '#5a3fd0'] },
-  osint: { icon: 'eye', colours: ['#6fdc8c', '#1f8a4c'] },
-  'all-rounder': { icon: 'puzzle-alt', colours: ['#ff9166', '#d02f6b'] },
-  streak: { icon: 'flame', colours: ['#ffb057', '#e0531f'] },
-  hacker: { icon: 'incognito', colours: ['#5fb0f5', '#0864af'] },
-  'pro-hacker': { icon: 'bolt', colours: ['#45dccf', '#0c8a99'] },
-  'elite-hacker': { icon: 'crown', colours: ['#b497ff', '#5a3fd0'] },
-  guru: { icon: 'hat-wizard', colours: ['#ffcc66', '#d7811a'] },
-  omniscient: { icon: 'infinity', colours: ['#ff9166', '#d02f6b'] },
-  'hall-of-fame': { icon: 'trophy', colours: ['#ffcc66', '#d7811a'] },
-}
-
 // ---- ranking ----
 
 export type RankingScope = 'hall' | 'week' | 'all'

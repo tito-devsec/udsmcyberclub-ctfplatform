@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Flag Hunter achievement badge">
+  <defs>
+    <linearGradient id="flag-hunter-rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FCA5A5"/><stop offset="0.5" stop-color="#EF4444"/><stop offset="1" stop-color="#B91C1C"/></linearGradient>
+    <linearGradient id="flag-hunter-bevel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#B91C1C"/><stop offset="0.5" stop-color="#EF4444"/><stop offset="1" stop-color="#FCA5A5"/></linearGradient>
+    <radialGradient id="flag-hunter-core" cx="0.5" cy="0.38" r="0.72">
+      <stop offset="0" stop-color="#B91C1C"/><stop offset="1" stop-color="#450A0A"/>
+    </radialGradient>
+    <linearGradient id="flag-hunter-ink" gradientUnits="userSpaceOnUse" x1="0" y1="-48" x2="0" y2="48">
+      <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#FCA5A5"/>
+    </linearGradient>
+  </defs>
+
+  <circle cx="256" cy="256" r="230" fill="url(#flag-hunter-rim)"/>
+  <g fill="#FFFFFF" fill-opacity="0.6"><circle cx="473" cy="256" r="3.4"/><circle cx="470.33" cy="289.95" r="3.4"/><circle cx="462.38" cy="323.06" r="3.4"/><circle cx="449.35" cy="354.52" r="3.4"/><circle cx="431.56" cy="383.55" r="3.4"/><circle cx="409.44" cy="409.44" r="3.4"/><circle cx="383.55" cy="431.56" r="3.4"/><circle cx="354.52" cy="449.35" r="3.4"/><circle cx="323.06" cy="462.38" r="3.4"/><circle cx="289.95" cy="470.33" r="3.4"/><circle cx="256" cy="473" r="3.4"/><circle cx="222.05" cy="470.33" r="3.4"/><circle cx="188.94" cy="462.38" r="3.4"/><circle cx="157.48" cy="449.35" r="3.4"/><circle cx="128.45" cy="431.56" r="3.4"/><circle cx="102.56" cy="409.44" r="3.4"/><circle cx="80.44" cy="383.55" r="3.4"/><circle cx="62.65" cy="354.52" r="3.4"/><circle cx="49.62" cy="323.06" r="3.4"/><circle cx="41.67" cy="289.95" r="3.4"/><circle cx="39" cy="256" r="3.4"/><circle cx="41.67" cy="222.05" r="3.4"/><circle cx="49.62" cy="188.94" r="3.4"/><circle cx="62.65" cy="157.48" r="3.4"/><circle cx="80.44" cy="128.45" r="3.4"/><circle cx="102.56" cy="102.56" r="3.4"/><circle cx="128.45" cy="80.44" r="3.4"/><circle cx="157.48" cy="62.65" r="3.4"/><circle cx="188.94" cy="49.62" r="3.4"/><circle cx="222.05" cy="41.67" r="3.4"/><circle cx="256" cy="39" r="3.4"/><circle cx="289.95" cy="41.67" r="3.4"/><circle cx="323.06" cy="49.62" r="3.4"/><circle cx="354.52" cy="62.65" r="3.4"/><circle cx="383.55" cy="80.44" r="3.4"/><circle cx="409.44" cy="102.56" r="3.4"/><circle cx="431.56" cy="128.45" r="3.4"/><circle cx="449.35" cy="157.48" r="3.4"/><circle cx="462.38" cy="188.94" r="3.4"/><circle cx="470.33" cy="222.05" r="3.4"/></g>
+  <circle cx="256" cy="256" r="204" fill="url(#flag-hunter-bevel)"/>
+  <circle cx="256" cy="256" r="186" fill="url(#flag-hunter-core)"/>
+  <circle cx="256" cy="256" r="172" fill="none" stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="2"/>
+  <g transform="translate(256 256) scale(2.35)" fill="none" stroke="url(#flag-hunter-ink)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+      <g transform="translate(3 0)">
+        <path d="M-28 -36C-8 -46 8 -24 34 -34V2C8 12 -8 -10 -28 0" fill="url(#flag-hunter-ink)" fill-opacity="0.22"/>
+        <path d="M-28 -44V44M-40 44H-16"/>
+      </g>
+  </g>
+</svg>
