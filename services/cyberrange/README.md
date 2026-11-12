@@ -6,8 +6,9 @@ The server side of UDSM CyberRange outside Games:
 - **Labs:** machines and challenges to solve without a lesson, by category.
 - **Standing:** XP, levels and ranks, weekly streaks, badges, the ranking with its weekly Hall of Fame, profiles and certificates.
 - **Machines:** each student's own practice machine, for a section or a lab.
+- **Studio:** modules, labs and skill paths written in the web interface by tutors and admins, and games proposed by tutors for the superadmin to approve.
 
-The pages live in the web interface (`src/GZCTF/ClientApp/src/pages`: `paths`, `modules`, `labs`, `profile`, `ranking`, `certificates`, `members`); the lessons and labs are files in [content/](../../content).
+The pages live in the web interface (`src/GZCTF/ClientApp/src/pages`: `paths`, `modules`, `labs`, `profile`, `ranking`, `certificates`, `members`, `studio`). The lessons and labs that ship with the platform are files in [content/](../../content); the rest is written in the studio.
 
 GZCTF itself is unchanged. This service runs next to it, behind the same proxy, which sends `/api/range/...` here and everything else to GZCTF.
 
@@ -15,7 +16,7 @@ GZCTF itself is unchanged. This service runs next to it, behind the same proxy, 
 
 - **Sign-in:** there are no accounts here. For each request the service passes the visitor's GZCTF sign-in cookie to GZCTF (`/api/account/profile`) and uses the profile that comes back, cached for a minute. The first time it sees someone, it makes a row for them holding what GZCTF does not: their role, the skill level they chose when registering, and the path they are enrolled in.
 - **Lessons:** read from the content folder at start-up (see [content/README.md](../../content/README.md)). Mistakes in a file stop the service with a message naming the file and the problem. Accepted answers are kept only as SHA-256 hashes and are never sent to the browser.
-- **Progress:** stored in its own PostgreSQL database (`cyberrange`), created on first start on the same server as the platform's. It holds the questions each student answered and the sections they finished, with the XP each earned, every attempt (right or wrong, without the answer itself), running machines, the certificates issued, and what students wrote on their profiles.
+- **Progress:** stored in its own PostgreSQL database (`cyberrange`), created on first start on the same server as the platform's. It holds the questions each student answered and the sections they finished, with the XP each earned, every attempt (right or wrong, without the answer itself), running machines, the certificates issued, what students wrote on their profiles, and what staff made in the studio: documents, lab files, game proposals and certificate signatures.
 - **Labs:** a lab is a scenario, an optional machine, optional files to download and a few tasks that end with the flag. It has no lesson and nothing to unlock. Inside the service a lab is a module with one section (`lab:<name>` / `tasks`), so answers, XP and machines work exactly as they do for sections.
 - **Unlocking:** inside a module, a section opens when the one before it is finished. Locked sections show only what to finish first, and refuse answers and machines. Modules themselves are always open, in any order.
 - **XP:** every question is worth what its author gave it, and finishing a section adds that section's bonus. XP is written down when it is earned, so editing a lesson later does not change what students already have.
@@ -26,6 +27,12 @@ GZCTF itself is unchanged. This service runs next to it, behind the same proxy, 
 - **Badges:** eighteen, worked out from what a student did, so nothing has to be handed out: first answer, first flag, first module, first path, first lab, five labs, three labs in web, crypto, forensics or OSINT, labs in four categories, a four-week streak, each rank after the first, and a week finished in the top three.
 - **Certificates:** one for every finished module and one for every finished skill path, issued when the last question is answered. A certificate's number is an HMAC of the student and what it is for, and anyone who has the number can check it. It carries the real name from the student's platform profile, or their user name when they gave none.
 - **Profiles:** public, like a scoreboard. A student can add a short bio, a country and links (GitHub, LinkedIn, X, a website); those are checked before they are stored. The **verified** tick is given by the superadmin; admins always have it.
+- **Studio:** a tutor or an admin writes a module, a lab or a skill path in the browser. The author works on a copy; publishing checks it the way the content folder is checked and makes it what students see, until it is published again. A document's address comes from its first title and never changes, and its sections and questions keep the names they were first saved with, because progress is stored under them. A lab's files are kept in the database (5 files of 8 MB at most). Tutors see their own documents, admins everyone's. Because tutors write it, the web interface never trusts this text as HTML: it renders the Markdown, then removes anything that could run (scripts, event handlers, `javascript:` links) with DOMPurify before showing it.
+- **Machine images:** in the studio and in proposed games, a machine can only use an image that is already on the server and matches `MACHINE_IMAGES`. Nothing is pulled from the internet.
+- **Game proposals:** a tutor drafts a game with its challenges and submits it. The superadmin approves it or sends it back with a note. Approving creates the game on the platform with the superadmin's own sign-in (the service has no account there), hidden until every challenge is in, and then puts it online; if a step fails, what was created is removed again. Flags must look like `udsm{...}`, and a challenge with a machine gets a flag for every player. The platform shows a game's texts as Markdown with HTML allowed, so a proposal with raw HTML outside code (in backticks) cannot be submitted or approved.
+- **Certificate signatures:** two people sign: the club's president and the college's principal. Each is a name, a title and a picture of the signature (PNG, JPEG or WebP, up to 300 KB, checked by its first bytes and kept by its SHA-256). A certificate issued once both have a name and a signature keeps them for good. Older ones show today's signatories until the superadmin signs everything again.
+- **Profile pictures:** belong to the platform account. After one is changed there, `POST /me/sync` reads it again at once instead of a minute later.
+- **Admins:** the superadmin makes someone a platform admin with `PUT /admin/users/:id/admin`, which changes the role on the platform with the superadmin's sign-in. The proxy also sends the platform's own requests that change or remove an account (`PUT` and `DELETE` under `/api/admin/users/`) through `/gate/...` here first. Any admin may still look after members: edit them, ban and unban them, reset a password, delete them (which also removes what they did here). Only the superadmin gives or takes any other role, or edits, resets or deletes the account of an admin, so that no admin can take over the superadmin's account.
 - **Abuse:** answers are rate-limited (10, then one every 6 seconds per student); machine starts too (3, then one a minute). Requests that change something must be JSON, so other websites cannot send them on a student's behalf.
 
 ## Levels and ranks
@@ -48,11 +55,11 @@ A level takes 100 XP more than the one before it: level 2 starts at 100 XP, leve
 | Role | Who | Can do |
 | --- | --- | --- |
 | student | everyone | learn |
-| tutor | whoever the superadmin names | also open any section without finishing the ones before it |
-| admin | a GZCTF admin | the same, and reload the content |
-| superadmin | a GZCTF admin listed in `SUPERADMINS` | the same, and give or take the tutor role and the verified tick, list everyone, and remove a deleted account's data |
+| tutor | whoever the superadmin names | also open any section without finishing the ones before it, write and publish modules, labs and skill paths, and propose games |
+| admin | a GZCTF admin | the same, on everyone's documents, and reload the content |
+| superadmin | a GZCTF admin listed in `SUPERADMINS` | the same, and approve proposed games, set who signs certificates, make tutors and admins, give the verified tick, list everyone, and remove a deleted account's data |
 
-Admins are made in GZCTF's own admin pages. Only the tutor role is kept here. The superadmin gives it, and the verified tick, on the **Members** page of the web interface (`/members`), a tab that only they see.
+Only the tutor role is kept here; an admin is an admin on the platform. The superadmin gives both roles, and the verified tick, on the **Members** page of the web interface (`/members`), a tab that only they see. Other admins cannot change anyone's role, here or in GZCTF's own admin pages (see Admins above).
 
 ## API
 
@@ -81,12 +88,29 @@ All under `/api/range`. Errors are `{ "title": "...", "status": 400 }`.
 | `GET /profiles/:name` | anyone | someone's profile: standing, streak, badges, certificates and what they finished |
 | `GET /me/profile` | signed in | the same, for whoever asks |
 | `PUT /me/profile` | signed in | `{ "bio": "...", "country": "TZ", "links": { "github": "..." } }`; any of the three |
+| `POST /me/sync` | signed in | reads the picture and real name from the platform again, now |
 | `GET /ranking` | anyone | `?scope=hall`, `week` or `all`, with `page`, `size` (10 to 100) and `q` to look for a name |
-| `GET /certificates/:id` | anyone | a certificate, by its number |
+| `GET /certificates/:id` | anyone | a certificate, by its number, with who signed it |
+| `GET /signatories` | anyone | who signs certificates today |
+| `GET /images/:hash` | anyone | the picture of a signature |
+| `GET /studio/images` | staff | the machine images that may be used |
+| `GET /studio/documents`, `POST /studio/documents` | staff | their documents; a new one from `{ "kind": "module", "title": "..." }` (or `lab`, `path`) |
+| `GET`, `PUT`, `DELETE /studio/documents/:id` | its author, or an admin | read it, save the working copy, delete it once it is offline |
+| `POST /studio/documents/:id/publish`, `/unpublish` | its author, or an admin | put it on the site, or take it off |
+| `PUT`, `DELETE /studio/documents/:id/files/:name` | its author, or an admin | a lab's file: `{ "data": "<base64>" }` |
+| `GET /proposals`, `POST /proposals` | staff | their proposed games (admins also see submitted ones); a new draft |
+| `GET`, `PUT`, `DELETE /proposals/:id` | its author | read, change or delete a draft |
+| `POST /proposals/:id/submit`, `/withdraw` | its author | send it for review, or take it back |
+| `POST /proposals/:id/approve`, `/reject` | superadmin | create the game on the platform, or send it back with `{ "note": "..." }` |
 | `POST /admin/reload` | admin | reads the content folder again |
 | `GET /admin/users` | superadmin | everyone who has signed in, with their role, XP, rank and verified mark |
 | `PUT /admin/users/:id/role` | superadmin | `{ "role": "tutor" }` or `{ "role": "student" }` |
 | `PUT /admin/users/:id/verified` | superadmin | `{ "verified": true }` or `false` |
+| `PUT /admin/users/:id/admin` | superadmin | `{ "admin": true }` or `false`: a platform admin, or a member again |
+| `PUT /admin/signatories` | superadmin | `{ "president": { "name": "...", "title": "..." }, "principal": { ... } }` |
+| `PUT`, `DELETE /admin/signatories/:slot/signature` | superadmin | `{ "image": "data:image/png;base64,..." }` for `president` or `principal` |
+| `POST /admin/signatories/apply` | superadmin | puts today's signatories on every certificate issued so far |
+| `PUT`, `DELETE /gate/api/admin/users/:id`, `DELETE /gate/api/admin/users/:id/password` | admin | the platform's own requests to change, delete or reset a user, passed on unless they touch an admin or a role (see Admins) |
 | `DELETE /admin/users/:id` | superadmin | removes everything kept here about someone |
 | `GET /health` | anyone | `{ "ok": true }` |
 
@@ -105,6 +129,7 @@ Environment variables (the preview's `docker-compose.yml` sets them):
 | `PUBLIC_ENTRY` | the address students use to reach machines: the server's domain or IP (default `127.0.0.1`) |
 | `CONTENT_DIR` | the content folder (default `/content`) |
 | `MACHINE_NETWORK` | Docker network for machines (default `gzctf-isolated`) |
+| `MACHINE_IMAGES` | the images staff may choose as machines, separated by commas; a `*` at the end matches the rest (default `club/*`) |
 | `MACHINE_MINUTES`, `EXTEND_MINUTES`, `RENEWAL_WINDOW_MINUTES` | 60, 30 and 10 by default |
 | `MACHINE_CPUS`, `MACHINE_PIDS` | 0.5 and 256 by default |
 

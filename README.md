@@ -13,16 +13,17 @@ It is built on [GZCTF](https://github.com/GZTimeWalker/GZCTF) v1.9.1, an open-so
 - **Skill Paths.** A learning section in the side menu. A skill path is a set of modules; a module has chapters of short sections, each followed by questions, and half of them come with a machine of the student's own. Right answers earn XP, which adds up to levels and ranks, from Script Kiddie to Omniscient. The lessons are files in [content/](content); the [CyberRange service](services/cyberrange) serves them, checks answers, keeps progress and XP, and runs the machines. The first path is Web Security Beginner.
 - **Skill level.** People choose beginner, intermediate or expert when they register, and are offered a path that suits it.
 - **Labs.** Machines and challenges to solve without a lesson, grouped by category (web, crypto, forensics, OSINT, reverse engineering, pwn, steganography, misc, hardware, ICS, AI and Web3). A lab has a scenario, a machine of the student's own or files to download, and tasks that end with the flag. The first 20 are in web, crypto, forensics and OSINT.
-- **Profiles, badges and certificates.** Everyone has a public profile with their score, rank, level, weekly streak, badges, and the modules, paths and labs they finished. Every finished module and skill path earns a certificate that can be printed and checked by its number.
+- **Profiles, badges and certificates.** Everyone has a public profile with their picture, score, rank, level, weekly streak, badges, and the modules, paths and labs they finished. Every finished module and skill path earns a certificate with the UDSM and club logos, the signatures of the club's president and the college's principal, and a certificate ID that anyone can check. It prints on one landscape page.
 - **Ranking.** The top three stand on a podium and everyone else follows in a list. The Hall of Fame is the top 50 of last week and changes when a week ends; there are also lists for this week so far and for all time.
-- **Tutors and verified members.** The superadmin names tutors and gives the verified tick on a Members page that only they see. Admins are still made in GZCTF's admin pages.
+- **Studio.** Tutors and admins write modules, labs and skill paths in the browser and publish them themselves. A tutor can also propose a game with its challenges; it goes online only when the superadmin approves it, and can be sent back with a note.
+- **Roles.** The superadmin names tutors and admins and gives the verified tick on a Members page that only they see. Other admins can still look after members (edit, ban, reset a password, delete), but cannot give roles or touch an admin's account, not even in GZCTF's own admin pages: the proxy passes those requests through the CyberRange service first.
 - **Home page.** The site opens on the Skill Paths dashboard. Games, posts and teams are one click away in the side menu.
 
 ## Running it
 
 [preview/](preview) runs the platform locally with Docker: the official `gztime/gzctf:v1.9.1` image, PostgreSQL, the CyberRange service, Caddy in front, and the web interface built from this repository. See [preview/README.md](preview/README.md).
 
-A server works the same way: run the official v1.9.1 image with the built interface (`src/GZCTF/ClientApp/build`) mounted at `/app/wwwroot`, the CyberRange service next to it, and a proxy that sends `/api/range` to the CyberRange service and everything else to GZCTF.
+A server works the same way: run the official v1.9.1 image with the built interface (`src/GZCTF/ClientApp/build`) mounted at `/app/wwwroot`, the CyberRange service next to it, and a proxy that sends `/api/range` to the CyberRange service and everything else to GZCTF. Copy the rule for `PUT` and `DELETE` on `/api/admin/users/*` from [preview/Caddyfile](preview/Caddyfile) too: without it, any admin can change roles or reset the superadmin's password.
 
 ## Branding
 
@@ -49,5 +50,7 @@ These files are restricted components of GZCTF under [LicenseRef-GZCTF-Restricte
 See [NOTICE](NOTICE), [LICENSE_ADDENDUM.txt](LICENSE_ADDENDUM.txt) and [TRADEMARKS.md](TRADEMARKS.md).
 
 The icons on the Skill Paths, Labs, profile and ranking pages are [Uicons by Flaticon](https://www.flaticon.com/uicons). They are used under the Flaticon licence, which asks for the credit shown on those pages and on the About page, and are not covered by the AGPL. [tools/uicons](tools/uicons) copies the ones in use out of Flaticon's package.
+
+The University of Dar es Salaam's logo on certificates (`src/GZCTF/ClientApp/src/assets/udsm-logo.webp`) belongs to the university and is not covered by the AGPL either. Use it, and the principal's signature, with the college's consent.
 
 This service is based on the open core of GZCTF (AGPLv3). GZCTF is a trademark of its respective owner. No endorsement is implied.

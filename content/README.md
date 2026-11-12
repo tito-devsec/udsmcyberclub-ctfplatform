@@ -4,6 +4,8 @@ The lessons behind **Skill Paths** and the challenges behind **Labs**.
 
 A skill path is a list of modules. A module has chapters, each chapter has sections, and a section is a short text followed by questions. A lab has no lesson: it is a scenario, a machine or some files, and a few tasks that end with the flag. Answering questions and tasks earns XP.
 
+There are two ways to write them. This folder holds the ones that ship with the platform, as files. Tutors and admins can also write modules, labs and skill paths in the web interface, under **Studio**: those are kept in the database, follow the same rules as the files described here, and need no restart.
+
 The CyberRange service ([services/cyberrange](../services/cyberrange)) reads this folder when it starts. After editing, restart it, or sign in as an admin and send `POST /api/range/admin/reload`.
 
 ## Layout

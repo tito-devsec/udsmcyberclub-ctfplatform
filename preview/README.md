@@ -38,7 +38,11 @@ After changing anything in `src/GZCTF/ClientApp`, run the build again and then `
 
 The site opens on the Skill Paths dashboard. From the avatar menu, **Profile** shows a student's score, rank, streak, badges and certificates, and its **Ranking** button opens the ranking. The Hall of Fame there is last week's top 50, so it stays empty until the first full week has been played.
 
-Students sign in with their platform account. Their progress is kept in the `cyberrange` database, which the service creates on first start next to the platform's. The `Admin` account is the superadmin. Only they see the **Members** tab, where they make tutors and give the verified tick; set `SUPERADMINS` in `.env` to name someone else.
+Students sign in with their platform account. Their progress is kept in the `cyberrange` database, which the service creates on first start next to the platform's. The `Admin` account is the superadmin. Only they see the **Members** tab, where they make tutors and admins and give the verified tick; set `SUPERADMINS` in `.env` to name someone else.
+
+Tutors and admins get a **Studio** tab. There they write modules, labs and skill paths in the browser and publish them, and propose games. A proposed game waits for the superadmin, who approves it (the game is then created on the platform and put online) or sends it back with a note. Machines in the studio and in proposed games can use the images built on this computer whose names start with `club/` (set `MACHINE_IMAGES` on the `range` service to allow others).
+
+The superadmin's Studio page also has **Certificate signatures**: the names and titles of the club's president and the college's principal, and a picture of each signature (a PNG with a see-through background works best). Certificates show them next to the UDSM and club logos.
 
 ## Demo content
 
@@ -100,6 +104,7 @@ The platform starts one container per player (or per team in a team game) and pa
 - Challenge instances cannot reach each other. `docker-compose.yml` creates the two challenge networks (`gzctf-open`, `gzctf-isolated`) with container-to-container traffic turned off, before the platform would create them with it on. Docker cannot change this on an existing network: to apply it to an older setup, run `docker compose down`, then `docker network rm gzctf-open gzctf-isolated`, then `docker compose up -d`.
 - On Docker Desktop, instances on the "Isolated" network can still reach the internet, because Docker Desktop sends all container traffic through its own network layer. Docker's setting applies on a Linux server; test it there before relying on it.
 - Each challenge instance may use at most half a CPU core and 256 processes, with a low CPU priority so the platform stays responsive when the machine is busy. The `instance-limits` service in `docker-compose.yml` applies this to every instance as it starts ([instance-limits.sh](instance-limits.sh)). GZCTF sets each instance's memory limit itself, but its CPU limit only works for Windows containers, so the per-challenge "CPU Limit" field has no effect here. Change the numbers in `docker-compose.yml`.
+- The proxy sends the platform's requests that change, delete or reset the password of a user (`PUT` and `DELETE` under `/api/admin/users/`) through the CyberRange service. Other admins can still look after members, but only the superadmin gives roles or touches an admin's account. If that service is down, those actions in the admin pages fail until it is back.
 - The site is bound to `127.0.0.1`, so only this computer can open it. Change the port line to `"3000:8080"` to let other devices on your network in.
 - After API Encryption is turned on, a browser tab that was already open cannot sign in or submit flags until it is reloaded. Its flag submissions are refused without using up an attempt. Turn it on before an event, not during one.
 - The platform gets the Docker socket so it can start challenge containers, and `instance-limits` gets it to limit them. That gives both control of Docker on this machine, so keep this setup for local use.
