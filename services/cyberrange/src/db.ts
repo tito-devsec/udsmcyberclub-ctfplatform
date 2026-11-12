@@ -68,6 +68,11 @@ CREATE TABLE IF NOT EXISTS certificates (
 
 -- who signed it, as the signatories were on the day it was issued
 ALTER TABLE certificates ADD COLUMN IF NOT EXISTS signatories jsonb;
+-- certificates of participation in a game: who they are for, as the platform knew them then
+-- (players may never have opened CyberRange), and the game's dates and team
+ALTER TABLE certificates ADD COLUMN IF NOT EXISTS holder_name text;
+ALTER TABLE certificates ADD COLUMN IF NOT EXISTS holder_user text;
+ALTER TABLE certificates ADD COLUMN IF NOT EXISTS details jsonb;
 
 -- settings the superadmin changes in the web interface, such as who signs certificates
 CREATE TABLE IF NOT EXISTS settings (

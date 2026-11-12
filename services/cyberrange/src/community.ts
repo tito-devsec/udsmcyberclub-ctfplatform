@@ -275,12 +275,17 @@ route('GET', `${BASE}/certificates/:id`, async (ctx) => {
     ref: string
     title: string
     issued_at: Date
-    name: string
-    real_name: string | null
     signatories: unknown
+    holder_name: string | null
+    holder_user: string | null
+    details: Record<string, unknown> | null
+    // null when its holder has never opened CyberRange
+    name: string | null
+    real_name: string | null
   }>(
-    `SELECT c.id, c.kind, c.ref, c.title, c.issued_at, c.signatories, u.name, u.real_name
-     FROM certificates c JOIN users u ON u.id = c.user_id WHERE c.id = $1`,
+    `SELECT c.id, c.kind, c.ref, c.title, c.issued_at, c.signatories, c.holder_name, c.holder_user, c.details,
+            u.name, u.real_name
+     FROM certificates c LEFT JOIN users u ON u.id = c.user_id WHERE c.id = $1`,
     [ctx.params.id]
   )
   const certificate = rows[0]
@@ -288,21 +293,32 @@ route('GET', `${BASE}/certificates/:id`, async (ctx) => {
 
   const path = certificate.kind === 'path' ? content.pathBySlug.get(certificate.ref) : undefined
   const module = certificate.kind === 'module' ? content.moduleBySlug.get(certificate.ref) : undefined
+  const details = certificate.details ?? {}
+  const text = (value: unknown) => (typeof value === 'string' && value ? value : null)
   return {
     id: certificate.id,
     kind: certificate.kind,
     ref: certificate.ref,
     title: certificate.title,
     // the real name from the platform profile when there is one, otherwise the user name
-    name: certificate.real_name || certificate.name,
-    userName: certificate.name,
+    name: certificate.real_name || certificate.holder_name || certificate.name || certificate.holder_user || '',
+    userName: certificate.name ?? certificate.holder_user ?? '',
+    // whether its holder has a profile here
+    profile: certificate.name !== null,
     issuedAt: certificate.issued_at.toISOString(),
     signatories: await signatoriesOf(certificate.signatories),
     // what it covered, while that module or path still exists
-    summary: module?.summary ?? path?.summary ?? null,
+    summary: module?.summary ?? path?.summary ?? text(details.summary),
+    // the symbol of what it is for, shown on its seal
+    icon: module?.icon ?? path?.icon ?? null,
     category: module?.category ?? null,
     difficulty: module?.difficulty ?? path?.difficulty ?? null,
     minutes: module?.minutes ?? path?.modules.reduce((sum, m) => sum + m.minutes, 0) ?? null,
     modules: path?.modules.map((m) => m.title) ?? null,
+    // for a certificate of participation: when the game was, and the team they played in
+    game:
+      certificate.kind === 'game'
+        ? { start: text(details.start), end: text(details.end), team: text(details.team) }
+        : null,
   }
 })

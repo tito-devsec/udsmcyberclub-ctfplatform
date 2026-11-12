@@ -10,6 +10,7 @@ import './routes.js'
 import './community.js'
 import './signing.js'
 import './proposals.js'
+import './games.js'
 import { reloadContent } from './studio.js'
 
 // Mistakes in the content files stop the service here, with a message saying what is wrong.
