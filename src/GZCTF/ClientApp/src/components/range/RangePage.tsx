@@ -7,6 +7,7 @@ import { PlayerAvatar } from '@Components/range/Community'
 import { SkillLevelPrompt } from '@Components/range/SkillLevel'
 import { profileUrl } from '@Utils/Community'
 import { useMe } from '@Utils/Range'
+import { useProposals } from '@Utils/Studio'
 import { useUser } from '@Hooks/useUser'
 import classes from '@Styles/Range.module.css'
 
@@ -25,6 +26,9 @@ const RangeHeader: FC = () => {
   const { pathname } = useLocation()
   const { data: me } = useMe()
   const { user } = useUser()
+  // for the superadmin: how many proposed games are waiting for a review
+  const { data: proposals } = useProposals(me?.role === 'superadmin')
+  const waiting = proposals?.filter((proposal) => proposal.status === 'submitted').length ?? 0
 
   return (
     <header className={classes.header}>
@@ -42,6 +46,12 @@ const RangeHeader: FC = () => {
             {t(tab.label)}
           </Link>
         ))}
+        {me && me.role !== 'student' && (
+          <Link to="/studio" className={classes.pill} data-active={pathname.startsWith('/studio') || undefined}>
+            {t('range.nav.studio')}
+            {waiting > 0 && <span className={classes.count}>{waiting}</span>}
+          </Link>
+        )}
         {me?.role === 'superadmin' && (
           <Link to="/members" className={classes.pill} data-active={pathname.startsWith('/members') || undefined}>
             {t('range.nav.members')}

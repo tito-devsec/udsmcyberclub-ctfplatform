@@ -1,0 +1,271 @@
+/* The studio: its lists and its forms. The colours (--r-*) come from the .theme class of
+   Range.module.css, which every CyberRange page is wrapped in. */
+
+/* Mantine's inputs and plain buttons take the studio's colours from these */
+.form {
+  --mantine-color-default: var(--r-raised);
+  --mantine-color-default-hover: var(--r-raised);
+  --mantine-color-default-border: var(--r-border);
+  --mantine-color-text: var(--r-text);
+  --mantine-color-dimmed: var(--r-dim);
+  --mantine-color-placeholder: var(--r-dim);
+  display: grid;
+  gap: 24px;
+
+  /* the fields themselves: Mantine sets these on each one, so they are set again here */
+  & :global(.mantine-Input-input),
+  & :global(.mantine-PillsInput-input) {
+    --input-bg: var(--r-bg);
+    --input-bd: var(--r-border);
+    --input-color: var(--r-text);
+    --input-placeholder-color: var(--r-dim);
+  }
+
+  /* a proposal under review is read, not edited: keep it easy to read */
+  & :global(.mantine-Input-input:disabled),
+  & :global(.mantine-Input-input[data-disabled]),
+  & :global(.mantine-PillsInput-input[data-disabled]) {
+    color: var(--r-body);
+    opacity: 1;
+    -webkit-text-fill-color: var(--r-body);
+  }
+}
+
+/* a document's name, where it stands and what can be done with it */
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+}
+
+.barTitle {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+
+  & h1 {
+    margin: 0;
+    overflow: hidden;
+    font-size: 1.9rem;
+    font-weight: 800;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    color: var(--r-text);
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--r-body);
+  border-radius: 6px;
+  background: var(--r-raised);
+
+  &[data-status='published'],
+  &[data-status='approved'] {
+    color: light-dark(#0b6b4f, #63e6be);
+    background: light-dark(rgba(18, 184, 134, 0.14), rgba(18, 184, 134, 0.18));
+  }
+
+  &[data-status='changed'],
+  &[data-status='submitted'] {
+    color: light-dark(#8a5a00, #ffd43b);
+    background: light-dark(rgba(250, 176, 5, 0.18), rgba(250, 176, 5, 0.16));
+  }
+
+  &[data-status='rejected'] {
+    color: light-dark(#b02a37, #ff8787);
+    background: light-dark(rgba(250, 82, 82, 0.14), rgba(250, 82, 82, 0.18));
+  }
+}
+
+.panel {
+  display: grid;
+  gap: 18px;
+  padding: 24px;
+  background: var(--r-card);
+  border: 1px solid var(--r-border);
+  border-radius: 10px;
+}
+
+.panelHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  & h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--r-text);
+  }
+}
+
+/* fields side by side, as many as fit */
+.row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 16px;
+}
+
+/* a question, a task or a challenge in a list */
+.item {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--r-border);
+  border-radius: 10px;
+  background: var(--r-bg);
+}
+
+.itemHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 700;
+  color: var(--r-text);
+}
+
+.iconButton {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  font-size: 1rem;
+  color: var(--r-body);
+  cursor: pointer;
+  border: 0;
+  border-radius: 6px;
+  background: var(--r-raised);
+
+  &:hover:not(:disabled) {
+    color: var(--r-text);
+  }
+
+  &[data-danger]:hover:not(:disabled) {
+    color: var(--mantine-color-red-5);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+}
+
+/* a module: its outline on the left, what is selected on the right */
+.columns {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  align-items: start;
+  gap: 24px;
+}
+
+.outline {
+  position: sticky;
+  top: 84px;
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  background: var(--r-card);
+  border: 1px solid var(--r-border);
+  border-radius: 10px;
+}
+
+.outlineItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 38px;
+  padding: 6px 10px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: left;
+  color: var(--r-body);
+  cursor: pointer;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+
+  & span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &:hover {
+    color: var(--r-text);
+  }
+
+  &[data-active] {
+    color: var(--r-text);
+    background: var(--r-raised);
+  }
+
+  &[data-level='section'] {
+    padding-left: 30px;
+    font-weight: 500;
+  }
+}
+
+.outlineChapter {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--r-border);
+}
+
+/* the Markdown preview */
+.preview {
+  min-height: 160px;
+  padding: 16px 18px;
+  border: 1px solid var(--r-border);
+  border-radius: 8px;
+  background: var(--r-bg);
+}
+
+.signature {
+  display: grid;
+  place-items: center;
+  height: 96px;
+  padding: 8px;
+  border: 1px dashed var(--r-border);
+  border-radius: 8px;
+  background: #fff;
+  color: #5d6d86;
+
+  & img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+}
+
+.problems {
+  margin: 6px 0 0;
+  padding-left: 20px;
+}

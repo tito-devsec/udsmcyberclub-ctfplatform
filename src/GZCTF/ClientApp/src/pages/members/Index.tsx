@@ -36,7 +36,7 @@ const MembersPage: FC = () => {
 
   usePageTitle(t('range.members.title'))
 
-  const change = async (member: Member, work: () => Promise<unknown>, next: Partial<Member>) => {
+  const change = async (member: Member, work: () => Promise<unknown>, next: Partial<Member> = {}) => {
     setBusy(member.id)
     try {
       await work()
@@ -117,6 +117,7 @@ const MembersPage: FC = () => {
                       <th>{t('range.ranking.column.score')}</th>
                       <th>{t('range.ranking.column.active')}</th>
                       <th>{t('range.role.tutor')}</th>
+                      <th>{t('range.members.column.admin')}</th>
                       <th>{t('range.profile.verified_short')}</th>
                     </tr>
                   </thead>
@@ -155,6 +156,29 @@ const MembersPage: FC = () => {
                                 onChange={(event) => {
                                   const role = event.currentTarget.checked ? 'tutor' : 'student'
                                   change(member, () => membersApi.setRole(member.id, role), { role })
+                                }}
+                              />
+                            </span>
+                          </Tooltip>
+                        </td>
+                        <td>
+                          <Tooltip
+                            label={t('range.members.superadmin_role')}
+                            disabled={member.role !== 'superadmin'}
+                            withArrow
+                          >
+                            <span style={{ display: 'inline-flex' }}>
+                              <Switch
+                                aria-label={t('range.members.make_admin', { name: member.name })}
+                                checked={member.admin}
+                                disabled={member.role === 'superadmin' || member.id === me?.id || busy === member.id}
+                                onChange={(event) => {
+                                  const admin = event.currentTarget.checked
+                                  change(member, async () => {
+                                    await membersApi.setAdmin(member.id, admin)
+                                    // the role that is left when someone stops being an admin is kept by the service
+                                    await mutate()
+                                  })
                                 }}
                               />
                             </span>
