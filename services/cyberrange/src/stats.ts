@@ -4,6 +4,7 @@ import { createHmac } from 'node:crypto'
 import { config } from './config.js'
 import { db } from './db.js'
 import { moduleState, pathState, progressOf } from './progress.js'
+import { signatoriesToIssue } from './signing.js'
 import { content } from './state.js'
 import { RANKS, standing } from './xp.js'
 
@@ -172,11 +173,13 @@ export async function syncCertificates(userId: string) {
     issue.push({ kind: 'path', ref: path.slug, title: path.title, at: new Date(last) })
   }
 
+  if (issue.length === 0) return
+  const signatories = await signatoriesToIssue()
   for (const c of issue) {
     await db.query(
-      `INSERT INTO certificates (id, user_id, kind, ref, title, issued_at) VALUES ($1, $2, $3, $4, $5, $6)
-       ON CONFLICT DO NOTHING`,
-      [certificateId(userId, c.kind, c.ref), userId, c.kind, c.ref, c.title, c.at]
+      `INSERT INTO certificates (id, user_id, kind, ref, title, issued_at, signatories)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT DO NOTHING`,
+      [certificateId(userId, c.kind, c.ref), userId, c.kind, c.ref, c.title, c.at, signatories]
     )
   }
 }

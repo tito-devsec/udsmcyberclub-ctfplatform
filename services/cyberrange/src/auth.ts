@@ -28,7 +28,7 @@ export class PlatformUnavailable extends Error {}
 
 const cache = new Map<string, { user: User | null; until: number }>()
 
-const tokenOf = (req: IncomingMessage) => /(?:^|;\s*)GZCTF_Token=([^;]+)/.exec(req.headers.cookie ?? '')?.[1]
+export const tokenOf = (req: IncomingMessage) => /(?:^|;\s*)GZCTF_Token=([^;]+)/.exec(req.headers.cookie ?? '')?.[1]
 
 // The proxy in front of this service (Caddy) adds the visitor's address as the last entry.
 export function clientIp(req: IncomingMessage): string {

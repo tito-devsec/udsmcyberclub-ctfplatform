@@ -1,12 +1,13 @@
 // Profiles, the ranking with its weekly Hall of Fame, and certificates. Profiles and the
 // ranking are public, like a scoreboard; only a student can change their own profile.
 
-import { roleOf } from './auth.js'
+import { currentUser, forgetUser, roleOf } from './auth.js'
 import { CATEGORIES, type Category } from './content.js'
 import { db } from './db.js'
 import { HttpError, route } from './http.js'
 import { moduleState, pathState, progressOf } from './progress.js'
 import { allow } from './ratelimit.js'
+import { signatoriesOf } from './signing.js'
 import { content } from './state.js'
 import { badgesOf, positionOf, rankingPage, type Scope, streakOf, syncCertificates, weeks } from './stats.js'
 import { moduleSummary, pathSummary } from './views.js'
@@ -192,6 +193,16 @@ route('GET', `${BASE}/me/profile`, async (ctx) => {
   return profileOf((await userById(user.id))!, user.id)
 })
 
+// After changing the picture or the real name on the platform: read them again now, not
+// when the minute a sign-in is remembered for is over.
+route('POST', `${BASE}/me/sync`, async (ctx) => {
+  const user = await ctx.signedIn()
+  if (!allow(`sync:${user.id}`, 6, 30_000)) throw new HttpError(429, 'Slow down a little, then try again.')
+  forgetUser(user.id)
+  await currentUser(ctx.req)
+  return profileOf((await userById(user.id))!, user.id)
+})
+
 route('PUT', `${BASE}/me/profile`, async (ctx) => {
   const user = await ctx.signedIn()
   if (!allow(`profile:${user.id}`, 10, 30_000)) throw new HttpError(429, 'Slow down a little, then try again.')
@@ -266,8 +277,9 @@ route('GET', `${BASE}/certificates/:id`, async (ctx) => {
     issued_at: Date
     name: string
     real_name: string | null
+    signatories: unknown
   }>(
-    `SELECT c.id, c.kind, c.ref, c.title, c.issued_at, u.name, u.real_name
+    `SELECT c.id, c.kind, c.ref, c.title, c.issued_at, c.signatories, u.name, u.real_name
      FROM certificates c JOIN users u ON u.id = c.user_id WHERE c.id = $1`,
     [ctx.params.id]
   )
@@ -285,7 +297,9 @@ route('GET', `${BASE}/certificates/:id`, async (ctx) => {
     name: certificate.real_name || certificate.name,
     userName: certificate.name,
     issuedAt: certificate.issued_at.toISOString(),
+    signatories: await signatoriesOf(certificate.signatories),
     // what it covered, while that module or path still exists
+    summary: module?.summary ?? path?.summary ?? null,
     category: module?.category ?? null,
     difficulty: module?.difficulty ?? path?.difficulty ?? null,
     minutes: module?.minutes ?? path?.modules.reduce((sum, m) => sum + m.minutes, 0) ?? null,

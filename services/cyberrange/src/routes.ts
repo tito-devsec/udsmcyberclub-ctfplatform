@@ -4,12 +4,10 @@
 
 import { timingSafeEqual } from 'node:crypto'
 import { join } from 'node:path'
-import { clientIp, forgetUser, isStaff, roleOf, SKILL_LEVELS, type User } from './auth.js'
-import { config } from './config.js'
+import { clientIp, forgetUser, isStaff, isSuperadmin, roleOf, SKILL_LEVELS, type User } from './auth.js'
 import {
   ContentError,
   type Lab,
-  loadContent,
   type Module,
   normalise,
   type Path,
@@ -21,10 +19,12 @@ import {
 import { db } from './db.js'
 import { type Context, FileReply, HttpError, route } from './http.js'
 import { currentMachine, extendMachine, machineFlag, type MachineInfo, startMachine, stopMachine } from './machines.js'
+import { platform } from './platform.js'
 import { allAnswered, type ModuleState, moduleState, pathState, type Progress, progressOf, solvedIn } from './progress.js'
 import { allow } from './ratelimit.js'
-import { content, contentSize, setContent } from './state.js'
+import { content, contentSize } from './state.js'
 import { positionOf, syncCertificates } from './stats.js'
+import { documentFile, reloadContent } from './studio.js'
 import { labSummary, link, moduleSummary, pathsOf, pathSummary } from './views.js'
 import { standing, xpOf } from './xp.js'
 
@@ -430,6 +430,7 @@ route('GET', `${BASE}/labs/:lab/files/@file`, async (ctx) => {
   const lab = findLab(ctx.params.lab!)
   const file = lab.files.find((f) => f.name === ctx.params.file)
   if (!file) throw new HttpError(404, 'There is no such file in this lab.')
+  if (lab.document) return documentFile(lab.document, file.name)
   return new FileReply(join(lab.dir, 'files', file.name), file.name, file.size)
 })
 
@@ -450,7 +451,7 @@ route('DELETE', `${BASE}/machine`, async (ctx) => {
 route('POST', `${BASE}/admin/reload`, async (ctx) => {
   await ctx.admin()
   try {
-    setContent(loadContent(config.contentDir))
+    await reloadContent()
   } catch (error) {
     if (error instanceof ContentError) throw new HttpError(400, error.message)
     throw error
@@ -532,11 +533,26 @@ route('PUT', `${BASE}/admin/users/:id/verified`, async (ctx) => {
   return rows[0]
 })
 
-// Removes everything kept here about someone: for accounts that were deleted on the platform.
-route('DELETE', `${BASE}/admin/users/:id`, async (ctx) => {
-  await ctx.superadmin()
+// Makes someone a platform admin, or an ordinary member again, with the superadmin's own
+// sign-in on the platform.
+route('PUT', `${BASE}/admin/users/:id/admin`, async (ctx) => {
+  const me = await ctx.superadmin()
+  const { admin } = await ctx.body<{ admin?: unknown }>()
+  if (typeof admin !== 'boolean') throw new HttpError(400, 'Send { "admin": true } or false.')
   const id = ctx.params.id!
-  if (!UUID.test(id)) throw new HttpError(404, 'There is no such user here.')
+  const { rows } = UUID.test(id) ? await db.query<{ name: string }>('SELECT name FROM users WHERE id = $1', [id]) : { rows: [] }
+  if (!rows[0]) throw new HttpError(404, 'There is no such user here. People appear after their first visit.')
+  if (id === me.id) throw new HttpError(400, 'You cannot change your own role.')
+  if (isSuperadmin(id, rows[0].name)) throw new HttpError(400, "Superadmins are named in the server's settings.")
+
+  await platform(ctx.req, 'PUT', `/api/admin/users/${id}`, { role: admin ? 'Admin' : 'User' })
+  await db.query('UPDATE users SET admin = $2 WHERE id = $1', [id, admin])
+  forgetUser(id)
+  return { id, name: rows[0].name, admin }
+})
+
+// Removes everything kept here about someone.
+async function forget(id: string) {
   await stopMachine(id)
   const client = await db.connect()
   try {
@@ -553,5 +569,60 @@ route('DELETE', `${BASE}/admin/users/:id`, async (ctx) => {
     client.release()
   }
   forgetUser(id)
+}
+
+// For accounts that were deleted on the platform some other way.
+route('DELETE', `${BASE}/admin/users/:id`, async (ctx) => {
+  await ctx.superadmin()
+  const id = ctx.params.id!
+  if (!UUID.test(id)) throw new HttpError(404, 'There is no such user here.')
+  await forget(id)
   return null
+})
+
+// ---- the gate ----
+// The proxy sends the platform's own requests that change or remove an account here first.
+// Any admin may look after members: edit them, ban them, reset a password, delete them. Only
+// the superadmin gives or takes a role, or touches the account of an admin, so that no admin
+// can take another's place, for instance by resetting the superadmin's password.
+
+// the roles an admin may move a member between
+const MEMBER_ROLES = ['User', 'Banned']
+
+async function gate(ctx: Context, role?: unknown): Promise<string> {
+  const user = await ctx.admin()
+  const id = ctx.params.id!.toLowerCase()
+  if (!UUID.test(id)) throw new HttpError(404, 'There is no such user.')
+  if (user.role === 'superadmin') return id
+
+  const current = (await platform<{ role?: string }>(ctx.req, 'GET', `/api/admin/users/${id}`)).role
+  if (current === 'Admin') throw new HttpError(403, "Only the superadmin can change an admin's account.")
+  const changing = role !== undefined && role !== null && role !== current
+  if (changing && !(MEMBER_ROLES.includes(String(current)) && MEMBER_ROLES.includes(String(role)))) {
+    throw new HttpError(403, 'Only the superadmin can give or take a role.')
+  }
+  return id
+}
+
+route('PUT', `${BASE}/gate/api/admin/users/@id`, async (ctx) => {
+  await ctx.admin()
+  const body = await ctx.body<Record<string, unknown>>(64 * 1024)
+  const id = await gate(ctx, body.role)
+  const reply = await platform(ctx.req, 'PUT', `/api/admin/users/${id}`, body)
+  if (body.role !== undefined) forgetUser(id)
+  return reply
+})
+
+route('DELETE', `${BASE}/gate/api/admin/users/@id`, async (ctx) => {
+  const id = await gate(ctx)
+  const reply = await platform(ctx.req, 'DELETE', `/api/admin/users/${id}`)
+  // what they did here goes with the account
+  await forget(id)
+  return reply
+})
+
+// answers with the new password, as the platform does
+route('DELETE', `${BASE}/gate/api/admin/users/@id/password`, async (ctx) => {
+  const id = await gate(ctx)
+  return platform(ctx.req, 'DELETE', `/api/admin/users/${id}/password`)
 })

@@ -37,6 +37,11 @@ export const config = {
   // the address students use to reach their machine: the server's domain or IP in production
   publicEntry: process.env.PUBLIC_ENTRY ?? '127.0.0.1',
   machineNetwork: process.env.MACHINE_NETWORK ?? 'gzctf-isolated',
+  // the images staff may pick as machines in the web interface; a trailing * matches the rest
+  machineImages: (process.env.MACHINE_IMAGES ?? 'club/*')
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean),
   machineMinutes: positive('MACHINE_MINUTES', 60),
   extendMinutes: positive('EXTEND_MINUTES', 30),
   renewalWindowMinutes: positive('RENEWAL_WINDOW_MINUTES', 10),

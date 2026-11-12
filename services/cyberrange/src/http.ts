@@ -22,6 +22,18 @@ export class FileReply {
   ) {}
 }
 
+// Bytes kept in the database (a signature, a lab's file), sent as they are.
+export class BytesReply {
+  constructor(
+    readonly data: Buffer,
+    readonly type: string,
+    // set for a download; without it the browser shows the content
+    readonly name?: string,
+    // true when the address changes whenever the content does
+    readonly immutable = false
+  ) {}
+}
+
 const TYPES: Record<string, string> = {
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
@@ -43,7 +55,8 @@ export interface Context {
   staff(): Promise<User>
   admin(): Promise<User>
   superadmin(): Promise<User>
-  body<T>(): Promise<T>
+  // the JSON sent with the request, up to `limit` bytes
+  body<T>(limit?: number): Promise<T>
 }
 
 type Handler = (ctx: Context) => Promise<unknown>
@@ -64,12 +77,12 @@ export function route(method: string, path: string, handler: Handler) {
 
 const MAX_BODY = 16 * 1024
 
-async function readBody(req: IncomingMessage): Promise<string> {
+async function readBody(req: IncomingMessage, limit: number): Promise<string> {
   const chunks: Buffer[] = []
   let size = 0
   for await (const chunk of req) {
     size += (chunk as Buffer).length
-    if (size > MAX_BODY) throw new HttpError(413, 'The request is too large.')
+    if (size > limit) throw new HttpError(413, 'The request is too large.')
     chunks.push(chunk as Buffer)
   }
   return Buffer.concat(chunks).toString()
@@ -85,6 +98,18 @@ function sendFile(res: ServerResponse, file: FileReply) {
     'X-Content-Type-Options': 'nosniff',
   })
   createReadStream(file.path).pipe(res)
+}
+
+function sendBytes(res: ServerResponse, reply: BytesReply) {
+  res.writeHead(200, {
+    'Content-Type': reply.type,
+    'Content-Length': reply.data.length,
+    ...(reply.name && { 'Content-Disposition': `attachment; filename="${reply.name}"` }),
+    'Cache-Control': reply.immutable ? 'public, max-age=31536000, immutable' : 'no-store',
+    'X-Content-Type-Options': 'nosniff',
+    'Content-Security-Policy': "default-src 'none'",
+  })
+  res.end(reply.data)
 }
 
 function send(res: ServerResponse, status: number, payload: unknown) {
@@ -108,8 +133,11 @@ export async function handle(req: IncomingMessage, res: ServerResponse) {
       throw new HttpError(exists ? 405 : 404, exists ? 'Method not allowed.' : 'Not found.')
     }
     // Requests that change something must be JSON. A browser cannot send JSON to another
-    // site without asking it first, so other sites cannot act on a student's behalf.
-    if (req.method !== 'GET' && !String(req.headers['content-type'] ?? '').startsWith('application/json')) {
+    // site without asking it first, so other sites cannot act on a student's behalf. The
+    // gate passes the platform's own PUT and DELETE requests on as they come: a browser
+    // cannot send those to another site without asking first either.
+    const json = String(req.headers['content-type'] ?? '').startsWith('application/json')
+    if (req.method !== 'GET' && !json && !url.pathname.startsWith('/api/range/gate/')) {
       throw new HttpError(415, 'Send JSON.')
     }
 
@@ -139,8 +167,8 @@ export async function handle(req: IncomingMessage, res: ServerResponse) {
       staff: () => only(isStaff, 'Only tutors and admins can do this.'),
       admin: () => only((u) => u.role === 'admin' || u.role === 'superadmin', 'Only admins can do this.'),
       superadmin: () => only((u) => u.role === 'superadmin', 'Only the superadmin can do this.'),
-      body: async <T>() => {
-        const text = await readBody(req)
+      body: async <T>(limit = MAX_BODY) => {
+        const text = await readBody(req, limit)
         try {
           return (text ? JSON.parse(text) : {}) as T
         } catch {
@@ -150,6 +178,7 @@ export async function handle(req: IncomingMessage, res: ServerResponse) {
     }
     const result = await found.handler(ctx)
     if (result instanceof FileReply) return sendFile(res, result)
+    if (result instanceof BytesReply) return sendBytes(res, result)
     send(res, 200, result)
   } catch (error) {
     if (error instanceof HttpError) return send(res, error.status, { title: error.message, status: error.status })

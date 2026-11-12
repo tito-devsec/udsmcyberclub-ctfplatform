@@ -118,6 +118,8 @@ export interface Lab {
   order: number
   files: { name: string; size: number }[]
   dir: string
+  // for a lab written in the web interface: the document its files are kept with
+  document?: string
   // the lab as a module of one section, so that answers, XP and machines work as they do there
   module: Module
   section: Section
@@ -134,6 +136,17 @@ export interface Content {
   // modules and labs by the name their progress is kept under
   unitByKey: Map<string, Module>
   labByKey: Map<string, Lab>
+  // what was written in the web interface but could not be loaded, and why
+  skipped: string[]
+}
+
+// A skill path, module or lab written in the web interface, as it was published.
+export interface StudioDocument {
+  id: string
+  kind: string
+  slug: string
+  live: unknown
+  files: { name: string; size: number }[]
 }
 
 export const normalise = (text: string, caseSensitive: boolean) => {
@@ -154,7 +167,7 @@ const FILE_NAME = /^[A-Za-z0-9][A-Za-z0-9._-]{0,100}$/
 
 export class ContentError extends Error {}
 
-type Raw = Record<string, unknown>
+export type Raw = Record<string, unknown>
 
 function fail(where: string, message: string): never {
   throw new ContentError(`${where}: ${message}`)
@@ -250,13 +263,24 @@ function loadQuestion(raw: Raw, machine: Machine | undefined, where: string): Qu
   }
 }
 
-function loadSection(dir: string, value: unknown, where: string): Section {
+// `dir` is the module's folder, or null for a module written in the web interface, whose
+// sections carry their name and text themselves.
+function loadSection(dir: string | null, value: unknown, where: string): Section {
   const raw = object(value, where)
-  const file = text(raw, 'file', where)
-  const slug = SECTION_FILE.exec(file)?.[1]
-  if (!slug) fail(where, `"${file}" must be a .md file named with a-z, 0-9 and dashes, such as 01-first-steps.md`)
+  let slug: string | undefined
+  let content: string
+  if (dir === null) {
+    slug = text(raw, 'slug', where)
+    if (!SLUG.test(slug)) fail(where, `the section name "${slug}" may only use a-z, 0-9 and dashes`)
+    content = text(raw, 'content', `${where} "${slug}"`, '')
+  } else {
+    const file = text(raw, 'file', where)
+    slug = SECTION_FILE.exec(file)?.[1]
+    if (!slug) fail(where, `"${file}" must be a .md file named with a-z, 0-9 and dashes, such as 01-first-steps.md`)
+    if (!existsSync(join(dir, file))) fail(`${where} "${slug}"`, `${file} is missing`)
+    content = readFileSync(join(dir, file), 'utf8')
+  }
   const at = `${where} "${slug}"`
-  if (!existsSync(join(dir, file))) fail(at, `${file} is missing`)
 
   const machine = raw.machine === undefined ? undefined : loadMachine(raw.machine, at)
   const seen = new Set<string>()
@@ -270,7 +294,7 @@ function loadSection(dir: string, value: unknown, where: string): Section {
   return {
     slug,
     title: text(raw, 'title', at),
-    content: readFileSync(join(dir, file), 'utf8'),
+    content,
     xp: whole(raw, 'xp', at, 10, 0, 1000),
     machine,
     questions,
@@ -281,7 +305,12 @@ function loadModule(modulesDir: string, slug: string): Module {
   const where = `module "${slug}"`
   if (!SLUG.test(slug)) fail(where, 'a module folder may only use a-z, 0-9 and dashes')
   const dir = join(modulesDir, slug)
-  const raw = readYaml(join(dir, 'module.yml'), where)
+  return moduleFrom(readYaml(join(dir, 'module.yml'), where), slug, dir)
+}
+
+// A module from its fields: those of module.yml, or of a document written in the web interface.
+export function moduleFrom(raw: Raw, slug: string, dir: string | null): Module {
+  const where = `module "${slug}"`
 
   const seen = new Set<string>()
   const chapters = list(raw, 'chapters', where).map((value, index): Chapter => {
@@ -327,7 +356,16 @@ function loadLab(labsDir: string, slug: string): Lab {
   const where = `lab "${slug}"`
   if (!SLUG.test(slug)) fail(where, 'a lab folder may only use a-z, 0-9 and dashes')
   const dir = join(labsDir, slug)
-  const raw = readYaml(join(dir, 'lab.yml'), where)
+  const filesDir = join(dir, 'files')
+  const files = (existsSync(filesDir) ? readdirSync(filesDir) : [])
+    .filter((name) => statSync(join(filesDir, name)).isFile())
+    .map((name) => ({ name, size: statSync(join(filesDir, name)).size }))
+  return labFrom(readYaml(join(dir, 'lab.yml'), where), slug, dir, files)
+}
+
+// A lab from its fields: those of lab.yml, or of a document written in the web interface.
+export function labFrom(raw: Raw, slug: string, dir: string, files: { name: string; size: number }[]): Lab {
+  const where = `lab "${slug}"`
 
   const machine = raw.machine === undefined ? undefined : loadMachine(raw.machine, where)
   const seen = new Set<string>()
@@ -338,13 +376,9 @@ function loadLab(labsDir: string, slug: string): Lab {
     return question
   })
 
-  const filesDir = join(dir, 'files')
-  const files = (existsSync(filesDir) ? readdirSync(filesDir) : [])
-    .filter((name) => statSync(join(filesDir, name)).isFile())
-    .map((name) => {
-      if (!FILE_NAME.test(name)) fail(where, `the file name "${name}" may only use letters, digits, dots, dashes and _`)
-      return { name, size: statSync(join(filesDir, name)).size }
-    })
+  for (const { name } of files) {
+    if (!FILE_NAME.test(name)) fail(where, `the file name "${name}" may only use letters, digits, dots, dashes and _`)
+  }
 
   const title = text(raw, 'title', where)
   const summary = text(raw, 'summary', where)
@@ -401,7 +435,33 @@ function loadLab(labsDir: string, slug: string): Lab {
   }
 }
 
-export function loadContent(dir: string): Content {
+// A skill path from its fields: those of its file, or of a document written in the web interface.
+export function pathFrom(raw: Raw, slug: string, moduleBySlug: Map<string, Module>): Path {
+  const where = `path "${slug}"`
+  const listed = new Set<string>()
+  const inPath = list(raw, 'modules', where).map((name) => {
+    const module = typeof name === 'string' ? moduleBySlug.get(name) : undefined
+    if (!module) fail(where, `there is no module "${String(name)}"`)
+    if (listed.has(module.slug)) fail(where, `module "${module.slug}" is listed twice`)
+    listed.add(module.slug)
+    return module
+  })
+
+  return {
+    slug,
+    title: text(raw, 'title', where),
+    summary: text(raw, 'summary', where),
+    description: text(raw, 'description', where, ''),
+    difficulty: choice(raw, 'difficulty', where, DIFFICULTIES, 'easy'),
+    icon: iconOf(raw, where),
+    order: whole(raw, 'order', where, 100, 0, 100_000),
+    modules: inPath,
+  }
+}
+
+// The lessons in the content folder, then what was published from the web interface. A
+// mistake in a file stops the load; a document that no longer fits is left out and named.
+export function loadContent(dir: string, documents: StudioDocument[] = []): Content {
   const modulesDir = join(dir, 'modules')
   if (!existsSync(modulesDir)) fail(dir, 'the modules folder is missing')
 
@@ -416,29 +476,8 @@ export function loadContent(dir: string): Content {
     .filter((file) => file.endsWith('.yml'))
     .map((file): Path => {
       const slug = file.slice(0, -'.yml'.length)
-      const where = `path "${slug}"`
-      if (!SLUG.test(slug)) fail(where, 'a path file may only use a-z, 0-9 and dashes')
-      const raw = readYaml(join(pathsDir, file), where)
-
-      const listed = new Set<string>()
-      const inPath = list(raw, 'modules', where).map((name) => {
-        const module = typeof name === 'string' ? moduleBySlug.get(name) : undefined
-        if (!module) fail(where, `there is no module "${String(name)}" in the modules folder`)
-        if (listed.has(module.slug)) fail(where, `module "${module.slug}" is listed twice`)
-        listed.add(module.slug)
-        return module
-      })
-
-      return {
-        slug,
-        title: text(raw, 'title', where),
-        summary: text(raw, 'summary', where),
-        description: text(raw, 'description', where, ''),
-        difficulty: choice(raw, 'difficulty', where, DIFFICULTIES, 'easy'),
-        icon: iconOf(raw, where),
-        order: whole(raw, 'order', where, 100, 0, 100_000),
-        modules: inPath,
-      }
+      if (!SLUG.test(slug)) fail(`path "${slug}"`, 'a path file may only use a-z, 0-9 and dashes')
+      return pathFrom(readYaml(join(pathsDir, file), `path "${slug}"`), slug, moduleBySlug)
     })
     .sort((a, b) => a.order - b.order || a.title.localeCompare(b.title))
 
@@ -447,6 +486,45 @@ export function loadContent(dir: string): Content {
     .filter((name) => statSync(join(labsDir, name)).isDirectory())
     .map((slug) => loadLab(labsDir, slug))
     .sort((a, b) => a.order - b.order || a.title.localeCompare(b.title))
+
+  // what was written in the web interface comes after the files, in the order it was made
+  const skipped: string[] = []
+  const labBySlug = new Map(labs.map((lab) => [lab.slug, lab]))
+  const pathBySlug = new Map(paths.map((path) => [path.slug, path]))
+  const fromStudio = (kind: string, work: (doc: StudioDocument, raw: Raw) => void) => {
+    documents
+      .filter((doc) => doc.kind === kind)
+      .forEach((doc, index) => {
+        try {
+          work(doc, { ...object(doc.live, `${kind} "${doc.slug}"`), order: 1000 + index })
+        } catch (error) {
+          if (!(error instanceof ContentError)) throw error
+          skipped.push(error.message)
+        }
+      })
+  }
+  fromStudio('module', (doc, raw) => {
+    if (moduleBySlug.has(doc.slug)) fail(`module "${doc.slug}"`, 'a module in the content folder has this name')
+    const module = moduleFrom(raw, doc.slug, null)
+    modules.push(module)
+    moduleBySlug.set(module.slug, module)
+  })
+  fromStudio('lab', (doc, raw) => {
+    if (labBySlug.has(doc.slug)) fail(`lab "${doc.slug}"`, 'a lab in the content folder has this name')
+    const lab = { ...labFrom(raw, doc.slug, '', doc.files), document: doc.id }
+    labs.push(lab)
+    labBySlug.set(lab.slug, lab)
+  })
+  fromStudio('path', (doc, raw) => {
+    if (pathBySlug.has(doc.slug)) fail(`path "${doc.slug}"`, 'a path in the content folder has this name')
+    // modules that were taken offline since simply drop out of the path
+    const still = (Array.isArray(raw.modules) ? raw.modules : []).filter(
+      (name) => typeof name === 'string' && moduleBySlug.has(name)
+    )
+    const path = pathFrom({ ...raw, modules: still }, doc.slug, moduleBySlug)
+    paths.push(path)
+    pathBySlug.set(path.slug, path)
+  })
 
   const units: [string, Module][] = [
     ...modules.map((module): [string, Module] => [module.slug, module]),
@@ -457,10 +535,11 @@ export function loadContent(dir: string): Content {
     paths,
     modules,
     labs,
-    pathBySlug: new Map(paths.map((path) => [path.slug, path])),
+    pathBySlug,
     moduleBySlug,
-    labBySlug: new Map(labs.map((lab) => [lab.slug, lab])),
+    labBySlug,
     unitByKey: new Map(units),
     labByKey: new Map(labs.map((lab) => [lab.key, lab])),
+    skipped,
   }
 }

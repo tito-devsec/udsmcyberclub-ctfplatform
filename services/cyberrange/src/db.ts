@@ -1,7 +1,8 @@
 import pg from 'pg'
 import { config } from './config.js'
 
-// Only what students do is stored here. The lessons themselves are files (see content.ts).
+// What students do, and what staff write in the web interface. The lessons that ship with
+// the platform are files (see content.ts).
 const SCHEMA = `
 -- one row for everyone who has signed in; accounts themselves belong to the platform
 CREATE TABLE IF NOT EXISTS users (
@@ -63,6 +64,65 @@ CREATE TABLE IF NOT EXISTS certificates (
   title     text        NOT NULL,
   issued_at timestamptz NOT NULL,
   UNIQUE (user_id, kind, ref)
+);
+
+-- who signed it, as the signatories were on the day it was issued
+ALTER TABLE certificates ADD COLUMN IF NOT EXISTS signatories jsonb;
+
+-- settings the superadmin changes in the web interface, such as who signs certificates
+CREATE TABLE IF NOT EXISTS settings (
+  key   text  PRIMARY KEY,
+  value jsonb NOT NULL
+);
+
+-- small pictures kept by their SHA-256: the signatures on certificates
+CREATE TABLE IF NOT EXISTS images (
+  hash       text        PRIMARY KEY,
+  type       text        NOT NULL,
+  data       bytea       NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- skill paths, modules and labs written in the web interface. "data" is the author's
+-- working copy; "live" is what students see, and is empty until it is published
+CREATE TABLE IF NOT EXISTS documents (
+  id           uuid        PRIMARY KEY,
+  kind         text        NOT NULL,
+  slug         text        NOT NULL,
+  author_id    uuid        NOT NULL,
+  data         jsonb       NOT NULL,
+  live         jsonb,
+  created_at   timestamptz NOT NULL DEFAULT now(),
+  updated_at   timestamptz NOT NULL DEFAULT now(),
+  published_at timestamptz,
+  UNIQUE (kind, slug)
+);
+
+-- the files of a lab written in the web interface
+CREATE TABLE IF NOT EXISTS document_files (
+  document_id uuid    NOT NULL,
+  name        text    NOT NULL,
+  size        integer NOT NULL,
+  data        bytea   NOT NULL,
+  PRIMARY KEY (document_id, name)
+);
+
+-- games proposed by tutors; the superadmin approves one to create it on the platform
+CREATE TABLE IF NOT EXISTS proposals (
+  id           uuid        PRIMARY KEY,
+  author_id    uuid        NOT NULL,
+  data         jsonb       NOT NULL,
+  -- draft, submitted, approved or rejected
+  status       text        NOT NULL DEFAULT 'draft',
+  -- what the reviewer said when sending it back
+  note         text,
+  -- the game on the platform, once approved
+  game_id      integer,
+  reviewer_id  uuid,
+  created_at   timestamptz NOT NULL DEFAULT now(),
+  updated_at   timestamptz NOT NULL DEFAULT now(),
+  submitted_at timestamptz,
+  reviewed_at  timestamptz
 );
 
 -- every answer submitted, right or wrong (the answer itself is not kept)

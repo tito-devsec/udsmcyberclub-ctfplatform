@@ -8,15 +8,18 @@ import { contentSize, setContent } from './state.js'
 // the API's routes
 import './routes.js'
 import './community.js'
+import './signing.js'
+import './proposals.js'
+import { reloadContent } from './studio.js'
 
 // Mistakes in the content files stop the service here, with a message saying what is wrong.
 setContent(loadContent(config.contentDir))
-const { paths, modules, sections, labs } = contentSize()
-console.log(
-  `cyberrange: loaded ${paths} paths, ${modules} modules with ${sections} sections, and ${labs} labs from ${config.contentDir}`
-)
 
 await openDatabase()
+// what staff published from the web interface joins the files
+await reloadContent()
+const { paths, modules, sections, labs } = contentSize()
+console.log(`cyberrange: loaded ${paths} paths, ${modules} modules with ${sections} sections, and ${labs} labs`)
 
 const server = createServer((req, res) => void handle(req, res))
 server.listen(config.port, () => console.log(`cyberrange: listening on port ${config.port}`))
