@@ -3,6 +3,7 @@
 import { createReadStream } from 'node:fs'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { currentUser, isStaff, PlatformUnavailable, type User } from './auth.js'
+import { DockerUnavailable } from './docker.js'
 
 export class HttpError extends Error {
   constructor(
@@ -184,6 +185,11 @@ export async function handle(req: IncomingMessage, res: ServerResponse) {
     if (error instanceof HttpError) return send(res, error.status, { title: error.message, status: error.status })
     if (error instanceof PlatformUnavailable) {
       return send(res, 503, { title: 'The platform is not answering. Try again in a moment.', status: 503 })
+    }
+    if (error instanceof DockerUnavailable) {
+      console.error(`${req.method} ${url.pathname}: ${error.message}`)
+      const title = 'The lab machines are not answering right now. Try again in a few minutes, and tell an admin if it keeps happening.'
+      return send(res, 503, { title, status: 503 })
     }
     console.error(`${req.method} ${url.pathname}:`, error)
     send(res, 500, { title: 'Something went wrong.', status: 500 })

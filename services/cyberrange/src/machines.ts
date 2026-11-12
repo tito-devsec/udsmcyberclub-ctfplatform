@@ -120,15 +120,22 @@ export function startMachine(user: User, module: Module, section: Section): Prom
     if (created.status !== 201) throw new Error(`Docker could not create the machine: ${created.status} ${created.data?.message ?? ''}`)
 
     const id = created.data.Id
-    const started = await docker('POST', `/containers/${id}/start`)
-    const inspected = await docker<{ NetworkSettings?: { Ports?: Record<string, { HostPort: string }[] | null> } }>(
-      'GET',
-      `/containers/${id}/json`
-    )
-    const hostPort = inspected.data?.NetworkSettings?.Ports?.[port]?.[0]?.HostPort
-    if ((started.status !== 204 && started.status !== 304) || !hostPort) {
-      await removeContainer(id)
-      throw new Error(`the machine did not start (${started.status})`)
+    let hostPort = ''
+    try {
+      const started = await docker('POST', `/containers/${id}/start`)
+      const inspected = await docker<{ NetworkSettings?: { Ports?: Record<string, { HostPort: string }[] | null> } }>(
+        'GET',
+        `/containers/${id}/json`
+      )
+      hostPort = inspected.data?.NetworkSettings?.Ports?.[port]?.[0]?.HostPort ?? ''
+      if ((started.status !== 204 && started.status !== 304) || !hostPort) {
+        throw new Error(`the machine did not start (${started.status})`)
+      }
+    } catch (error) {
+      // Leave no half-started container behind. Docker may still be busy with it, so the student
+      // is not kept waiting while it goes; if it cannot go now, reap() takes it later.
+      removeContainer(id).catch(() => {})
+      throw error
     }
 
     const now = new Date()

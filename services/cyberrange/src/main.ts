@@ -2,6 +2,7 @@ import { createServer } from 'node:http'
 import { config } from './config.js'
 import { loadContent } from './content.js'
 import { openDatabase } from './db.js'
+import { DockerUnavailable } from './docker.js'
 import { handle } from './http.js'
 import { reap } from './machines.js'
 import { contentSize, setContent } from './state.js'
@@ -27,7 +28,9 @@ server.listen(config.port, () => console.log(`cyberrange: listening on port ${co
 
 // expired machines are removed every 30 seconds
 const reaper = setInterval(() => {
-  reap().catch((error) => console.error('cyberrange: removing expired machines failed:', error))
+  reap().catch((error) =>
+    console.error('cyberrange: removing expired machines failed:', error instanceof DockerUnavailable ? error.message : error)
+  )
 }, 30_000)
 
 for (const signal of ['SIGTERM', 'SIGINT'] as const) {

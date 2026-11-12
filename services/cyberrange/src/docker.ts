@@ -3,6 +3,9 @@
 import { request } from 'node:http'
 import { config } from './config.js'
 
+// Docker is not there or not answering: the lab machines are down, not the request at fault.
+export class DockerUnavailable extends Error {}
+
 export interface DockerResponse<T> {
   status: number
   data: T
@@ -33,8 +36,10 @@ export function docker<T = unknown>(method: string, path: string, body?: unknown
         })
       }
     )
-    req.on('error', reject)
-    req.setTimeout(30_000, () => req.destroy(new Error('Docker did not answer in time')))
+    req.on('error', (error) =>
+      reject(error instanceof DockerUnavailable ? error : new DockerUnavailable(`Docker is not reachable: ${error.message}`))
+    )
+    req.setTimeout(30_000, () => req.destroy(new DockerUnavailable('Docker did not answer in time')))
     if (payload) req.write(payload)
     req.end()
   })
