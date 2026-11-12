@@ -28,8 +28,10 @@ export const config = {
   secret: required('RANGE_SECRET'),
   // platform admins listed here, by user name or user id, are superadmins: they hand out roles
   superadmins: names('SUPERADMINS', 'Admin'),
-  // a week (for weekly XP) starts on Monday in this time zone
+  // a week (for weekly XP, streaks and the Hall of Fame) starts on Monday in this time zone
   timezone: process.env.TIMEZONE ?? 'Africa/Dar_es_Salaam',
+  // the XP to earn in a week to keep a streak going
+  weeklyGoal: positive('WEEKLY_GOAL', 100),
   contentDir: process.env.CONTENT_DIR ?? '/content',
   dockerSocket: process.env.DOCKER_SOCKET ?? '/var/run/docker.sock',
   // the address students use to reach their machine: the server's domain or IP in production

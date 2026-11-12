@@ -4,12 +4,17 @@ import { loadContent } from './content.js'
 import { openDatabase } from './db.js'
 import { handle } from './http.js'
 import { reap } from './machines.js'
-import { contentSize, setContent } from './routes.js'
+import { contentSize, setContent } from './state.js'
+// the API's routes
+import './routes.js'
+import './community.js'
 
 // Mistakes in the content files stop the service here, with a message saying what is wrong.
 setContent(loadContent(config.contentDir))
-const { paths, modules, sections } = contentSize()
-console.log(`cyberrange: loaded ${paths} paths, ${modules} modules and ${sections} sections from ${config.contentDir}`)
+const { paths, modules, sections, labs } = contentSize()
+console.log(
+  `cyberrange: loaded ${paths} paths, ${modules} modules with ${sections} sections, and ${labs} labs from ${config.contentDir}`
+)
 
 await openDatabase()
 

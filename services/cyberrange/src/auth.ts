@@ -39,17 +39,31 @@ export function clientIp(req: IncomingMessage): string {
   return forwarded.at(-1) ?? req.socket.remoteAddress ?? ''
 }
 
+export const isSuperadmin = (id: string, name: string) =>
+  config.superadmins.includes(id.toLowerCase()) || config.superadmins.includes(name.toLowerCase())
+
+// The role someone has here: from their platform account for admins, from this service otherwise.
+export const roleOf = (id: string, name: string, platformAdmin: boolean, stored: string): Role =>
+  platformAdmin ? (isSuperadmin(id, name) ? 'superadmin' : 'admin') : stored === 'tutor' ? 'tutor' : 'student'
+
 // The student's row here, created the first time they are seen.
-async function account(id: string, name: string, platformAdmin: boolean): Promise<User> {
+async function account(
+  id: string,
+  name: string,
+  platformAdmin: boolean,
+  avatar: string | null,
+  realName: string | null
+): Promise<User> {
   const { rows } = await db.query<{ role: string; skill_level: string | null; enrolled_path: string | null }>(
-    `INSERT INTO users (id, name) VALUES ($1, $2)
-     ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, last_active_at = now()
+    `INSERT INTO users (id, name, avatar, admin, real_name) VALUES ($1, $2, $3, $4, $5)
+     ON CONFLICT (id) DO UPDATE
+       SET name = EXCLUDED.name, avatar = EXCLUDED.avatar, admin = EXCLUDED.admin,
+           real_name = EXCLUDED.real_name, last_active_at = now()
      RETURNING role, skill_level, enrolled_path`,
-    [id, name]
+    [id, name, avatar, platformAdmin, realName]
   )
   const row = rows[0]!
-  const listed = config.superadmins.includes(id.toLowerCase()) || config.superadmins.includes(name.toLowerCase())
-  const role: Role = platformAdmin ? (listed ? 'superadmin' : 'admin') : row.role === 'tutor' ? 'tutor' : 'student'
+  const role = roleOf(id, name, platformAdmin, row.role)
   const skillLevel = SKILL_LEVELS.find((level) => level === row.skill_level) ?? null
   return { id, name, role, skillLevel, enrolledPath: row.enrolled_path }
 }
@@ -74,9 +88,17 @@ export async function currentUser(req: IncomingMessage): Promise<User | null> {
 
   let user: User | null = null
   if (res.ok) {
-    const profile = (await res.json()) as { userId?: string; userName?: string; role?: string }
+    const profile = (await res.json()) as {
+      userId?: string
+      userName?: string
+      role?: string
+      avatar?: string | null
+      realName?: string | null
+    }
     if (profile.userId && profile.role !== 'Banned') {
-      user = await account(profile.userId, profile.userName ?? '', profile.role === 'Admin')
+      const avatar = typeof profile.avatar === 'string' && profile.avatar.startsWith('/') ? profile.avatar : null
+      const realName = typeof profile.realName === 'string' ? profile.realName.trim().slice(0, 100) || null : null
+      user = await account(profile.userId, profile.userName ?? '', profile.role === 'Admin', avatar, realName)
     }
   } else if (res.status !== 401 && res.status !== 403) {
     throw new PlatformUnavailable()

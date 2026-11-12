@@ -1,12 +1,14 @@
-// The CyberRange API, under /api/range. The proxy in front sends these requests here and
-// everything else to the platform.
+// The CyberRange API, under /api/range: skill paths, modules, labs and machines. The proxy
+// in front sends these requests here and everything else to the platform. Profiles, the
+// ranking and certificates are in community.ts.
 
 import { timingSafeEqual } from 'node:crypto'
-import { clientIp, forgetUser, isStaff, SKILL_LEVELS, type User } from './auth.js'
+import { join } from 'node:path'
+import { clientIp, forgetUser, isStaff, roleOf, SKILL_LEVELS, type User } from './auth.js'
 import { config } from './config.js'
 import {
-  type Content,
   ContentError,
+  type Lab,
   loadContent,
   type Module,
   normalise,
@@ -17,35 +19,17 @@ import {
   sha256,
 } from './content.js'
 import { db } from './db.js'
-import { HttpError, route } from './http.js'
+import { type Context, FileReply, HttpError, route } from './http.js'
 import { currentMachine, extendMachine, machineFlag, type MachineInfo, startMachine, stopMachine } from './machines.js'
-import {
-  allAnswered,
-  type ModuleState,
-  moduleState,
-  type PathState,
-  pathState,
-  type Progress,
-  progressOf,
-  solvedIn,
-} from './progress.js'
+import { allAnswered, type ModuleState, moduleState, pathState, type Progress, progressOf, solvedIn } from './progress.js'
 import { allow } from './ratelimit.js'
+import { content, contentSize, setContent } from './state.js'
+import { positionOf, syncCertificates } from './stats.js'
+import { labSummary, link, moduleSummary, pathsOf, pathSummary } from './views.js'
 import { standing, xpOf } from './xp.js'
 
 const BASE = '/api/range'
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
-
-let content: Content
-
-export function setContent(next: Content) {
-  content = next
-}
-
-export const contentSize = () => ({
-  paths: content.paths.length,
-  modules: content.modules.length,
-  sections: content.modules.reduce((sum, module) => sum + module.sections.length, 0),
-})
 
 function findPath(slug: string): Path {
   const path = content.pathBySlug.get(slug)
@@ -65,44 +49,10 @@ function findSection(module: Module, slug: string): Section {
   return section
 }
 
-const link = (section: Section | undefined) => (section ? { slug: section.slug, title: section.title } : null)
-
-const pathsOf = (module: Module) =>
-  content.paths.filter((path) => path.modules.includes(module)).map((path) => ({ slug: path.slug, title: path.title }))
-
-function moduleSummary(module: Module, state: ModuleState) {
-  return {
-    slug: module.slug,
-    title: module.title,
-    summary: module.summary,
-    category: module.category,
-    difficulty: module.difficulty,
-    minutes: module.minutes,
-    xp: module.xp,
-    icon: module.icon ?? null,
-    sections: state.total,
-    done: state.done,
-    status: state.status,
-    // sections with a machine to practise on
-    machines: module.sections.filter((section) => section.machine).length,
-  }
-}
-
-function pathSummary(path: Path, state: PathState, user: User | null) {
-  return {
-    slug: path.slug,
-    title: path.title,
-    summary: path.summary,
-    difficulty: path.difficulty,
-    icon: path.icon ?? null,
-    minutes: path.modules.reduce((sum, module) => sum + module.minutes, 0),
-    xp: path.modules.reduce((sum, module) => sum + module.xp, 0),
-    moduleCount: path.modules.length,
-    completedModules: state.completedModules,
-    sections: state.total,
-    done: state.done,
-    enrolled: user?.enrolledPath === path.slug,
-  }
+function findLab(slug: string): Lab {
+  const lab = content.labBySlug.get(slug)
+  if (!lab) throw new HttpError(404, 'There is no such lab.')
+  return lab
 }
 
 function mustBeOpen(state: ModuleState, section: Section) {
@@ -119,9 +69,17 @@ function check(question: Question, module: Module, section: Section, userId: str
   return question.hashes.has(sha256(normalise(answer, question.caseSensitive)))
 }
 
+// how many students solved each lab
+async function solversOf(): Promise<Map<string, number>> {
+  const { rows } = await db.query<{ module: string; n: number }>(
+    "SELECT module, count(DISTINCT user_id)::int AS n FROM completions WHERE module LIKE 'lab:%' GROUP BY module"
+  )
+  return new Map(rows.map((row) => [row.module, row.n]))
+}
+
 // Records a right answer (or, without a question, a section read to the end) and says what
-// it earned: the XP, and whether it finished the section or the module, or raised the
-// student's level or rank.
+// it earned: the XP, and whether it finished the section or the module (for a lab: the
+// lab), or raised the student's level or rank.
 async function award(user: User, module: Module, section: Section, before: Progress, question?: Question) {
   const wasCompleted = moduleState(module, before).status === 'completed'
   const standingBefore = standing((await xpOf(user.id)).total)
@@ -129,8 +87,9 @@ async function award(user: User, module: Module, section: Section, before: Progr
   let gained = 0
   if (question) {
     const solve = await db.query(
-      'INSERT INTO solves (user_id, module, section, question, xp) VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING',
-      [user.id, module.slug, section.slug, question.id, question.xp]
+      `INSERT INTO solves (user_id, module, section, question, xp, flag) VALUES ($1, $2, $3, $4, $5, $6)
+       ON CONFLICT DO NOTHING`,
+      [user.id, module.slug, section.slug, question.id, question.xp, question.flag]
     )
     if (solve.rowCount) gained += question.xp
   }
@@ -150,16 +109,77 @@ async function award(user: User, module: Module, section: Section, before: Progr
   }
 
   const state = moduleState(module, progress, isStaff(user))
+  const moduleCompleted = state.status === 'completed' && !wasCompleted
+  // finishing a module, and with it perhaps a path, earns a certificate
+  if (moduleCompleted) await syncCertificates(user.id)
   const standingAfter = standing((await xpOf(user.id)).total)
   return {
     xp: gained,
     sectionCompleted,
-    moduleCompleted: state.status === 'completed' && !wasCompleted,
+    moduleCompleted,
     next: link(state.next),
     standing: standingAfter,
     levelUp: standingAfter.level > standingBefore.level,
     rankUp: standingAfter.rankIndex > standingBefore.rankIndex,
   }
+}
+
+const WRONG = {
+  correct: false,
+  xp: 0,
+  sectionCompleted: false,
+  moduleCompleted: false,
+  next: null,
+  standing: null,
+  levelUp: false,
+  rankUp: false,
+}
+
+// Checks an answer to a question of a section, or to a task of a lab, and records it.
+async function answerQuestion(ctx: Context, user: User, module: Module, section: Section) {
+  const question = section.questions.find((q) => q.id === ctx.params.question)
+  if (!question) throw new HttpError(404, 'There is no such question here.')
+
+  const progress = await progressOf(user.id)
+  mustBeOpen(moduleState(module, progress, isStaff(user)), section)
+
+  const { answer } = await ctx.body<{ answer?: unknown }>()
+  if (typeof answer !== 'string' || !answer.trim()) throw new HttpError(400, 'Type an answer first.')
+  if (answer.length > 200) throw new HttpError(400, 'That answer is too long.')
+  // learning, not a race: no limit on attempts, but no guessing scripts either
+  if (!allow(`answer:${user.id}`, 10, 6_000)) {
+    throw new HttpError(429, 'That is a lot of answers in a short time. Wait a few seconds, then try again.')
+  }
+
+  const correct = check(question, module, section, user.id, answer)
+  await db.query(
+    'INSERT INTO attempts (user_id, module, section, question, correct, ip) VALUES ($1, $2, $3, $4, $5, $6)',
+    [user.id, module.slug, section.slug, question.id, correct, clientIp(ctx.req)]
+  )
+  if (!correct) return WRONG
+  return { correct, ...(await award(user, module, section, progress, question)) }
+}
+
+// the machine with the names of what it belongs to, for "your machine for <section> is running"
+function titled(info: MachineInfo | null) {
+  if (!info) return null
+  const module = content.unitByKey.get(info.module)
+  const section = module?.sections.find((s) => s.slug === info.section)
+  const lab = content.labByKey.get(info.module)
+  return {
+    ...info,
+    title: section?.title ?? info.section,
+    moduleTitle: module?.title ?? info.module,
+    // where the machine is used: a lab, or a section of a module
+    lab: lab?.slug ?? null,
+  }
+}
+
+async function launch(user: User, module: Module, section: Section) {
+  if (!allow(`machine:${user.id}`, 3, 60_000)) {
+    throw new HttpError(429, 'You are starting machines too quickly. Wait a minute, then try again.')
+  }
+  return titled(await startMachine(user, module, section))
 }
 
 route('GET', `${BASE}/health`, async () => ({ ok: true }))
@@ -177,6 +197,7 @@ async function me(user: User) {
     enrolledPath: user.enrolledPath && content.pathBySlug.has(user.enrolledPath) ? user.enrolledPath : null,
     ...standing(xp.total),
     weekXp: xp.week,
+    ...(await positionOf(user.id)),
   }
 }
 
@@ -320,39 +341,7 @@ route('GET', `${BASE}/modules/:module/sections/:section`, async (ctx) => {
 route('POST', `${BASE}/modules/:module/sections/:section/questions/:question`, async (ctx) => {
   const user = await ctx.signedIn()
   const module = findModule(ctx.params.module!)
-  const section = findSection(module, ctx.params.section!)
-  const question = section.questions.find((q) => q.id === ctx.params.question)
-  if (!question) throw new HttpError(404, 'There is no such question in this section.')
-
-  const progress = await progressOf(user.id)
-  mustBeOpen(moduleState(module, progress, isStaff(user)), section)
-
-  const { answer } = await ctx.body<{ answer?: unknown }>()
-  if (typeof answer !== 'string' || !answer.trim()) throw new HttpError(400, 'Type an answer first.')
-  if (answer.length > 200) throw new HttpError(400, 'That answer is too long.')
-  // learning, not a race: no limit on attempts, but no guessing scripts either
-  if (!allow(`answer:${user.id}`, 10, 6_000)) {
-    throw new HttpError(429, 'That is a lot of answers in a short time. Wait a few seconds, then try again.')
-  }
-
-  const correct = check(question, module, section, user.id, answer)
-  await db.query(
-    'INSERT INTO attempts (user_id, module, section, question, correct, ip) VALUES ($1, $2, $3, $4, $5, $6)',
-    [user.id, module.slug, section.slug, question.id, correct, clientIp(ctx.req)]
-  )
-  if (!correct) {
-    return {
-      correct,
-      xp: 0,
-      sectionCompleted: false,
-      moduleCompleted: false,
-      next: null,
-      standing: null,
-      levelUp: false,
-      rankUp: false,
-    }
-  }
-  return { correct, ...(await award(user, module, section, progress, question)) }
+  return answerQuestion(ctx, user, module, findSection(module, ctx.params.section!))
 })
 
 // For a section without questions: reading it to the end finishes it.
@@ -365,31 +354,88 @@ route('POST', `${BASE}/modules/:module/sections/:section/complete`, async (ctx) 
   if (section.questions.length > 0 && !allAnswered(progress, module, section)) {
     throw new HttpError(400, 'Answer the questions in this section to finish it.')
   }
+  if (!allow(`complete:${user.id}`, 20, 3_000)) {
+    throw new HttpError(429, 'Slow down a little, then try again.')
+  }
   return award(user, module, section, progress)
 })
-
-// ---- machines ----
-
-// the machine with the names of what it belongs to, for "your machine for <section> is running"
-function titled(info: MachineInfo | null) {
-  if (!info) return null
-  const module = content.moduleBySlug.get(info.module)
-  const section = module?.sections.find((s) => s.slug === info.section)
-  return { ...info, title: section?.title ?? info.section, moduleTitle: module?.title ?? info.module }
-}
-
-route('GET', `${BASE}/machine`, async (ctx) => titled(await currentMachine((await ctx.signedIn()).id)))
 
 route('POST', `${BASE}/modules/:module/sections/:section/machine`, async (ctx) => {
   const user = await ctx.signedIn()
   const module = findModule(ctx.params.module!)
   const section = findSection(module, ctx.params.section!)
   mustBeOpen(moduleState(module, await progressOf(user.id), isStaff(user)), section)
-  if (!allow(`machine:${user.id}`, 3, 60_000)) {
-    throw new HttpError(429, 'You are starting machines too quickly. Wait a minute, then try again.')
-  }
-  return titled(await startMachine(user, module, section))
+  return launch(user, module, section)
 })
+
+// ---- labs ----
+
+route('GET', `${BASE}/labs`, async (ctx) => {
+  const user = await ctx.user()
+  const [progress, solvers] = await Promise.all([progressOf(user?.id), solversOf()])
+  return content.labs.map((lab) => labSummary(lab, progress, solvers))
+})
+
+route('GET', `${BASE}/labs/:lab`, async (ctx) => {
+  const lab = findLab(ctx.params.lab!)
+  const user = await ctx.user()
+  const [progress, solvers] = await Promise.all([progressOf(user?.id), solversOf()])
+  const solved = solvedIn(progress, lab.module, lab.section)
+  const { rows: first } = await db.query<{ name: string; completed_at: Date }>(
+    `SELECT u.name, c.completed_at FROM completions c JOIN users u ON u.id = c.user_id
+     WHERE c.module = $1 ORDER BY c.completed_at LIMIT 1`,
+    [lab.key]
+  )
+  return {
+    ...labSummary(lab, progress, solvers),
+    scenario: lab.scenario,
+    bonus: lab.section.xp,
+    signedIn: Boolean(user),
+    machine: lab.section.machine ? { port: lab.section.machine.port } : null,
+    // the names the machine is kept under, to tell whether a running one is this lab's
+    machineKey: { module: lab.key, section: lab.section.slug },
+    files: lab.files.map((file) => ({
+      name: file.name,
+      size: file.size,
+      url: `${BASE}/labs/${lab.slug}/files/${encodeURIComponent(file.name)}`,
+    })),
+    // whoever solved it first
+    firstSolve: first[0] ? { name: first[0].name, at: first[0].completed_at.toISOString() } : null,
+    tasks: lab.section.questions.map((q) => ({
+      id: q.id,
+      question: q.question,
+      format: q.format ?? null,
+      hint: q.hint ?? null,
+      flag: q.flag,
+      xp: q.xp,
+      solved: solved.has(q.id),
+    })),
+  }
+})
+
+route('POST', `${BASE}/labs/:lab/tasks/:question`, async (ctx) => {
+  const user = await ctx.signedIn()
+  const lab = findLab(ctx.params.lab!)
+  return answerQuestion(ctx, user, lab.module, lab.section)
+})
+
+route('POST', `${BASE}/labs/:lab/machine`, async (ctx) => {
+  const user = await ctx.signedIn()
+  const lab = findLab(ctx.params.lab!)
+  if (!lab.section.machine) throw new HttpError(400, 'This lab has no machine.')
+  return launch(user, lab.module, lab.section)
+})
+
+route('GET', `${BASE}/labs/:lab/files/@file`, async (ctx) => {
+  const lab = findLab(ctx.params.lab!)
+  const file = lab.files.find((f) => f.name === ctx.params.file)
+  if (!file) throw new HttpError(404, 'There is no such file in this lab.')
+  return new FileReply(join(lab.dir, 'files', file.name), file.name, file.size)
+})
+
+// ---- machines ----
+
+route('GET', `${BASE}/machine`, async (ctx) => titled(await currentMachine((await ctx.signedIn()).id)))
 
 route('POST', `${BASE}/machine/extend`, async (ctx) => titled(await extendMachine((await ctx.signedIn()).id)))
 
@@ -404,7 +450,7 @@ route('DELETE', `${BASE}/machine`, async (ctx) => {
 route('POST', `${BASE}/admin/reload`, async (ctx) => {
   await ctx.admin()
   try {
-    content = loadContent(config.contentDir)
+    setContent(loadContent(config.contentDir))
   } catch (error) {
     if (error instanceof ContentError) throw new HttpError(400, error.message)
     throw error
@@ -412,31 +458,44 @@ route('POST', `${BASE}/admin/reload`, async (ctx) => {
   return contentSize()
 })
 
-// Everyone who has signed in, with the role kept here. Admins are not marked: whether
-// someone is one is decided by their platform account, each time they sign in.
+// Everyone who has signed in, with their role and verified mark.
 route('GET', `${BASE}/admin/users`, async (ctx) => {
   await ctx.superadmin()
   const { rows } = await db.query<{
     id: string
     name: string
+    avatar: string | null
     role: string
+    admin: boolean
+    verified: boolean
     skill_level: string | null
     last_active_at: Date
     xp: number
   }>(
-    `SELECT u.id, u.name, u.role, u.skill_level, u.last_active_at, coalesce(x.xp, 0)::int AS xp
+    `SELECT u.id, u.name, u.avatar, u.role, u.admin, u.verified, u.skill_level, u.last_active_at,
+            coalesce(x.xp, 0)::int AS xp
      FROM users u
      LEFT JOIN (SELECT user_id, sum(xp) AS xp FROM xp_events GROUP BY user_id) x ON x.user_id = u.id
      ORDER BY lower(u.name)`
   )
-  return rows.map((row) => ({
-    id: row.id,
-    name: row.name,
-    role: row.role,
-    skillLevel: row.skill_level,
-    xp: row.xp,
-    lastActiveAt: row.last_active_at.toISOString(),
-  }))
+  return rows.map((row) => {
+    const { rank, rankIndex, level } = standing(row.xp)
+    return {
+      id: row.id,
+      name: row.name,
+      avatar: row.avatar,
+      // student or tutor as kept here; admin or superadmin from the platform account
+      role: roleOf(row.id, row.name, row.admin, row.role),
+      admin: row.admin,
+      verified: row.verified,
+      skillLevel: row.skill_level,
+      xp: row.xp,
+      rank,
+      rankIndex,
+      level,
+      lastActiveAt: row.last_active_at.toISOString(),
+    }
+  })
 })
 
 route('PUT', `${BASE}/admin/users/:id/role`, async (ctx) => {
@@ -457,6 +516,22 @@ route('PUT', `${BASE}/admin/users/:id/role`, async (ctx) => {
   return rows[0]
 })
 
+// The tick next to a name on profiles and in the ranking.
+route('PUT', `${BASE}/admin/users/:id/verified`, async (ctx) => {
+  await ctx.superadmin()
+  const { verified } = await ctx.body<{ verified?: unknown }>()
+  if (typeof verified !== 'boolean') throw new HttpError(400, 'Send { "verified": true } or false.')
+  const id = ctx.params.id!
+  const { rows } = UUID.test(id)
+    ? await db.query<{ id: string; name: string; verified: boolean }>(
+        'UPDATE users SET verified = $2 WHERE id = $1 RETURNING id, name, verified',
+        [id, verified]
+      )
+    : { rows: [] }
+  if (!rows[0]) throw new HttpError(404, 'There is no such user here. People appear after their first visit.')
+  return rows[0]
+})
+
 // Removes everything kept here about someone: for accounts that were deleted on the platform.
 route('DELETE', `${BASE}/admin/users/:id`, async (ctx) => {
   await ctx.superadmin()
@@ -466,7 +541,7 @@ route('DELETE', `${BASE}/admin/users/:id`, async (ctx) => {
   const client = await db.connect()
   try {
     await client.query('BEGIN')
-    for (const table of ['solves', 'completions', 'attempts']) {
+    for (const table of ['solves', 'completions', 'attempts', 'certificates']) {
       await client.query(`DELETE FROM ${table} WHERE user_id = $1`, [id])
     }
     await client.query('DELETE FROM users WHERE id = $1', [id])

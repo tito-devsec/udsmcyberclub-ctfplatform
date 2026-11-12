@@ -15,6 +15,15 @@ CREATE TABLE IF NOT EXISTS users (
   created_at     timestamptz NOT NULL DEFAULT now(),
   last_active_at timestamptz NOT NULL DEFAULT now()
 );
+-- shown on profiles and in the ranking
+ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar   text;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS admin    boolean NOT NULL DEFAULT false;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS verified boolean NOT NULL DEFAULT false;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS bio      text;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS country  text;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS links    jsonb NOT NULL DEFAULT '{}';
+-- the name on certificates, from the platform profile; never shown anywhere else
+ALTER TABLE users ADD COLUMN IF NOT EXISTS real_name text;
 
 -- questions answered correctly, with the XP each was worth at the time
 CREATE TABLE IF NOT EXISTS solves (
@@ -26,6 +35,8 @@ CREATE TABLE IF NOT EXISTS solves (
   solved_at timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY (user_id, module, section, question)
 );
+-- answered with a flag from a machine
+ALTER TABLE solves ADD COLUMN IF NOT EXISTS flag boolean NOT NULL DEFAULT false;
 
 -- sections finished, with their bonus XP
 CREATE TABLE IF NOT EXISTS completions (
@@ -37,11 +48,22 @@ CREATE TABLE IF NOT EXISTS completions (
   PRIMARY KEY (user_id, module, section)
 );
 
--- everything that earned XP, for totals and weekly sums
+-- everything that earned XP, for totals, weekly sums and the ranking
 CREATE OR REPLACE VIEW xp_events AS
-  SELECT user_id, xp, solved_at AS at FROM solves
+  SELECT user_id, xp, solved_at AS at, 'answer'::text AS kind FROM solves
   UNION ALL
-  SELECT user_id, xp, completed_at AS at FROM completions;
+  SELECT user_id, xp, completed_at AS at, 'completion'::text AS kind FROM completions;
+
+-- a certificate for every module and skill path a student finishes, kept as it was issued
+CREATE TABLE IF NOT EXISTS certificates (
+  id        text        PRIMARY KEY,
+  user_id   uuid        NOT NULL,
+  kind      text        NOT NULL,
+  ref       text        NOT NULL,
+  title     text        NOT NULL,
+  issued_at timestamptz NOT NULL,
+  UNIQUE (user_id, kind, ref)
+);
 
 -- every answer submitted, right or wrong (the answer itself is not kept)
 CREATE TABLE IF NOT EXISTS attempts (

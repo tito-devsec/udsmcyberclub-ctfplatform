@@ -1,5 +1,6 @@
 // A small router: routes return JSON, errors become { title, status } like the platform's.
 
+import { createReadStream } from 'node:fs'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { currentUser, isStaff, PlatformUnavailable, type User } from './auth.js'
 
@@ -12,9 +13,30 @@ export class HttpError extends Error {
   }
 }
 
+// A file to send as it is, instead of JSON.
+export class FileReply {
+  constructor(
+    readonly path: string,
+    readonly name: string,
+    readonly size: number
+  ) {}
+}
+
+const TYPES: Record<string, string> = {
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.gif': 'image/gif',
+  '.txt': 'text/plain; charset=utf-8',
+  '.pcap': 'application/vnd.tcpdump.pcap',
+  '.zip': 'application/zip',
+  '.pdf': 'application/pdf',
+}
+
 export interface Context {
   req: IncomingMessage
   params: Record<string, string>
+  query: URLSearchParams
   user(): Promise<User | null>
   signedIn(): Promise<User>
   // tutors, admins and superadmins
@@ -28,12 +50,13 @@ type Handler = (ctx: Context) => Promise<unknown>
 
 const routes: { method: string; pattern: RegExp; keys: string[]; handler: Handler }[] = []
 
+// ":name" matches a slug (a-z, 0-9 and dashes); "@name" anything up to the next slash.
 export function route(method: string, path: string, handler: Handler) {
   const keys: string[] = []
   const pattern = new RegExp(
-    `^${path.replace(/:(\w+)/g, (_, key: string) => {
+    `^${path.replace(/([:@])(\w+)/g, (_, kind: string, key: string) => {
       keys.push(key)
-      return '([a-z0-9-]+)'
+      return kind === ':' ? '([a-z0-9-]+)' : '([^/]+)'
     })}$`
   )
   routes.push({ method, pattern, keys, handler })
@@ -50,6 +73,18 @@ async function readBody(req: IncomingMessage): Promise<string> {
     chunks.push(chunk as Buffer)
   }
   return Buffer.concat(chunks).toString()
+}
+
+function sendFile(res: ServerResponse, file: FileReply) {
+  const dot = file.name.lastIndexOf('.')
+  res.writeHead(200, {
+    'Content-Type': TYPES[dot < 0 ? '' : file.name.slice(dot).toLowerCase()] ?? 'application/octet-stream',
+    'Content-Length': file.size,
+    'Content-Disposition': `attachment; filename="${file.name}"`,
+    'Cache-Control': 'no-store',
+    'X-Content-Type-Options': 'nosniff',
+  })
+  createReadStream(file.path).pipe(res)
 }
 
 function send(res: ServerResponse, status: number, payload: unknown) {
@@ -79,7 +114,12 @@ export async function handle(req: IncomingMessage, res: ServerResponse) {
     }
 
     const match = found.pattern.exec(url.pathname)!
-    const params = Object.fromEntries(found.keys.map((key, i) => [key, match[i + 1]!]))
+    let params: Record<string, string>
+    try {
+      params = Object.fromEntries(found.keys.map((key, i) => [key, decodeURIComponent(match[i + 1]!)]))
+    } catch {
+      throw new HttpError(400, 'The address is not valid.')
+    }
     let user: Promise<User | null> | undefined
     const only = async (allowed: (user: User) => boolean, message: string) => {
       const u = await ctx.signedIn()
@@ -89,6 +129,7 @@ export async function handle(req: IncomingMessage, res: ServerResponse) {
     const ctx: Context = {
       req,
       params,
+      query: url.searchParams,
       user: () => (user ??= currentUser(req)),
       signedIn: async () => {
         const u = await ctx.user()
@@ -107,7 +148,9 @@ export async function handle(req: IncomingMessage, res: ServerResponse) {
         }
       },
     }
-    send(res, 200, await found.handler(ctx))
+    const result = await found.handler(ctx)
+    if (result instanceof FileReply) return sendFile(res, result)
+    send(res, 200, result)
   } catch (error) {
     if (error instanceof HttpError) return send(res, error.status, { title: error.message, status: error.status })
     if (error instanceof PlatformUnavailable) {
