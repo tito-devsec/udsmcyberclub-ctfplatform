@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Web3 category badge">
+  <defs>
+    <linearGradient id="web3-rim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F0ABFC"/>
+      <stop offset="0.5" stop-color="#D946EF"/>
+      <stop offset="1" stop-color="#A21CAF"/>
+    </linearGradient>
+    <linearGradient id="web3-plate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1C2947"/>
+      <stop offset="1" stop-color="#090E1C"/>
+    </linearGradient>
+    <radialGradient id="web3-glow" gradientUnits="userSpaceOnUse" cx="256" cy="205" r="146">
+      <stop offset="0" stop-color="#D946EF" stop-opacity="0.42"/>
+      <stop offset="1" stop-color="#D946EF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="web3-ink" gradientUnits="userSpaceOnUse" x1="0" y1="-48" x2="0" y2="48">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F0ABFC"/>
+    </linearGradient>
+    <linearGradient id="web3-ribbon" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#D946EF"/>
+      <stop offset="0.5" stop-color="#F0ABFC"/>
+      <stop offset="1" stop-color="#D946EF"/>
+    </linearGradient>
+    <linearGradient id="web3-shade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#000000" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="web3-clip"><polygon points="256,37 445.66,146.5 445.66,365.5 256,475 66.34,365.5 66.34,146.5"/></clipPath>
+  </defs>
+
+  <!-- badge -->
+  <polygon points="256,50 434.4,153 434.4,359 256,462 77.6,359 77.6,153" fill="url(#web3-rim)" stroke="url(#web3-rim)" stroke-width="24" stroke-linejoin="round"/>
+  <polygon points="256,68 418.81,162 418.81,350 256,444 93.19,350 93.19,162" fill="url(#web3-plate)" stroke="url(#web3-plate)" stroke-width="12" stroke-linejoin="round"/>
+  <circle cx="256" cy="205" r="146" fill="url(#web3-glow)"/>
+  <polygon points="256,84 404.96,170 404.96,342 256,428 107.04,342 107.04,170" fill="none" stroke="#F0ABFC" stroke-opacity="0.45" stroke-width="2" stroke-linejoin="round"/>
+  <g fill="#F0ABFC"><circle cx="256" cy="84" r="4"/><circle cx="404.96" cy="170" r="4"/><circle cx="404.96" cy="342" r="4"/><circle cx="256" cy="428" r="4"/><circle cx="107.04" cy="342" r="4"/><circle cx="107.04" cy="170" r="4"/></g>
+
+  <!-- icon -->
+  <g transform="translate(256 205) scale(1.78)" fill="none" stroke="url(#web3-ink)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M0 -38L32.9 -19V19L0 38L-32.9 19V-19Z"/>
+      <path d="M-32.9 -19L0 0L32.9 -19M0 0V38"/>
+      <g fill="url(#web3-ink)" stroke="none">
+        <circle cy="-38" r="6"/>
+        <circle cx="32.9" cy="-19" r="6"/>
+        <circle cx="32.9" cy="19" r="6"/>
+        <circle cy="38" r="6"/>
+        <circle cx="-32.9" cy="19" r="6"/>
+        <circle cx="-32.9" cy="-19" r="6"/>
+        <circle r="6"/>
+      </g>
+  </g>
+
+  <!-- ribbon -->
+  <rect x="34" y="398" width="444" height="14" fill="url(#web3-shade)" clip-path="url(#web3-clip)"/>
+  <path d="M8 350H56V412H8L22 381Z" fill="#A21CAF"/>
+  <path d="M504 350H456V412H504L490 381Z" fill="#A21CAF"/>
+  <path d="M34 398H56V412Z" fill="#5E1066"/>
+  <path d="M478 398H456V412Z" fill="#5E1066"/>
+  <rect x="34" y="336" width="444" height="62" fill="url(#web3-ribbon)"/>
+  <path d="M34 342.5H478M34 391.5H478" stroke="#0B1220" stroke-opacity="0.22" stroke-width="1.5"/>
+  <text x="258" y="377.5" text-anchor="middle" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-weight="700" font-size="30" letter-spacing="4" fill="#0B1220">WEB3</text>
+</svg>

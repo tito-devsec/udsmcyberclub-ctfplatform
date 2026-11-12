@@ -1,7 +1,7 @@
 // What the API sends about modules, paths and labs, shared by the route files.
 
 import type { User } from './auth.js'
-import type { Lab, Module, Path, Section } from './content.js'
+import { type Lab, type Module, type Path, pathCategory, type Section } from './content.js'
 import { type ModuleState, moduleState, type PathState, type Progress } from './progress.js'
 import { content } from './state.js'
 
@@ -35,6 +35,7 @@ export function pathSummary(path: Path, state: PathState, user: Pick<User, 'enro
     summary: path.summary,
     difficulty: path.difficulty,
     icon: path.icon ?? null,
+    category: pathCategory(path),
     minutes: path.modules.reduce((sum, module) => sum + module.minutes, 0),
     xp: path.modules.reduce((sum, module) => sum + module.xp, 0),
     moduleCount: path.modules.length,

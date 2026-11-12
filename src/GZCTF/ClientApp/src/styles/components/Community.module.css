@@ -1107,7 +1107,8 @@
   }
 }
 
-/* the symbol of the module, skill path or game, in the white middle of the seal */
+/* in the white middle of the seal: the logo of the category, or the symbol of the module,
+   skill path or game. The logo's ribbon runs out across the dark ring, short of its words. */
 .certSealLogo {
   position: absolute;
   top: 0;
@@ -1121,6 +1122,12 @@
   & svg {
     width: 3.9cqw !important;
     height: 3.9cqw !important;
+  }
+
+  & img {
+    display: block;
+    width: 7.2cqw;
+    height: 7.2cqw;
   }
 }
 

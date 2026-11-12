@@ -2,7 +2,7 @@
 // ranking are public, like a scoreboard; only a student can change their own profile.
 
 import { currentUser, forgetUser, roleOf } from './auth.js'
-import { CATEGORIES, type Category } from './content.js'
+import { CATEGORIES, type Category, pathCategory } from './content.js'
 import { db } from './db.js'
 import { HttpError, route } from './http.js'
 import { moduleState, pathState, progressOf } from './progress.js'
@@ -311,7 +311,7 @@ route('GET', `${BASE}/certificates/:id`, async (ctx) => {
     summary: module?.summary ?? path?.summary ?? text(details.summary),
     // the symbol of what it is for, shown on its seal
     icon: module?.icon ?? path?.icon ?? null,
-    category: module?.category ?? null,
+    category: module?.category ?? (path ? pathCategory(path) : null),
     difficulty: module?.difficulty ?? path?.difficulty ?? null,
     minutes: module?.minutes ?? path?.modules.reduce((sum, m) => sum + m.minutes, 0) ?? null,
     modules: path?.modules.map((m) => m.title) ?? null,

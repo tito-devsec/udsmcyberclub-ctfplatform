@@ -2,7 +2,9 @@ import { FC, useId } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Uicon } from '@Components/Uicon'
 import { MainIcon } from '@Components/icon/MainIcon'
+import { CategoryLogo } from '@Utils/Artwork'
 import { Signatory } from '@Utils/Community'
+import { Category } from '@Utils/Range'
 import { UiconName } from '@Utils/Uicons'
 import { useConfig } from '@Hooks/useConfig'
 import classes from '@Styles/Community.module.css'
@@ -25,7 +27,9 @@ export interface CertificateSheetProps {
   // where anyone can check it
   address: string
   signatories: Signatory[]
-  // the symbol of the module, skill path or game, in the middle of the seal
+  // in the middle of the seal: the logo of its category, or its own symbol when the category
+  // has no logo (a game, a general module, a skill path of many categories)
+  category?: Category | null
   icon: UiconName
 }
 
@@ -49,7 +53,7 @@ const Seal: FC<{ ring: string }> = ({ ring: words }) => {
       ))}
       <circle cx="100" cy="100" r="90" fill="#2b8ae0" />
       <circle cx="100" cy="100" r="78" fill="#0b2a4a" />
-      <circle cx="100" cy="100" r="45" fill="#fff" />
+      <circle cx="100" cy="100" r="50" fill="#fff" />
       <defs>
         <path id={ring} d="M100 100m-60 0a60 60 0 1 1 120 0a60 60 0 1 1-120 0" />
       </defs>
@@ -64,9 +68,10 @@ const Seal: FC<{ ring: string }> = ({ ring: words }) => {
 
 // A certificate on its A4 sheet: the same on screen, on paper, in a PDF and in a preview.
 export const CertificateSheet: FC<CertificateSheetProps> = (props) => {
-  const { kind, name, title, summary, facts, issuedAt, number, address, signatories, icon } = props
+  const { kind, name, title, summary, facts, issuedAt, number, address, signatories, category, icon } = props
   const { t, i18n } = useTranslation()
   const game = kind === 'game'
+  const logo = category && !game ? CategoryLogo[category] : undefined
 
   return (
     <div className={classes.certificate}>
@@ -121,7 +126,7 @@ export const CertificateSheet: FC<CertificateSheetProps> = (props) => {
         <div className={classes.certSeal}>
           <Seal ring={t(game ? 'range.certificate.seal_game' : 'range.certificate.seal')} />
           <div className={classes.certSealLogo}>
-            <Uicon name={icon} />
+            {logo ? <img src={logo} alt={t(`range.category.${category}`)} /> : <Uicon name={icon} />}
           </div>
         </div>
 

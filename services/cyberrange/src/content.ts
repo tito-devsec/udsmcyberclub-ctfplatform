@@ -459,6 +459,15 @@ export function pathFrom(raw: Raw, slug: string, moduleBySlug: Map<string, Modul
   }
 }
 
+// The category more of a path's modules belong to than any other: its logo goes on the path's
+// certificate. A path whose modules are spread evenly over two or more categories has none.
+export function pathCategory(path: Path): Category | null {
+  const counts = new Map<Category, number>()
+  for (const module of path.modules) counts.set(module.category, (counts.get(module.category) ?? 0) + 1)
+  const [first, second] = [...counts].sort((a, b) => b[1] - a[1])
+  return first && (!second || first[1] > second[1]) ? first[0] : null
+}
+
 // The lessons in the content folder, then what was published from the web interface. A
 // mistake in a file stops the load; a document that no longer fits is left out and named.
 export function loadContent(dir: string, documents: StudioDocument[] = []): Content {

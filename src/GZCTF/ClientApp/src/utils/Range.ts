@@ -80,6 +80,8 @@ export interface PathSummary {
   summary: string
   difficulty: Difficulty
   icon: string | null
+  // the category more of its modules belong to than any other, if there is one
+  category: Category | null
   minutes: number
   xp: number
   moduleCount: number

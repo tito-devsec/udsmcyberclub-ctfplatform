@@ -80,6 +80,7 @@ const CertificatesPage: FC = () => {
           formatMinutes(module.minutes),
         ].join(' · '),
         issuedAt: today,
+        category: module.category,
         icon: certificateIcon({ kind: 'module', icon: module.icon, category: module.category }),
       }
     : path
@@ -92,7 +93,8 @@ const CertificatesPage: FC = () => {
             formatMinutes(path.minutes),
           ].join(' · '),
           issuedAt: today,
-          icon: certificateIcon({ kind: 'path', icon: path.icon }),
+          category: path.category,
+          icon: certificateIcon({ kind: 'path', icon: path.icon, category: path.category }),
         }
       : game
         ? {
@@ -104,6 +106,7 @@ const CertificatesPage: FC = () => {
               i18n.language
             ),
             issuedAt: game.end,
+            category: null,
             icon: certificateIcon({ kind: 'game', icon: null }),
           }
         : null
@@ -219,6 +222,7 @@ const CertificatesPage: FC = () => {
                   number={t('range.certificates.sample_number')}
                   address={`${origin}/certificates/…`}
                   signatories={signatories}
+                  category={sheet.category}
                   icon={sheet.icon}
                 />
               ) : (

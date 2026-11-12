@@ -110,6 +110,7 @@ const CertificatePage: FC = () => {
                 number={certificateNumber(certificate.id)}
                 address={`${origin}/certificates/${certificate.id}`}
                 signatories={certificate.signatories}
+                category={certificate.category}
                 icon={certificateIcon(certificate)}
               />
 
