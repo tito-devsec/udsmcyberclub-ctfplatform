@@ -1,5 +1,6 @@
 # The icons the web interface takes from Uicons by Flaticon (https://www.flaticon.com/uicons).
-# One per line: the icon's name there, followed by "solid" for the filled style.
+# One per line: the icon's name there, followed by "solid" for the filled style or
+# "brands" for a logo.
 # After changing this list, run: npm install && node extract.mjs
 
 # arrows and marks
@@ -113,3 +114,30 @@ spider-web
 spy
 syringe
 wifi
+
+# labs
+books
+file-zipper
+flask
+id-badge
+map-marker
+shopping-cart
+world
+
+# profiles, ranking and certificates
+award
+badge-check solid
+calendar
+download
+edit
+leaderboard-trophy
+link
+location-alt
+print
+ranking-podium
+stamp
+trophy-star
+users-alt
+github brands
+linkedin brands
+twitter-alt brands
