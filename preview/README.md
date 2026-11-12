@@ -42,7 +42,7 @@ Students sign in with their platform account. Their progress is kept in the `cyb
 
 Tutors and admins get a **Studio** tab. There they write modules, labs and skill paths in the browser and publish them, and propose games. A proposed game waits for the superadmin, who approves it (the game is then created on the platform and put online) or sends it back with a note. Machines in the studio and in proposed games can use the images built on this computer whose names start with `club/` (set `MACHINE_IMAGES` on the `range` service to allow others).
 
-The superadmin's Studio page also has **Certificate signatures**: the names and titles of the club's president and the college's principal, and a picture of each signature (a PNG with a see-through background works best). Certificates show them next to the UDSM and club logos.
+The superadmin's Studio page also opens **Certificates**. There they preview what a module, skill path or game certificate looks like, issue certificates of participation once a game is over (everyone who took part finds one on their profile), and set who signs: the names and titles of the club's president and the college's principal, and a picture of each signature (a PNG with a see-through background works best, though a white background also blends into the sheet). Certificates show the signatures next to the UDSM and club logos, and the module's or skill path's symbol on the seal.
 
 ## Demo content
 

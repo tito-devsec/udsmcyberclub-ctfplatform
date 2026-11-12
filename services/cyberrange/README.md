@@ -25,7 +25,8 @@ GZCTF itself is unchanged. This service runs next to it, behind the same proxy, 
 - **Ranking:** by XP; of two people with the same XP, whoever got there first is ahead. There are three lists: all time, this week so far, and the **Hall of Fame**, which is the top 50 of the last finished week and stays as it is until the current week ends. A week starts on Monday at midnight in `TIMEZONE`. Each list gives its top three (the podium) and everyone from fourth place on, a page at a time.
 - **Streaks:** a streak is a run of weeks in which a student earned at least `WEEKLY_GOAL` XP. The current week counts once its goal is reached.
 - **Badges:** eighteen, worked out from what a student did, so nothing has to be handed out: first answer, first flag, first module, first path, first lab, five labs, three labs in web, crypto, forensics or OSINT, labs in four categories, a four-week streak, each rank after the first, and a week finished in the top three.
-- **Certificates:** one for every finished module and one for every finished skill path, issued when the last question is answered. A certificate's number is an HMAC of the student and what it is for, and anyone who has the number can check it. It carries the real name from the student's platform profile, or their user name when they gave none.
+- **Certificates:** one for every finished module and one for every finished skill path, issued when the last question is answered, and a certificate of participation for every game a student took part in. A certificate's number is an HMAC of the student and what it is for, and anyone who has the number can check it. It carries the real name from the student's platform profile, or their user name when they gave none. Its seal shows the symbol of the module or skill path (its icon), or a flag for a game.
+- **Certificates of participation:** when a game is over, the superadmin issues them from the web interface (Studio, Certificates). Everyone who took part gets one: the members of each accepted team who registered for the game. The service reads the game and its participants with the superadmin's own sign-in, and keeps the player's name, their team and the game's dates on the certificate, so a player who never opened CyberRange has one all the same and finds it on their profile once they do. Issuing again only adds the people who have none yet.
 - **Profiles:** public, like a scoreboard. A student can add a short bio, a country and links (GitHub, LinkedIn, X, a website); those are checked before they are stored. The **verified** tick is given by the superadmin; admins always have it.
 - **Studio:** a tutor or an admin writes a module, a lab or a skill path in the browser. The author works on a copy; publishing checks it the way the content folder is checked and makes it what students see, until it is published again. A document's address comes from its first title and never changes, and its sections and questions keep the names they were first saved with, because progress is stored under them. A lab's files are kept in the database (5 files of 8 MB at most). Tutors see their own documents, admins everyone's. Because tutors write it, the web interface never trusts this text as HTML: it renders the Markdown, then removes anything that could run (scripts, event handlers, `javascript:` links) with DOMPurify before showing it.
 - **Machine images:** in the studio and in proposed games, a machine can only use an image that is already on the server and matches `MACHINE_IMAGES`. Nothing is pulled from the internet.
@@ -90,7 +91,7 @@ All under `/api/range`. Errors are `{ "title": "...", "status": 400 }`.
 | `PUT /me/profile` | signed in | `{ "bio": "...", "country": "TZ", "links": { "github": "..." } }`; any of the three |
 | `POST /me/sync` | signed in | reads the picture and real name from the platform again, now |
 | `GET /ranking` | anyone | `?scope=hall`, `week` or `all`, with `page`, `size` (10 to 100) and `q` to look for a name |
-| `GET /certificates/:id` | anyone | a certificate, by its number, with who signed it |
+| `GET /certificates/:id` | anyone | a certificate, by its number, with who signed it and the symbol for its seal |
 | `GET /signatories` | anyone | who signs certificates today |
 | `GET /images/:hash` | anyone | the picture of a signature |
 | `GET /studio/images` | staff | the machine images that may be used |
@@ -110,6 +111,8 @@ All under `/api/range`. Errors are `{ "title": "...", "status": 400 }`.
 | `PUT /admin/signatories` | superadmin | `{ "president": { "name": "...", "title": "..." }, "principal": { ... } }` |
 | `PUT`, `DELETE /admin/signatories/:slot/signature` | superadmin | `{ "image": "data:image/png;base64,..." }` for `president` or `principal` |
 | `POST /admin/signatories/apply` | superadmin | puts today's signatories on every certificate issued so far |
+| `GET /admin/games` | superadmin | every game on the platform, whether it is over, and how many certificates it has given |
+| `POST /admin/games/:id/certificates` | superadmin | issues certificates of participation for a game that is over |
 | `PUT`, `DELETE /gate/api/admin/users/:id`, `DELETE /gate/api/admin/users/:id/password` | admin | the platform's own requests to change, delete or reset a user, passed on unless they touch an admin or a role (see Admins) |
 | `DELETE /admin/users/:id` | superadmin | removes everything kept here about someone |
 | `GET /health` | anyone | `{ "ok": true }` |
