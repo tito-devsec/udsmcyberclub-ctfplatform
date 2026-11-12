@@ -1,0 +1,32 @@
+title: "Faded Message"
+summary: "A plain dark poster with a message only some eyes can see."
+scenario: |
+  The designer of the club's meetup poster says there is a second message on it, which only shows "if you look really closely".
+
+  Start the machine and download `poster.png`. Your eyes cannot tell two colours apart when they differ by just one step out of 256, but an image editor can.
+category: stego
+difficulty: easy
+minutes: 15
+icon: palette
+updated: "2026-11-12"
+order: 610
+machine:
+  image: club/faded-message:latest
+  port: 80
+  flag: udsm{look_closer_[USER_HASH]}
+tasks:
+  - id: background
+    question: "What colour is the poster's background, as a hex code?"
+    answer: ["#0a1e3c", "0a1e3c", "0x0a1e3c"]
+    format: "#******"
+    hint: "Any colour picker shows it."
+    xp: 10
+  - id: difference
+    question: "By how much does the hidden text differ from the background, in each colour channel?"
+    answer: ["1", "one", "by 1", "by one"]
+    xp: 10
+  - id: flag
+    question: "What does the hidden text say?"
+    flag: true
+    hint: "Raise the contrast or the levels in an image editor, or fill the background colour with something bright."
+    xp: 40

@@ -1,0 +1,32 @@
+title: "License Key"
+summary: "The trial is over, but the key check runs in your own browser."
+scenario: |
+  The club's copy of SOC Simulator stopped at the end of its trial and asks for a license key. Nobody has one.
+
+  Start the machine and open it. The key is checked by JavaScript in the page, so everything the check needs is already in your browser.
+category: reverse
+difficulty: easy
+minutes: 25
+icon: key
+updated: "2026-11-12"
+order: 420
+machine:
+  image: club/license-key:latest
+  port: 80
+  flag: udsm{client_side_checks_[USER_HASH]}
+tasks:
+  - id: language
+    question: "In which language is the key check written?"
+    answer: ["javascript", "js"]
+    format: "**********"
+    xp: 10
+  - id: file
+    question: "Which file holds the check?"
+    answer: ["activate.js", "/activate.js"]
+    format: "********.**"
+    xp: 10
+  - id: flag
+    question: "What is the license key?"
+    flag: true
+    hint: "The list holds the key's character codes, each plus its position counted in fives (0 to 4), stored backwards."
+    xp: 50

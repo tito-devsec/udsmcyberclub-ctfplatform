@@ -1,0 +1,30 @@
+title: "Memorised Secret"
+summary: "An autocomplete model trained on the club's chat remembers more than it should."
+scenario: |
+  The club trained a small autocomplete model on its group chat to help members write messages. One evening someone pasted the lab flag into that chat, and nobody removed it before training.
+
+  Start the machine. Models can repeat their training data word for word. Get this one to finish the message that held the flag.
+category: ai
+difficulty: easy
+minutes: 15
+icon: robot
+updated: "2026-11-12"
+order: 960
+machine:
+  image: club/memorised-secret:latest
+  port: 80
+  flag: udsm{models_memorise_[USER_HASH]}
+tasks:
+  - id: term
+    question: "What is it called when a model repeats its training data word for word?"
+    answer: ["memorisation", "memorization", "memorising", "memorizing", "training data leakage", "data leakage", "training data extraction", "overfitting"]
+    xp: 10
+  - id: fix
+    question: "What should the club have removed from the chat before training?"
+    answer: ["the flag", "flag", "secrets", "the secret", "secret", "passwords", "credentials", "sensitive data", "personal data"]
+    xp: 10
+  - id: flag
+    question: "What is the flag?"
+    flag: true
+    hint: "Start a sentence the way someone would when sharing a flag, such as: the lab flag is"
+    xp: 40

@@ -1,0 +1,32 @@
+title: "Password Checker"
+summary: "The door checker says the password is not in its code. Is it?"
+scenario: |
+  The lab door runs a small Python script to check the password. Its author says the password is not in the file, so the script is safe to share.
+
+  Start the machine, download `checker.py` and read how it checks a password. Work backwards from what it compares against.
+category: reverse
+difficulty: easy
+minutes: 20
+icon: file-code
+updated: "2026-11-12"
+order: 410
+machine:
+  image: club/password-checker:latest
+  port: 80
+  flag: udsm{read_the_checker_[USER_HASH]}
+tasks:
+  - id: operator
+    question: "Which operation does the checker apply to every character before comparing it?"
+    answer: ["xor", "^", "exclusive or", "bitwise xor"]
+    format: "***"
+    xp: 10
+  - id: key
+    question: "Which number is every character combined with, in decimal?"
+    answer: ["42"]
+    format: "**"
+    xp: 10
+  - id: flag
+    question: "What is the password?"
+    flag: true
+    hint: "Each stored number is (character XOR 42) + position. Subtract the position, then XOR with 42 again."
+    xp: 40

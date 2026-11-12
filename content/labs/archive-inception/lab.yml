@@ -1,0 +1,35 @@
+title: "Archive Inception"
+summary: "A parcel wrapped in five archives, none with a name that says which."
+scenario: |
+  A member "packed the flag for safekeeping". They like archives a little too much: `parcel.bin` is archives all the way down, and no layer has a file extension.
+
+  Start the machine and download `parcel.bin`. Ask the `file` command what each layer is, unpack it with the matching tool, and repeat.
+category: misc
+difficulty: medium
+minutes: 20
+icon: box-open
+updated: "2026-11-12"
+order: 720
+machine:
+  image: club/archive-inception:latest
+  port: 80
+  flag: udsm{archives_all_the_way_down_[USER_HASH]}
+tasks:
+  - id: command
+    question: "Which command tells you what kind of file something is, whatever its name?"
+    answer: ["file", "the file command"]
+    format: "****"
+    xp: 10
+  - id: layers
+    question: "How many archive layers are wrapped around flag.txt?"
+    answer: ["5", "five"]
+    xp: 10
+  - id: outer
+    question: "Which compression format is the outermost layer?"
+    answer: ["xz", "lzma"]
+    format: "**"
+    xp: 10
+  - id: flag
+    question: "What is the flag?"
+    flag: true
+    xp: 40

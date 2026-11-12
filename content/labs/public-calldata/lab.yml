@@ -1,0 +1,32 @@
+title: "Public Calldata"
+summary: "The raffle's prize code went on chain in a transaction everybody can read."
+scenario: |
+  The club's Raffle contract pays its prize to whoever claims it with the right code. The owner set the code with a transaction, and the code is a private variable, so they think the prize is safe.
+
+  Start the machine to open the club's block explorer. Transactions are public, including the data sent with them. Find the one that set the code, decode its input data and claim the prize.
+category: web3
+difficulty: medium
+minutes: 30
+icon: receipt
+updated: "2026-11-12"
+order: 990
+machine:
+  image: club/public-calldata:latest
+  port: 80
+  flag: udsm{calldata_is_public_[USER_HASH]}
+tasks:
+  - id: selector
+    question: "How many bytes long is a function selector?"
+    answer: ["4", "four"]
+    xp: 10
+  - id: function
+    question: "Which function did the owner call to set the code?"
+    answer: ["setcode", "setcode(string)"]
+    format: "*******"
+    hint: "The verified source lists the functions. A selector is the first 4 bytes of the Keccak-256 hash of the function's signature."
+    xp: 10
+  - id: flag
+    question: "What is the flag?"
+    flag: true
+    hint: "After the selector come three 32-byte words: where the string starts, its length, and the string itself. CyberChef's From Hex shows the text."
+    xp: 50

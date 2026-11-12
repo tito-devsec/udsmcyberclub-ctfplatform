@@ -1,0 +1,31 @@
+title: "Stack Smash"
+summary: "A check-in service written in C copies your name without checking its length."
+scenario: |
+  The club's member check-in service was written in C long ago. It copies your name into a buffer with `strcpy`, which never checks how long the name is. Right after the buffer in memory sits the `is_admin` value.
+
+  Start the machine. After every check-in it shows the memory around the buffer, so you can see exactly what your name overwrote. Become admin without crashing it.
+category: pwn
+difficulty: easy
+minutes: 20
+icon: bomb
+updated: "2026-11-12"
+order: 510
+machine:
+  image: club/stack-smash:latest
+  port: 80
+  flag: udsm{smashed_the_stack_[USER_HASH]}
+tasks:
+  - id: size
+    question: "How many bytes does the name buffer hold?"
+    answer: ["16"]
+    format: "**"
+    xp: 10
+  - id: name
+    question: "What is it called when input runs past the end of a buffer?"
+    answer: ["buffer overflow", "a buffer overflow", "stack overflow", "stack buffer overflow", "buffer overrun", "overflow"]
+    xp: 10
+  - id: flag
+    question: "What is the admin flag?"
+    flag: true
+    hint: "strcpy also copies the 0 byte that ends the string. Watch which bytes of is_admin and of the return address change as your name gets longer."
+    xp: 40

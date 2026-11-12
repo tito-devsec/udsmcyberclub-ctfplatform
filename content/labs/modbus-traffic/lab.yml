@@ -1,0 +1,36 @@
+title: "Modbus Traffic"
+summary: "A water plant's HMI talking to its PLC, with no encryption at all."
+scenario: |
+  The water plant's engineering laptop recorded the traffic between the HMI and a PLC during a morning shift. Modbus/TCP has neither encryption nor authentication, so everything in it can be read, and anyone on the network can write to the PLC.
+
+  Start the machine and download `plant.pcap`. Somebody wrote more than setpoints into the PLC's holding registers.
+category: ics
+difficulty: medium
+minutes: 30
+icon: network
+updated: "2026-11-12"
+order: 910
+machine:
+  image: club/modbus-traffic:latest
+  port: 80
+  flag: udsm{modbus_has_no_secrets_[USER_HASH]}
+tasks:
+  - id: port
+    question: "Which TCP port does Modbus/TCP use?"
+    answer: ["502", "tcp/502", "502/tcp"]
+    format: "***"
+    xp: 10
+  - id: function
+    question: "Which function code writes several holding registers at once?"
+    answer: ["16", "0x10", "fc16", "function 16"]
+    xp: 10
+  - id: register
+    question: "At which register address does that write start?"
+    answer: ["100"]
+    format: "***"
+    xp: 10
+  - id: flag
+    question: "What did they write?"
+    flag: true
+    hint: "Each register holds two ASCII characters: its value in hex is two bytes. 30052 is 0x7564, which is ud."
+    xp: 50

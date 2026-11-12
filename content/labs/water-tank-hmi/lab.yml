@@ -1,0 +1,31 @@
+title: "Water Tank HMI"
+summary: "The HMI keeps the chlorine dose safe. Does the plant?"
+scenario: |
+  The treatment plant's new web HMI sets the chlorine dose of tank 2. Its slider stops at 5 mg/l and a script in the page refuses anything higher, so the operators trust it to keep the dose safe. Above 10 mg/l the plant's own safety system sounds the alarm.
+
+  Start the machine and find out whether the plant itself checks the dose, or only the page does. The incident report holds the flag.
+category: ics
+difficulty: easy
+minutes: 20
+icon: faucet
+updated: "2026-11-12"
+order: 920
+machine:
+  image: club/water-tank-hmi:latest
+  port: 80
+  flag: udsm{safety_belongs_in_the_plc_[USER_HASH]}
+tasks:
+  - id: limit
+    question: "What is the highest dose the HMI's slider allows, in mg/l?"
+    answer: ["5", "5 mg/l", "5mg/l"]
+    xp: 10
+  - id: where
+    question: "Where must a safety limit be enforced so that no screen can get around it?"
+    answer: ["plc", "the plc", "in the plc", "controller", "the controller", "in the controller", "server", "the server", "server side", "server-side", "on the server"]
+    hint: "Not in the HMI."
+    xp: 10
+  - id: flag
+    question: "What is the incident report's flag?"
+    flag: true
+    hint: "Change the request the page sends in the browser's developer tools, or send your own with curl."
+    xp: 40

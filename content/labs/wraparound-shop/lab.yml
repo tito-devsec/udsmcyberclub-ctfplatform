@@ -1,0 +1,31 @@
+title: "Wraparound Shop"
+summary: "100 credits, and a flag that costs a million. The shop counts in 32 bits."
+scenario: |
+  The club shop sells stickers, hoodies and, for 1,000,000 credits, the flag. You have 100 credits.
+
+  Start the machine. The shop shows the C code that works out an order's total. Look at the type of each number, and at what happens when a total gets too big for it.
+category: pwn
+difficulty: medium
+minutes: 30
+icon: calculator
+updated: "2026-11-12"
+order: 520
+machine:
+  image: club/wraparound-shop:latest
+  port: 80
+  flag: udsm{numbers_wrap_around_[USER_HASH]}
+tasks:
+  - id: max
+    question: "What is the largest number a 32-bit signed integer can hold?"
+    answer: ["2147483647", "2,147,483,647", "2^31-1", "2^31 - 1", "2**31-1"]
+    hint: "It is 2 to the power 31, minus 1."
+    xp: 10
+  - id: name
+    question: "What is it called when a number goes past its largest value and wraps around?"
+    answer: ["integer overflow", "an integer overflow", "overflow", "wraparound", "wrap around", "integer wraparound"]
+    xp: 10
+  - id: flag
+    question: "What is the flag?"
+    flag: true
+    hint: "Find a quantity of stickers whose total, cut to 32 bits, comes out negative. Paying a negative total adds credits."
+    xp: 50

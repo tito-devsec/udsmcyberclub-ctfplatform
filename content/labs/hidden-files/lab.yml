@@ -1,0 +1,30 @@
+title: "Hidden Files"
+summary: "A project folder with a flag that ls does not show."
+scenario: |
+  A member shared their project folder and says the flag is "somewhere in there". They also say a plain `ls` will not help you.
+
+  Start the machine, download `project.tar.gz` and unpack it with `tar -xzf project.tar.gz`.
+category: misc
+difficulty: easy
+minutes: 10
+icon: folder-tree
+updated: "2026-11-12"
+order: 710
+machine:
+  image: club/hidden-files:latest
+  port: 80
+  flag: udsm{dotfiles_hide_[USER_HASH]}
+tasks:
+  - id: dot
+    question: "On Linux, what does the name of a hidden file start with?"
+    answer: [".", "a dot", "dot", "a full stop", "full stop", "a period", "period"]
+    xp: 10
+  - id: option
+    question: "Which option makes ls show hidden files too?"
+    answer: ["-a", "-la", "-al", "--all", "-A", "-lA", "-Al"]
+    hint: "It is short for all."
+    xp: 10
+  - id: flag
+    question: "What is the flag?"
+    flag: true
+    xp: 40

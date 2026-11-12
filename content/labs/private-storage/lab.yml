@@ -1,0 +1,30 @@
+title: "Private Isn't Secret"
+summary: "A vault contract with its password in a private variable."
+scenario: |
+  The club's Vault contract keeps its password in a variable marked `private`. Its author thinks that hides it.
+
+  Start the machine to open the club's block explorer. On a blockchain everything a contract stores is public: read the vault's storage, find the password and unlock it.
+category: web3
+difficulty: easy
+minutes: 20
+icon: unlock
+updated: "2026-11-12"
+order: 980
+machine:
+  image: club/private-storage:latest
+  port: 80
+  flag: udsm{private_is_not_secret_[USER_HASH]}
+tasks:
+  - id: slot
+    question: "In which storage slot is the password?"
+    answer: ["2", "slot 2"]
+    xp: 10
+  - id: private
+    question: "Does private hide a variable's value from people reading the blockchain? (yes or no)"
+    answer: ["no"]
+    xp: 10
+  - id: flag
+    question: "What is inside the vault?"
+    flag: true
+    hint: "State variables fill the slots in order, starting at 0. Read the password's slot and send it to unlock."
+    xp: 40

@@ -154,3 +154,16 @@ signature
 chalkboard-user
 undo
 eye-crossed
+
+# labs for reverse engineering, pwn, steganography, misc, hardware, ICS, AI and Web3
+file-code
+calculator
+palette
+folder-tree
+box-open
+wave-square
+memory
+faucet
+envelope
+unlock
+receipt

@@ -1,0 +1,33 @@
+title: "UART Capture"
+summary: "A logic analyser recording of a router's serial port while it boots."
+scenario: |
+  A logic analyser was left on the debug port of the club's old router while it booted. It recorded the TX pin: one row for each change of level, with the time in microseconds.
+
+  The port uses 8N1: a start bit (0), eight data bits with the lowest first, and a stop bit (1). The line rests high when nothing is sent. Nobody wrote down its speed, but the shortest pulse in the capture is exactly one bit long.
+
+  Start the machine, download `uart.csv`, find the speed and decode what the router said. PulseView can import the capture, or a short script can do the decoding.
+category: hardware
+difficulty: medium
+minutes: 40
+icon: wave-square
+updated: "2026-11-12"
+order: 810
+machine:
+  image: club/uart-capture:latest
+  port: 80
+  flag: udsm{serial_ports_talk_[USER_HASH]}
+tasks:
+  - id: baud
+    question: "At what speed does the port talk, in baud?"
+    answer: ["9600", "9600 baud", "9,600"]
+    format: "****"
+    hint: "One bit lasts as long as the shortest pulse. 1,000,000 divided by that many microseconds is the speed."
+    xp: 20
+  - id: idle
+    question: "Does the line rest high or low when nothing is sent?"
+    answer: ["high", "logic high", "1"]
+    xp: 10
+  - id: flag
+    question: "What is the flag in the boot messages?"
+    flag: true
+    xp: 60

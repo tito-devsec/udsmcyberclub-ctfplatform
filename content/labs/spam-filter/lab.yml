@@ -1,0 +1,30 @@
+title: "Spam Filter"
+summary: "Get a giveaway past a machine-learning spam filter."
+scenario: |
+  The club's mail server sorts mail with a naive Bayes classifier trained on old messages. Your job: deliver a message that says **free crypto giveaway** to the inbox.
+
+  Start the machine. The filter adds up evidence word by word, and its model page shows which words it trusts most. Use that.
+category: ai
+difficulty: medium
+minutes: 25
+icon: envelope
+updated: "2026-11-12"
+order: 950
+machine:
+  image: club/spam-filter:latest
+  port: 80
+  flag: udsm{good_words_win_[USER_HASH]}
+tasks:
+  - id: model
+    question: "What kind of classifier is the filter?"
+    answer: ["naive bayes", "naïve bayes", "a naive bayes classifier", "naive bayes classifier", "bayes", "bayesian"]
+    xp: 10
+  - id: attack
+    question: "What is this kind of attack called, where you add words the model trusts?"
+    answer: ["good word attack", "good-word attack", "good words attack", "evasion", "evasion attack", "an evasion attack", "adversarial", "adversarial attack"]
+    xp: 10
+  - id: flag
+    question: "What is the flag?"
+    flag: true
+    hint: "Write the giveaway, then add some of the words that most suggest a real message until the spam probability drops below 50%."
+    xp: 50

@@ -1,0 +1,31 @@
+title: "Least Significant"
+summary: "A night photo of the campus, and a message in its lowest bits."
+scenario: |
+  Two members swap pictures of the campus at night. They say the bits that matter least to your eye matter most to them.
+
+  Start the machine and download `night.png`. The message is in the lowest bit of the red value of each pixel, left to right and row by row, eight bits per character with the highest bit first. A zero byte ends it.
+category: stego
+difficulty: medium
+minutes: 30
+icon: layers
+updated: "2026-11-12"
+order: 620
+machine:
+  image: club/least-significant:latest
+  port: 80
+  flag: udsm{lowest_bits_matter_[USER_HASH]}
+tasks:
+  - id: channel
+    question: "Which colour channel carries the message?"
+    answer: ["red", "r", "the red channel", "red channel"]
+    format: "***"
+    xp: 10
+  - id: bits
+    question: "How many bits of each pixel does the message use?"
+    answer: ["1", "one", "1 bit", "one bit"]
+    xp: 10
+  - id: flag
+    question: "What is the message?"
+    flag: true
+    hint: "zsteg finds it on its own. Otherwise, a few lines of Python with Pillow read the red value of each pixel and keep its lowest bit."
+    xp: 50

@@ -1,0 +1,37 @@
+title: "Firmware Dump"
+summary: "A smart lock's flash chip, and a secret its vendor calls encrypted."
+scenario: |
+  Someone desoldered the flash chip of a smart lock and read it out into `flash.bin`. The vendor says the admin secret stored on it is encrypted, so nobody can get it.
+
+  Start the machine and download the dump. Look for readable text first.
+category: hardware
+difficulty: easy
+minutes: 20
+icon: memory
+updated: "2026-11-12"
+order: 820
+machine:
+  image: club/firmware-dump:latest
+  port: 80
+  flag: udsm{xor_is_not_encryption_[USER_HASH]}
+tasks:
+  - id: strings
+    question: "Which command lists the readable text in a binary file?"
+    answer: ["strings"]
+    format: "*******"
+    xp: 10
+  - id: offset
+    question: "At which offset does the configuration block start, in hex?"
+    answer: ["0x8000", "8000", "8000h", "0x00008000"]
+    hint: "strings -t x prints where each string starts."
+    xp: 10
+  - id: key
+    question: "Which byte, in hex, is the admin secret XORed with?"
+    answer: ["5a", "0x5a"]
+    format: "**"
+    xp: 10
+  - id: flag
+    question: "What is the admin secret?"
+    flag: true
+    hint: "The secret is written in hex. Turn it back into bytes and XOR each one with the key, for example in CyberChef."
+    xp: 40
