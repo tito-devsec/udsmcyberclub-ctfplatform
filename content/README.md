@@ -36,6 +36,8 @@ modules:                 # module folder names, in order
   - client-side-trust
 ```
 
+The path's certificate wears the logo of the category most of its modules belong to. When two categories are level, it shows the path's icon instead, as does a module of the general category.
+
 ## A module
 
 ```yaml
@@ -82,7 +84,7 @@ chapters:
 - **A section without questions** is finished with a "Mark as complete" button.
 - **Answers** are compared without regard to upper/lower case or extra spaces. Add `caseSensitive: true` when case matters. Students never receive them: the service keeps only their hashes. Remember that this repository is public, so these answers are readable here: knowledge questions only check that the text was understood.
 - **Machine flags** are where the real proof is. The machine receives its flag in the `GZCTF_FLAG` environment variable, like a platform challenge, so the images in [preview/examples](../preview/examples) work as practice machines unchanged. `[USER_HASH]` is calculated from the server's secret, so every student's flag is different, and a flag is never stored or published.
-- **Machines** run like challenge instances: one per student at a time, 60 minutes plus extensions, no traffic between them, no internet, and limited CPU, memory and processes. A machine's image must be built on the server first (`docker build -t club/hidden-pages:latest preview/examples/hidden-pages`).
+- **Machines** run like challenge instances: one per student at a time, 60 minutes plus extensions, no traffic between them, no internet, and limited CPU, memory and processes. A machine's image must be built on the server first: `node preview/build-lab-images.mjs` builds every image the labs need that is missing, from the folder in `preview/examples` with the same name (or one at a time: `docker build -t club/hidden-pages:latest preview/examples/hidden-pages`).
 
 ## A lab
 
@@ -119,6 +121,7 @@ tasks:                   # written like a section's questions
 - **With a machine** the catalogue calls it a Machine, without one a Challenge. A flag task needs a machine: its flag is the student's own, made the same way as in a section.
 - **Files** in the lab's `files/` folder are offered for download on its page. Their names use letters, digits, dots, dashes and `_`. Anyone can download them, signed in or not, so never put an answer in a file's name.
 - **Tasks** can be answered in any order. The lab is solved when they all are, and it then counts towards the student's badges.
+- **A new machine** goes in `preview/examples/<name>`, with a Dockerfile, and the lab's image is then `club/<name>:latest`. It must serve on the port the lab names, and make whatever holds the flag from `GZCTF_FLAG` when it starts, so the image itself never contains a flag. The folders there are small examples to copy.
 - **A category with no labs** is still listed in the catalogue, marked as coming.
 
 ## XP

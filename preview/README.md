@@ -17,11 +17,14 @@ Runs the platform on your own machine with Docker:
    pnpm --dir ../src/GZCTF/ClientApp build
    ```
 
-3. Build the images the lessons and demo challenges use as machines (see [Challenges](#challenges); `seed-beginner-ctf.mjs` also builds any that are missing), then start everything from this folder:
+3. Build the images the lessons, labs and demo challenges use as machines, then start everything from this folder:
 
    ```bash
+   node build-lab-images.mjs
    docker compose up -d --build
    ```
+
+   `build-lab-images.mjs` builds every image a lab needs that is not on this computer yet, from [examples](examples) (add `--all` to build them all again). `seed-beginner-ctf.mjs` also builds the ones its challenges need.
 
 4. Open <http://localhost:3000> and sign in as `Admin` with `ADMIN_PASSWORD` from `.env`. The first start takes about 30 seconds while the database is created.
 5. Apply the UDSM branding under Admin → Settings (values are in the main [README](../README.md#branding)), and turn on **API Encryption** there. Browsers then encrypt passwords and flags before sending them.
@@ -34,7 +37,7 @@ After changing anything in `src/GZCTF/ClientApp`, run the build again and then `
 
 **Skill Paths** in the side menu is the learning section. A path is a set of modules; a module has chapters of short sections, each followed by questions, and sections open one after another. Answers earn XP, which adds up to a level and a rank. The first path is **Web Security Beginner** (4 modules, 18 sections), which uses the web challenge images below as its machines. How to write lessons: [content/README.md](../content/README.md); how the service works: [services/cyberrange/README.md](../services/cyberrange/README.md).
 
-**Labs**, also in the side menu, are machines and challenges with no lesson: a scenario, a machine or files, and tasks that end with the flag. There are 20, in web, crypto, forensics and OSINT, and they use the same images as the challenges below. The other categories are listed as coming.
+**Labs**, also in the side menu, are machines and challenges with no lesson: a scenario, a machine or files, and tasks that end with the flag. There are 36, at least two in each of the twelve categories. The web, crypto and forensics labs use the same images as the challenges below; the others have machines of their own, listed under [Lab machines](#lab-machines).
 
 The site opens on the Skill Paths dashboard. From the avatar menu, **Profile** shows a student's score, rank, streak, badges and certificates, and its **Ranking** button opens the ranking. The Hall of Fame there is last week's top 50, so it stays empty until the first full week has been played.
 
@@ -42,7 +45,7 @@ Students sign in with their platform account. Their progress is kept in the `cyb
 
 Tutors and admins get a **Studio** tab. There they write modules, labs and skill paths in the browser and publish them, and propose games. A proposed game waits for the superadmin, who approves it (the game is then created on the platform and put online) or sends it back with a note. Machines in the studio and in proposed games can use the images built on this computer whose names start with `club/` (set `MACHINE_IMAGES` on the `range` service to allow others).
 
-The superadmin's Studio page also opens **Certificates**. There they preview what a module, skill path or game certificate looks like, issue certificates of participation once a game is over (everyone who took part finds one on their profile), and set who signs: the names and titles of the club's president and the college's principal, and a picture of each signature (a PNG with a see-through background works best, though a white background also blends into the sheet). Certificates show the signatures next to the UDSM and club logos, and the module's or skill path's symbol on the seal.
+The superadmin's Studio page also opens **Certificates**. There they preview what a module, skill path or game certificate looks like, issue certificates of participation once a game is over (everyone who took part finds one on their profile), and set who signs: the names and titles of the club's president and the college's principal, and a picture of each signature (a PNG with a see-through background works best, though a white background also blends into the sheet). Certificates show the signatures next to the UDSM and club logos, and the logo of the module's or skill path's category on the seal (a game's seal has a flag).
 
 ## Demo content
 
@@ -55,7 +58,7 @@ To play, sign in as `testuser` with `TEST_USER_PASSWORD` from `.env`.
 
 ## Challenges
 
-Each folder in [examples](examples) is one challenge, built around one idea. Web, crypto and forensics challenges are small per-player containers; crypto and forensics ones make each player's ciphertext or file from that player's own flag.
+Each of these folders in [examples](examples) is one challenge, built around one idea (the other folders there are [lab machines](#lab-machines)). Web, crypto and forensics challenges are small per-player containers; crypto and forensics ones make each player's ciphertext or file from that player's own flag.
 
 | Challenge | Folder | Points | What players learn |
 | --- | --- | --- | --- |
@@ -99,6 +102,31 @@ Then add a "Dynamic Container" challenge with that image and service port `80`, 
 
 The platform starts one container per player (or per team in a team game) and passes the flag in the `GZCTF_FLAG` environment variable, so the image never contains a flag.
 
+## Lab machines
+
+These folders in [examples](examples) are machines for the labs only, one per lab, each built around one idea. Like the challenges, each takes the student's flag from `GZCTF_FLAG` and makes what the student works on from it, using nothing but Python's standard library. `node build-lab-images.mjs` builds them.
+
+| Lab | Folder | Category | What students learn |
+| --- | --- | --- | --- |
+| Password Checker | [password-checker](examples/password-checker) | Reverse engineering | reading the code that checks a password, and undoing it |
+| License Key | [license-key](examples/license-key) | Reverse engineering | a check that runs in the browser gives its secret away |
+| Stack Smash | [stack-smash](examples/stack-smash) | Pwn | a buffer overflow, with the stack frame on show |
+| Wraparound Shop | [wraparound-shop](examples/wraparound-shop) | Pwn | integer overflow in a 32-bit total |
+| Faded Message | [faded-message](examples/faded-message) | Steganography | text one colour step away from the background |
+| Least Significant | [least-significant](examples/least-significant) | Steganography | a message in the lowest bit of each pixel |
+| Hidden Files | [hidden-files](examples/hidden-files) | Misc | files and folders whose names start with a dot |
+| Archive Inception | [archive-inception](examples/archive-inception) | Misc | telling archive formats apart with `file` |
+| UART Capture | [uart-capture](examples/uart-capture) | Hardware | decoding a serial port from a logic analyser capture |
+| Firmware Dump | [firmware-dump](examples/firmware-dump) | Hardware | `strings` on a flash dump, and XOR is not encryption |
+| Modbus Traffic | [modbus-traffic](examples/modbus-traffic) | ICS | reading Modbus/TCP register writes in Wireshark |
+| Water Tank HMI | [water-tank-hmi](examples/water-tank-hmi) | ICS | a safety limit kept only in the HMI's page |
+| Spam Filter | [spam-filter](examples/spam-filter) | AI | getting past a naive Bayes filter with words it trusts |
+| Memorised Secret | [memorised-secret](examples/memorised-secret) | AI | a model that repeats its training data |
+| Private Isn't Secret | [private-storage](examples/private-storage) | Web3 | a contract's private storage can be read by anyone |
+| Public Calldata | [public-calldata](examples/public-calldata) | Web3 | a transaction's input data is public too |
+
+The pwn, ICS, AI and Web3 machines imitate what they teach in a small web page, so they run in the same small containers as the rest: the stack frame of a C function, a PLC that trusts its HMI, a model trained on a few dozen messages, a block explorer over one contract. Nothing there is a real binary, PLC, model or blockchain.
+
 ## Things to know
 
 - Challenge instances cannot reach each other. `docker-compose.yml` creates the two challenge networks (`gzctf-open`, `gzctf-isolated`) with container-to-container traffic turned off, before the platform would create them with it on. Docker cannot change this on an existing network: to apply it to an older setup, run `docker compose down`, then `docker network rm gzctf-open gzctf-isolated`, then `docker compose up -d`.
@@ -110,3 +138,4 @@ The platform starts one container per player (or per team in a team game) and pa
 - The platform gets the Docker socket so it can start challenge containers, and `instance-limits` gets it to limit them. That gives both control of Docker on this machine, so keep this setup for local use.
 - Uploads up to 1 GB are accepted (`MaxRequestBodySize`). Use the "Remote Url" attachment type for anything larger.
 - If Docker Desktop shows an error with a "Reset to factory defaults" button, choose Quit instead: a reset deletes every container, image and volume, including this database.
+- If starting a lab machine says that the lab machines are not answering, Docker itself has stopped starting containers. On Windows this happens when WSL hangs (`wsl -l -v` stops answering too). Quit Docker Desktop, run `wsl --shutdown`, start Docker Desktop again and run `docker compose up -d`. The CyberRange service removes any machine that was left half-started.
