@@ -25,6 +25,7 @@ import {
 } from '@Utils/Range'
 import { showErrorMsg } from '@Utils/Shared'
 import { usePageTitle } from '@Hooks/usePageTitle'
+import api from '@Api'
 import classes from '@Styles/Range.module.css'
 
 // The path a student is enrolled in: its modules, and a button to carry on.
@@ -36,11 +37,7 @@ const EnrolledPath: FC<{ slug: string }> = ({ slug }) => {
 
   return (
     <div className={classes.card} style={{ padding: 20 }}>
-      <Link
-        to={pathUrl(path.slug)}
-        className={classes.row}
-        style={{ gridTemplateColumns: '88px minmax(0, 1fr) minmax(110px, 200px) 20px', padding: 8 }}
-      >
+      <Link to={pathUrl(path.slug)} className={cx(classes.row, classes.rowLarge)}>
         <Cover icon={coverIcon(path.icon)} seed={path.slug} square />
         <div style={{ display: 'grid', gap: 6, minWidth: 0 }}>
           <div className={classes.labels}>
@@ -153,10 +150,12 @@ const PickPath: FC<{ paths: PathSummary[]; level: SkillLevel | null }> = ({ path
 
 // Skill Paths: where a student sees their path, their level and rank, and everything there is to learn.
 const SkillPaths: FC = () => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { data: me, signedIn, known } = useMe()
   const { data: paths, error } = usePaths()
   const { data: modules } = useModules()
+  // what the club has posted lately
+  const { data: posts } = api.info.useInfoGetLatestPosts({ refreshInterval: 5 * 60 * 1000 })
   const [tab, setTab] = useState<'path' | 'started'>('path')
 
   usePageTitle(t('range.nav.paths'))
@@ -268,6 +267,30 @@ const SkillPaths: FC = () => {
               <div className={classes.grid}>
                 {modules.slice(0, 8).map((module) => (
                   <ModuleCard key={module.slug} module={module} />
+                ))}
+              </div>
+            </section>
+          )}
+          {posts && posts.length > 0 && (
+            <section>
+              <div className={classes.sectionHead}>
+                <h2 className={classes.sectionTitle}>{t('range.home.news')}</h2>
+                <Link to="/posts" className={classes.link}>
+                  {t('range.home.all_news')}
+                </Link>
+              </div>
+              <div className={classes.grid} style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))' }}>
+                {posts.slice(0, 3).map((post) => (
+                  <Link key={post.id} to={`/posts/${post.id}`} className={classes.moduleCard}>
+                    <div className={classes.moduleCardBody}>
+                      <span className={classes.dim} style={{ fontSize: '0.85rem' }}>
+                        {new Date(post.time).toLocaleDateString(i18n.language, { dateStyle: 'medium' })}
+                        {post.authorName ? ` · ${post.authorName}` : ''}
+                      </span>
+                      <h3 className={classes.cardTitle}>{post.title}</h3>
+                      <div className={classes.clamp}>{post.summary}</div>
+                    </div>
+                  </Link>
                 ))}
               </div>
             </section>
