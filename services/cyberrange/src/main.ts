@@ -26,10 +26,11 @@ const { paths, modules, sections, labs } = contentSize()
 console.log(`cyberrange: loaded ${paths} paths, ${modules} modules with ${sections} sections, and ${labs} labs`)
 
 const server = createServer((req, res) => void handle(req, res))
-// terminals in attack boxes, and the screen of the box's Firefox, are WebSockets
+// terminals in attack boxes, and the screens of the box's Firefox and Burp Suite, are WebSockets
 server.on('upgrade', (req, socket, head) => {
   const path = new URL(req.url ?? '/', 'http://range').pathname
   if (path === '/api/range/box/browser/screen') browserUpgrade(req, socket, head)
+  else if (path === '/api/range/box/burp/screen') browserUpgrade(req, socket, head, 'burp')
   else upgrade(req, socket, head)
 })
 server.listen(config.port, () => console.log(`cyberrange: listening on port ${config.port}`))

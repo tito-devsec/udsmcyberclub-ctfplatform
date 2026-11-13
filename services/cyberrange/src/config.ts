@@ -73,6 +73,10 @@ export const config = {
   // what one browser may use: memory in MB and CPU cores
   browserMemory: positive('BROWSER_MEMORY_MB', 1024),
   browserCpus: positive('BROWSER_CPUS', 1),
+  // Burp Suite, which runs next to a student's Firefox once they open its window: the memory in
+  // MB and CPU cores it adds to theirs (Java starts in about 35 seconds on one more core)
+  burpMemory: positive('BURP_MEMORY_MB', 1024),
+  burpCpus: positive('BURP_CPUS', 1),
   // a browser nobody has looked at for this long is stopped, which gives its memory back
   browserIdleMinutes: positive('BROWSER_IDLE_MINUTES', 20),
   // the network the browsers share with their proxy to the web (see preview/docker-compose.yml)

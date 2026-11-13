@@ -4,8 +4,8 @@ import { Uicon } from '@Components/Uicon'
 import { MainIcon } from '@Components/icon/MainIcon'
 import { BoxCommands } from '@Components/range/box/Commands'
 import { BoxFiles } from '@Components/range/box/Files'
-import { BoxFirefox } from '@Components/range/box/Firefox'
 import { ContextMenu, MenuItem } from '@Components/range/box/MenuBar'
+import { BoxRemoteApp } from '@Components/range/box/RemoteApp'
 import { PictureSource, StegoViewer } from '@Components/range/box/Stego'
 import { TerminalApp } from '@Components/range/box/TerminalApp'
 import { AppName, Window, WindowState } from '@Components/range/box/Window'
@@ -23,13 +23,14 @@ import classes from '@Styles/AttackBox.module.css'
 const APPS: Record<AppName, { image: string; w: number; h: number; many?: boolean }> = {
   terminal: { image: Icons.terminal, w: 940, h: 620, many: true },
   files: { image: Icons.home, w: 960, h: 600, many: true },
-  // Firefox has tabs and windows of its own
+  // Firefox has tabs and windows of its own, and Burp Suite runs once, next to it
   browser: { image: Icons.firefox, w: 1180, h: 740 },
+  burp: { image: Icons.burp, w: 1240, h: 760 },
   cyberchef: { image: Icons.cyberchef, w: 1180, h: 680 },
   stego: { image: Icons.imageViewer, w: 960, h: 640 },
   help: { image: Icons.help, w: 860, h: 640 },
 }
-const LAUNCHERS: AppName[] = ['terminal', 'files', 'browser', 'cyberchef', 'stego']
+const LAUNCHERS: AppName[] = ['terminal', 'files', 'browser', 'burp', 'cyberchef', 'stego']
 // the desktop's size until it is measured
 const DEFAULT_AREA = { width: 1200, height: 700 }
 
@@ -62,8 +63,8 @@ const left = (until: string, now: number) => formatMinutes(Math.max(0, Math.ceil
 
 // The attack box: a desktop in the browser made like Kali's (Xfce): a panel along the top, icons
 // on a wallpaper drawn for the club, and windows for a terminal in the student's own Kali box,
-// its files, Firefox (running on the server next to the box), CyberChef, a picture viewer for
-// hidden data, and help.
+// its files, Firefox and Burp Suite (running on the server next to the box), CyberChef, a picture
+// viewer for hidden data, and help.
 const AttackBoxPage: FC = () => {
   const { t, i18n } = useTranslation()
   const { error: signInError } = useUser()
@@ -285,9 +286,10 @@ const AttackBoxPage: FC = () => {
         />
       )
     }
-    if (win.app === 'browser') {
+    if (win.app === 'browser' || win.app === 'burp') {
       return (
-        <BoxFirefox
+        <BoxRemoteApp
+          app={win.app}
           running={running}
           enabled={view?.browser ?? false}
           active={frontmost?.id === win.id}
@@ -308,7 +310,7 @@ const AttackBoxPage: FC = () => {
     }
     return (
       <div className={classes.help}>
-        {(['target', 'tools', 'terminal', 'files', 'browser', 'install', 'time'] as const).map((part) => (
+        {(['target', 'tools', 'terminal', 'files', 'browser', 'burp', 'install', 'time'] as const).map((part) => (
           <div key={part}>
             <h3>{t(`range.box.help.${part}.title`)}</h3>
             <div>{t(`range.box.help.${part}.text`)}</div>
@@ -464,7 +466,7 @@ const AttackBoxPage: FC = () => {
             label={t('range.box.files.file_system')}
             onOpen={() => open('files', { fresh: true, path: '/' })}
           />
-          {(['terminal', 'browser', 'cyberchef', 'stego', 'help'] as const).map((app) => (
+          {(['terminal', 'browser', 'burp', 'cyberchef', 'stego', 'help'] as const).map((app) => (
             <DesktopIcon
               key={app}
               image={APPS[app].image}

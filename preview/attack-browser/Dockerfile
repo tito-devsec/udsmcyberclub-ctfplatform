@@ -4,6 +4,10 @@
 # only through the egress proxy (../../services/egress). Its downloads land in the box's
 # ~/Downloads. It stops with the box, or when nobody has looked at it for a while.
 #
+# Burp Suite runs here too, on a second screen, once a student opens its window in the box.
+# Whatever Firefox opens on "target" or "box" then passes through Burp (rootfs/etc/cyberrange/
+# proxy.pac), and Burp gets no further than Firefox does.
+#
 # Build it from the preview folder:  docker build -t club/attack-browser attack-browser
 FROM kalilinux/kali-rolling
 
@@ -13,6 +17,13 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends \
       firefox-esr tigervnc-standalone-server tigervnc-tools openbox socat procps \
       fonts-dejavu-core fonts-liberation2 fonts-noto-color-emoji ca-certificates \
+ && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Burp Suite Community Edition and the Java it runs on, from Kali (about 450 MB more). It starts
+# only when a student opens its window, on a screen of its own (see cyberrange-burp); xwininfo
+# tells when its window is up, and xsetroot colours that screen.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends burpsuite x11-utils x11-xserver-utils \
  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY rootfs/ /
@@ -26,7 +37,7 @@ RUN useradd --uid 1000 --create-home --shell /bin/bash student \
  && mkdir -p /home/student/Downloads /home/student/profile \
  && cp /etc/cyberrange/user.js /home/student/profile/user.js \
  && chown -R student:student /home/student \
- && chmod 755 /usr/local/bin/cyberrange-browser
+ && chmod 755 /usr/local/bin/cyberrange-browser /usr/local/bin/cyberrange-burp
 
 USER student
 WORKDIR /home/student

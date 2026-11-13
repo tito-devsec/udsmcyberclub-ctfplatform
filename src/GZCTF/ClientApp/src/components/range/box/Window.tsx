@@ -2,7 +2,7 @@ import { FC, PointerEvent as ReactPointerEvent, ReactNode, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import classes from '@Styles/AttackBox.module.css'
 
-export type AppName = 'terminal' | 'files' | 'browser' | 'cyberchef' | 'stego' | 'help'
+export type AppName = 'terminal' | 'files' | 'browser' | 'burp' | 'cyberchef' | 'stego' | 'help'
 
 export interface WindowState {
   id: string

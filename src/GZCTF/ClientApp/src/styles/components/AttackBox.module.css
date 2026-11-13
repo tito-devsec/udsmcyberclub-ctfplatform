@@ -1214,9 +1214,9 @@
   border-top: 1px solid #1a1d23;
 }
 
-/* ---- Firefox, on the server, its screen drawn here ---- */
+/* ---- Firefox and Burp Suite, on the server, their screens drawn here ---- */
 
-.firefox {
+.remote {
   position: relative;
   display: flex;
   flex: 1;
@@ -1226,7 +1226,7 @@
 }
 
 /* the screen; until it is shown, a notice covers it */
-.firefoxScreen {
+.remoteScreen {
   position: relative;
   flex: 1;
   min-width: 0;

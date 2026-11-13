@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Burp Suite's screen. Burp's windows open as on Kali, except that the two meant to fill the
+     screen fill this one and follow the attack box's window when it is resized: Burp's start-up
+     screen (its terms the first time), a plain "Burp Suite" the size of the screen it started on,
+     and its main window once its project is open. Its start-up questions keep their own size.
+     Burp draws its own title bars, with a minimise button: a click on the empty screen left
+     behind lists the windows, to bring Burp back. -->
+<openbox_config xmlns="http://openbox.org/3.4/rc">
+  <focus>
+    <focusNew>yes</focusNew>
+    <followMouse>no</followMouse>
+  </focus>
+  <desktops>
+    <number>1</number>
+  </desktops>
+  <mouse>
+    <context name="Root">
+      <mousebind button="Left" action="Press">
+        <action name="ShowMenu">
+          <menu>client-list-combined-menu</menu>
+        </action>
+      </mousebind>
+    </context>
+  </mouse>
+  <applications>
+    <application title="Burp Suite" type="normal">
+      <decor>no</decor>
+      <maximized>yes</maximized>
+    </application>
+    <!-- Burp Community's only kind of project is a temporary one, named in its main window's title -->
+    <application title="Burp Suite*Temporary Project*" type="normal">
+      <decor>no</decor>
+      <maximized>yes</maximized>
+    </application>
+  </applications>
+</openbox_config>

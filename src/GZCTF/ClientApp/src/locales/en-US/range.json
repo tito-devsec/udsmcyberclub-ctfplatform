@@ -86,6 +86,7 @@
   "box": {
     "app": {
       "browser": "Firefox ESR",
+      "burp": "Burp Suite",
       "cyberchef": "CyberChef",
       "files": "File Manager",
       "help": "Help",
@@ -94,6 +95,15 @@
       "terminal": "Terminal Emulator"
     },
     "applications": "Applications",
+    "burp": {
+      "again": "Connect again",
+      "closed": "Burp Suite is not connected",
+      "closed_hint": "The connection to Burp Suite closed. Burp keeps running next to your box for a while, so connecting again takes you back to where you were.",
+      "disabled": "Burp Suite is turned off on this server.",
+      "failed": "Burp Suite could not start",
+      "off": "Start your attack box to use Burp Suite. It runs on the club's server, next to your box.",
+      "starting": "Starting Burp Suite... Java takes up to a minute to open it."
+    },
     "cyberchef_missing": "CyberChef is not installed on this server yet. Ask your club's admins to set up the tools service.",
     "desktop": {
       "home": "Home"
@@ -158,6 +168,10 @@
       "browser": {
         "text": "Firefox ESR runs on the club's server next to your box, and everything you open stays in its window: searches and every website. Your lab machine opens as http://target, a web server you start in your box as http://box:8000, and downloads land in your box's ~/Downloads. Ctrl+V pastes what you copied on your own computer, and what you copy in Firefox reaches your computer too. Websites see the club's server, not you, and the club keeps a list of the sites visited from the box.",
         "title": "Firefox"
+      },
+      "burp": {
+        "text": "Open Burp Suite from its icon on the desktop or in the panel, or from the Applications menu behind the club's logo, top left. It runs on the club's server next to Firefox and opens as it does on Kali, in under a minute: the first time, PortSwigger's terms and conditions, which you read and accept to go on; then choose Temporary project in memory and Next, then Use Burp defaults and Start Burp. While Burp runs, everything Firefox opens on target or box passes through it: Proxy > HTTP history lists every request, Intercept holds one so that you can change it before it goes on, and Repeater sends one again as often as you like. Websites do not pass through Burp, and Burp can reach nothing that Firefox cannot. If you minimise Burp, click its empty screen to bring it back.",
+        "title": "Burp Suite"
       },
       "commands": {
         "binwalk": "files hidden inside another file",

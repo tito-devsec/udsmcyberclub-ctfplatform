@@ -70,6 +70,9 @@ export const boxApi = {
   remove: (path: string) => rangeCall<BoxFolder>('DELETE', `${BASE}/file?path=${encodeURIComponent(path)}`),
   // Firefox on the server, next to the box: started when its window opens
   startBrowser: () => rangeCall<{ running: boolean }>('POST', `${BASE}/browser`),
+  // Burp Suite, next to Firefox: started when its window opens, ready once its window is up
+  startBurp: () => rangeCall<{ running: boolean; ready: boolean }>('POST', `${BASE}/burp`),
+  burpReady: () => rangeCall<{ ready: boolean }>('GET', `${BASE}/burp`),
 }
 
 // "/root/Documents" + "notes.txt"
@@ -82,9 +85,9 @@ export const boxFileUrl = (path: string) => `${BASE}/file?path=${encodeURICompon
 export const terminalUrl = (cols: number, rows: number) =>
   `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}${BASE}/terminal?cols=${cols}&rows=${rows}`
 
-// The address of the box's Firefox screen (VNC), for a WebSocket.
-export const browserScreenUrl = () =>
-  `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}${BASE}/browser/screen`
+// The address of the screen (VNC) of the box's Firefox or Burp Suite, for a WebSocket.
+export const screenUrl = (app: 'browser' | 'burp') =>
+  `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}${BASE}/${app}/screen`
 
 export const isPicture = (path: string) => /\.(png|jpe?g|gif|bmp|webp)$/i.test(path)
 

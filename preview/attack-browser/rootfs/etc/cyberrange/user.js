@@ -22,6 +22,9 @@ user_pref("gfx.webrender.software", true);
 user_pref("layers.acceleration.disabled", true);
 user_pref("network.dns.disablePrefetch", true);
 user_pref("network.prefetch-next", false);
+// Burp Suite, when it is not running, is skipped for a second only (not half an hour), so that
+// the lab's pages go through it as soon as the student opens it (see proxy.pac).
+user_pref("network.proxy.failover_timeout", 1);
 // Less talk with Mozilla's services in the background: every student's Firefox shares the
 // server's connection. Its security lists (blocklists, revoked certificates) stay on.
 user_pref("app.normandy.enabled", false);

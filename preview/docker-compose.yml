@@ -110,6 +110,8 @@ services:
       BOX_SEATS: 40
       # The box's Firefox (see attack-browser/), "off" to turn it off. Each one may use
       # BROWSER_MEMORY_MB and BROWSER_CPUS, and stops after BROWSER_IDLE_MINUTES unwatched.
+      # Burp Suite runs next to it once its window is opened, adding BURP_MEMORY_MB and
+      # BURP_CPUS; "off" turns Burp off too.
       BOX_BROWSER: "on"
     volumes:
       - ../content:/content:ro

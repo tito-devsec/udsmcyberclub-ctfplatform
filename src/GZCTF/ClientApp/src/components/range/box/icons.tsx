@@ -11,6 +11,7 @@ import sharedlib from '../../../assets/attackbox/icons/application-x-sharedlib.s
 import shellscript from '../../../assets/attackbox/icons/application-x-shellscript.svg'
 import zip from '../../../assets/attackbox/icons/application-zip.svg'
 import audio from '../../../assets/attackbox/icons/audio-x-generic.svg'
+import burp from '../../../assets/attackbox/icons/burpsuite.svg'
 import computer from '../../../assets/attackbox/icons/computer.svg'
 import drive from '../../../assets/attackbox/icons/drive-harddisk-system.svg'
 import find from '../../../assets/attackbox/icons/edit-find-symbolic.svg'
@@ -52,6 +53,7 @@ export const Icons = {
   imageViewer,
   cyberchef,
   firefox,
+  burp,
   folder,
   desktop,
   documents,
