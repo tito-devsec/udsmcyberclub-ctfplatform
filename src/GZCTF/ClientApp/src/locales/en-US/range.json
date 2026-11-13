@@ -85,41 +85,83 @@
   },
   "box": {
     "app": {
+      "browser": "Web Browser",
       "cyberchef": "CyberChef",
-      "files": "Files",
+      "files": "File Manager",
       "help": "Help",
       "lab": "Your lab",
       "stego": "Picture viewer",
-      "terminal": "Terminal"
+      "terminal": "Terminal Emulator"
+    },
+    "applications": "Applications",
+    "browser": {
+      "address": "Search the web or enter an address",
+      "lab": "{{title}} (your lab)",
+      "new_tab": "Open a new tab",
+      "note": "Pages open here when their site allows it, and the rest (marked ↗) in a tab of your own browser, as searches do. This browser runs on your computer, not in the box: the box itself has no internet.",
+      "outside": "Open in your own browser",
+      "search": "Search the web",
+      "start": "New Tab"
     },
     "cyberchef_missing": "CyberChef is not installed on this server yet. Ask your club's admins to set up the tools service.",
-    "dock": "Apps",
+    "desktop": {
+      "home": "Home"
+    },
     "extend": "Extend",
     "files": {
-      "changed": "Changed",
+      "back": "Back",
+      "bytes": "bytes",
+      "cancel": "Cancel",
+      "close": "Close Window",
+      "computer": "Computer",
+      "count_files_one": "{{count}} file",
+      "count_files_other": "{{count}} files",
+      "count_folders_one": "{{count}} folder",
+      "count_folders_other": "{{count}} folders",
+      "create": "Create",
       "delete": "Delete",
-      "delete_confirm": "Delete ~/{{path}} from your box?",
-      "drop": "Drop files here to send them to your box",
-      "empty": "Your home folder has no files yet. Save some in the terminal, or send them from your computer.",
-      "fetch": "Download",
-      "name": "File",
+      "delete_confirm": "Delete {{names}} from your box? This cannot be undone.",
+      "devices": "Devices",
+      "empty": "This folder is empty. Drop files here from your computer to send them into it.",
+      "fetch": "Download to Your Computer",
+      "file_system": "File System",
+      "filter": "Filter",
+      "forward": "Forward",
+      "free": "Free space: {{size}}",
+      "hidden": "Show Hidden Files",
+      "home": "Home",
+      "menu": {
+        "bookmarks": "Bookmarks",
+        "edit": "Edit",
+        "file": "File",
+        "go": "Go",
+        "view": "View"
+      },
+      "new_folder": "Create Folder...",
+      "no_match": "No files match the filter.",
       "off": "Start your attack box to move files in and out of it.",
-      "refresh": "Refresh",
-      "send": "Send files",
-      "size": "Size",
+      "open": "Open",
+      "open_viewer": "Open in Picture Viewer",
+      "parent": "Open Parent",
+      "places": "Places",
+      "reload": "Reload",
+      "rename": "Rename...",
+      "rename_title": "Rename \"{{name}}\"",
+      "select_all": "Select All Files",
+      "select_none": "Select None",
+      "send": "Send Files From Your Computer...",
       "too_large": "{{name}} is larger than {{limit}} MB.",
-      "view": "View",
-      "where": "Sent files land in ~/uploads · up to {{limit}} MB each",
-      "working": "Sending {{name}}…"
+      "untitled": "Untitled Folder",
+      "working": "Working on {{name}}..."
     },
     "help": {
-      "copy": {
-        "text": "In the terminal, Ctrl+Shift+C copies what you selected and Ctrl+Shift+V pastes. Ctrl+C stops the running command, as in any terminal.",
-        "title": "Copy and paste"
+      "browser": {
+        "text": "The Web Browser opens your lab's web page, CyberChef and sites for looking things up. It runs on your computer, not in the box, so the box itself stays off the internet.",
+        "title": "Web Browser"
       },
       "files": {
-        "text": "Files sends files from your computer to ~/uploads, and downloads any file in your home folder. Pictures open in the picture viewer with one click.",
-        "title": "Files"
+        "text": "The File Manager shows the whole box. Drop files on it from your computer to send them into the folder that is open, double-click a file to download it, and right-click for more. Pictures open in the picture viewer.",
+        "title": "File Manager"
       },
       "install": {
         "text": "Your box cannot reach the internet. apt install and pip install work for the packages your club's admins approved; ask them for what a lab needs. A lab that needs more, such as a full desktop, can still be done from your own Linux machine.",
@@ -128,6 +170,10 @@
       "target": {
         "text": "Start a lab's machine on its page, and it joins your box as \"target\": try nmap target, curl http://target or nc target 9001. The command target lists its open ports. Only your own machine is there: no other student, and not the server.",
         "title": "Your target"
+      },
+      "terminal": {
+        "text": "It works like Kali's terminal: Ctrl+Shift+C copies, Ctrl+Shift+V pastes and Ctrl+C stops the running command. Ctrl+Shift+T opens a tab, Ctrl+Shift+R and Ctrl+Shift+D split the window, Ctrl+Shift+F finds text, and Ctrl + and Ctrl - change the text size. Your browser keeps a few keys for itself (Ctrl+Shift+T, Ctrl+Shift+W, Ctrl+Shift+N, Ctrl+PgUp, Ctrl+PgDn): press F11 for full screen and they reach the terminal too. Move a window by its title bar and resize it from any edge or corner.",
+        "title": "Terminal"
       },
       "time": {
         "text": "A box runs for two hours and can be extended in its last ten minutes. When it stops, everything in it is wiped: download what you want to keep.",
@@ -199,15 +245,49 @@
     "stop_confirm": "Stop your attack box? Everything in it is wiped, so fetch the files you want to keep first.",
     "target": "target: {{title}}",
     "target_hint": "Your lab machine answers in the box as \"target\". Start one on a lab's page.",
+    "term": {
+      "about": "About...",
+      "about_text": "A terminal in your own Kali Linux attack box, made like Kali's QTerminal, with its menus and keys. Your browser keeps a few keys for itself (Ctrl+Shift+T, Ctrl+Shift+W, Ctrl+Shift+N, Ctrl+PgUp, Ctrl+PgDn): press F11 for full screen, and those reach the terminal too.",
+      "about_title": "UDSM CyberRange Terminal",
+      "actions": "Actions",
+      "clear": "Clear Active Terminal",
+      "close_pane": "Close Subterminal",
+      "close_tab": "Close Tab",
+      "copy": "Copy Selection",
+      "edit": "Edit",
+      "find": "Find...",
+      "find_next": "Next",
+      "find_none": "Not found",
+      "find_placeholder": "Find",
+      "find_previous": "Previous",
+      "fullscreen": "Fullscreen",
+      "help": "Help",
+      "new_tab": "New Tab",
+      "new_window": "New Window",
+      "next_tab": "Next Tab",
+      "ok": "OK",
+      "pane_down": "Bottom Subterminal",
+      "pane_left": "Left Subterminal",
+      "pane_right": "Right Subterminal",
+      "pane_up": "Top Subterminal",
+      "paste": "Paste Clipboard",
+      "paste_selection": "Paste Selection",
+      "previous_tab": "Previous Tab",
+      "quit": "Quit",
+      "session": "Session",
+      "shell": "Shell No. {{number}}",
+      "split_h": "Split Terminal Horizontally",
+      "split_v": "Split Terminal Vertically",
+      "tab_bar": "Show Tab Bar",
+      "view": "View",
+      "zoom_in": "Zoom in",
+      "zoom_out": "Zoom out",
+      "zoom_reset": "Zoom reset"
+    },
     "terminal": {
       "again": "Open it again",
-      "bigger": "Bigger text",
-      "clear": "Clear",
-      "copy": "Copy",
       "ended": "The terminal closed",
-      "lost": "The connection to your box was lost.",
-      "paste": "Paste",
-      "smaller": "Smaller text"
+      "lost": "The connection to your box was lost."
     },
     "title": "Attack box",
     "window": {

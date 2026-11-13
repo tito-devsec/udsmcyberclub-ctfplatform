@@ -17,13 +17,33 @@ export interface BoxInfo {
 export interface BoxView {
   box: BoxInfo | null
   // the lab machine the box reaches as "target", while one runs
-  target: { title: string; port: number; expiresAt: string; lab: string | null } | null
+  target: { title: string; port: number; expiresAt: string; lab: string | null; entry: string } | null
   // the name in the terminal's prompt: udsmcyberrange@<player>
   player: string
   // where CyberChef is served, when the server has it
   cyberchef: string | null
   // the largest file sent into or fetched from the box, in MB
   fileLimit: number
+}
+
+// the home folder in the box: the student is root there
+export const BOX_HOME = '/root'
+
+export interface BoxEntry {
+  name: string
+  type: 'folder' | 'file' | 'link'
+  size: number
+  changedAt: string
+  executable: boolean
+}
+
+// One folder of the box, for the Files window.
+export interface BoxFolder {
+  path: string
+  parent: string | null
+  entries: BoxEntry[]
+  // room left on the box's disk, in bytes
+  free: number | null
 }
 
 export interface BoxFile {
@@ -40,11 +60,18 @@ export const boxApi = {
   extend: () => rangeCall<BoxView>('POST', `${BASE}/extend`),
   stop: () => rangeCall<BoxView>('DELETE', BASE),
   files: () => rangeCall<BoxFile[]>('GET', `${BASE}/files`),
-  upload: (name: string, data: string) => rangeCall<BoxFile[]>('PUT', `${BASE}/file`, { name, data }),
-  remove: (path: string) => rangeCall<BoxFile[]>('DELETE', `${BASE}/file?path=${encodeURIComponent(path)}`),
+  folder: (path: string) => rangeCall<BoxFolder>('GET', `${BASE}/folder?path=${encodeURIComponent(path)}`),
+  makeFolder: (folder: string, name: string) => rangeCall<BoxFolder>('POST', `${BASE}/folder`, { folder, name }),
+  rename: (path: string, name: string) => rangeCall<BoxFolder>('POST', `${BASE}/rename`, { path, name }),
+  upload: (folder: string, name: string, data: string) =>
+    rangeCall<BoxFolder>('PUT', `${BASE}/file`, { folder, name, data }),
+  remove: (path: string) => rangeCall<BoxFolder>('DELETE', `${BASE}/file?path=${encodeURIComponent(path)}`),
 }
 
-// The address that downloads a file from the box.
+// "/root/Documents" + "notes.txt"
+export const joinPath = (folder: string, name: string) => `${folder === '/' ? '' : folder}/${name}`
+
+// The address that downloads a file from the box: an absolute path, or one under the home folder.
 export const boxFileUrl = (path: string) => `${BASE}/file?path=${encodeURIComponent(path)}`
 
 // The address of a terminal in the box, for a WebSocket.

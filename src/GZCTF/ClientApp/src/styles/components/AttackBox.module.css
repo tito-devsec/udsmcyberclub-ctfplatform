@@ -1,84 +1,125 @@
-/* The attack box: a desktop in the browser, in the club's navy, blue and gold (Flat Design 2.0:
-   flat colours and shapes, soft shadows only under windows and the dock). */
+/* The attack box: a desktop in the browser made like Kali's (Xfce with its Kali-Dark theme):
+   a panel along the top, windows with Kali's frame and menus, and the club's brand. */
 
 .desktop {
-  --ab-navy: #0b2340;
-  --ab-panel: #0a1a30;
-  --ab-window: #0f1b2e;
-  --ab-bar: #13233b;
-  --ab-text: #e6edf7;
-  --ab-dim: #9db0cc;
-  --ab-line: rgba(255, 255, 255, 0.09);
-  --ab-blue: #3b82f6;
-  --ab-sky: #60a5fa;
+  --ab-panel: #1c1f26;
+  --ab-frame: #262a33;
+  --ab-bar: #2a2e37;
+  --ab-pane: #22262e;
+  --ab-menu: #2c3039;
+  --ab-text: #eef1f5;
+  --ab-dim: #a3abb9;
+  --ab-faint: #7c8392;
+  --ab-line: rgba(255, 255, 255, 0.08);
+  --ab-blue: #3b8eea;
+  --ab-sky: #6cb6ff;
   --ab-gold: #f5b82e;
   position: fixed;
   inset: 0;
   display: grid;
-  grid-template-rows: 38px minmax(0, 1fr);
+  grid-template-rows: 34px minmax(0, 1fr);
   overflow: hidden;
   color: var(--ab-text);
-  background: var(--ab-navy);
+  background: #1d3f8f;
   font-size: 14px;
 }
 
-/* ---- the bar across the top ---- */
+/* ---- the panel along the top ---- */
 
 .panel {
   position: relative;
   z-index: 1000;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 10px;
+  gap: 2px;
+  padding: 0 6px;
   background: var(--ab-panel);
-  border-bottom: 1px solid var(--ab-line);
-  font-size: 0.85rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+  font-size: 0.84rem;
   white-space: nowrap;
 }
 
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-right: 8px;
-  font-weight: 800;
-  color: #fff;
-  text-decoration: none;
+.panelLogo,
+.launcher {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
 
   & img,
   & svg {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     object-fit: contain;
   }
 
-  & span {
-    color: var(--ab-sky);
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
   }
 }
 
-.panelItem {
+.panelLogo img,
+.panelLogo svg {
+  width: 22px;
+  height: 22px;
+}
+
+.panelSep {
+  width: 1px;
+  height: 20px;
+  margin: 0 6px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.tasks {
+  display: flex;
+  flex: 1;
+  gap: 3px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* a button for each open window, as Xfce's window list has */
+.task {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 28px;
+  max-width: 220px;
+  height: 26px;
   padding: 0 10px;
   font: inherit;
+  font-size: 0.8rem;
   color: var(--ab-dim);
   background: transparent;
   border: 0;
-  border-radius: 6px;
+  border-bottom: 2px solid transparent;
+  border-radius: 3px 3px 0 0;
   cursor: pointer;
-  text-decoration: none;
+
+  & img {
+    width: 16px;
+    height: 16px;
+  }
+
+  & span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
   &:hover {
     color: #fff;
     background: rgba(255, 255, 255, 0.08);
   }
 
-  &[data-strong] {
+  &[data-active] {
     color: #fff;
+    background: rgba(59, 142, 234, 0.18);
+    border-bottom-color: var(--ab-blue);
   }
 }
 
@@ -87,6 +128,21 @@
   align-items: center;
   gap: 6px;
   margin-left: auto;
+  padding-left: 8px;
+}
+
+.panelItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 8px;
+  color: var(--ab-dim);
+  border-radius: 4px;
+
+  &[data-strong] {
+    color: #fff;
+  }
 }
 
 .dot {
@@ -177,22 +233,22 @@
 
 .icons {
   position: absolute;
-  top: 18px;
-  left: 14px;
+  top: 14px;
+  left: 10px;
   display: grid;
-  gap: 6px;
+  gap: 2px;
 }
 
-/* a desktop icon: Kali's own picture, its name under it like the Xfce desktop's */
+/* a desktop icon: Kali's own picture, its name under it like the Xfce desktop's; a double click
+   opens it */
 .icon {
   display: grid;
   justify-items: center;
-  gap: 6px;
-  width: 96px;
-  padding: 8px 4px;
+  gap: 4px;
+  width: 92px;
+  padding: 6px 4px;
   font: inherit;
   font-size: 0.82rem;
-  font-weight: 600;
   line-height: 1.25;
   text-align: center;
   color: #fff;
@@ -200,86 +256,41 @@
     0 1px 2px rgba(0, 0, 0, 0.9),
     0 0 6px rgba(0, 0, 0, 0.55);
   background: transparent;
-  border: 0;
-  border-radius: 8px;
-  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: default;
   text-decoration: none;
+  outline: none;
 
   & img {
-    width: 52px;
-    height: 52px;
+    width: 48px;
+    height: 48px;
     filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45));
   }
 
   &:hover {
-    background: rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  &:focus-visible,
+  &:focus {
+    background: rgba(59, 142, 234, 0.35);
+    border-color: rgba(108, 182, 255, 0.6);
   }
 }
 
-.dock {
-  position: absolute;
-  bottom: 12px;
-  left: 50%;
-  z-index: 900;
-  display: flex;
-  gap: 10px;
-  padding: 8px 12px;
-  background: rgba(10, 26, 48, 0.92);
-  border: 1px solid var(--ab-line);
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  transform: translateX(-50%);
-}
-
-.dockItem {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  padding: 0;
-  background: transparent;
-  border: 0;
-  border-radius: 11px;
-  cursor: pointer;
-  transition: transform 0.12s ease;
-
-  & img {
-    width: 42px;
-    height: 42px;
-  }
-
-  &:hover {
-    transform: translateY(-3px);
-  }
-
-  /* a gold dot under an open app */
-  &[data-open]::after {
-    content: '';
-    position: absolute;
-    bottom: -7px;
-    left: 50%;
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--ab-gold);
-    transform: translateX(-50%);
-  }
-}
-
-/* ---- windows ---- */
+/* ---- windows, with Kali's frame ---- */
 
 .window {
   position: absolute;
   display: flex;
   flex-direction: column;
-  min-width: 360px;
-  min-height: 220px;
-  overflow: hidden;
-  background: var(--ab-window);
-  border: 1px solid var(--ab-line);
-  border-radius: 10px;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+  min-width: 380px;
+  min-height: 240px;
+  background: var(--ab-frame);
+  border: 1px solid rgba(0, 0, 0, 0.55);
+  border-radius: 6px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 
   &[data-max] {
     inset: 0 !important;
@@ -297,24 +308,29 @@
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  gap: 10px;
-  height: 34px;
-  padding: 0 12px;
-  font-size: 0.85rem;
+  gap: 8px;
+  height: 30px;
+  padding: 0 8px;
+  font-size: 0.8rem;
   color: var(--ab-dim);
   background: var(--ab-bar);
-  cursor: grab;
+  border-radius: 6px 6px 0 0;
+  cursor: default;
   user-select: none;
   touch-action: none;
 
-  &:active {
-    cursor: grabbing;
+  .window[data-active] & {
+    color: #fff;
+  }
+
+  .window[data-max] & {
+    border-radius: 0;
   }
 }
 
 .titleIcon {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 
 .title {
@@ -324,50 +340,62 @@
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #fff;
 }
 
-/* close, hide and fill the screen: red, gold and green */
-.lights {
+/* hide, fill the screen and close: round buttons, the last one blue, as Kali's frame has them */
+.winButtons {
   display: flex;
-  gap: 7px;
-  min-width: 55px;
+  gap: 6px;
 }
 
-.light {
-  width: 13px;
-  height: 13px;
+.winButton {
+  position: relative;
+  width: 16px;
+  height: 16px;
   padding: 0;
-  border: 0;
+  background: #3c414c;
+  border: 1px solid #1d2027;
   border-radius: 50%;
   cursor: pointer;
 
+  &::after {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    color: transparent;
+  }
+
+  &[data-kind='min']::after {
+    content: '–';
+  }
+
+  &[data-kind='max']::after {
+    content: '□';
+    font-size: 9px;
+  }
+
   &[data-kind='close'] {
-    background: #ef4444;
-  }
+    background: var(--ab-blue);
+    border-color: #2a6fbd;
 
-  &[data-kind='min'] {
-    background: var(--ab-gold);
-  }
-
-  &[data-kind='max'] {
-    background: #22c55e;
+    &::after {
+      content: '×';
+      color: #fff;
+      font-size: 13px;
+    }
   }
 
   &:hover {
-    filter: brightness(1.15);
-  }
-}
+    filter: brightness(1.25);
 
-.toolbar {
-  display: flex;
-  flex-shrink: 0;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  background: #0d1829;
-  border-bottom: 1px solid var(--ab-line);
+    &::after {
+      color: #fff;
+    }
+  }
 }
 
 .body {
@@ -376,21 +404,198 @@
   flex: 1;
   flex-direction: column;
   min-height: 0;
+  overflow: hidden;
   user-select: text;
+  border-radius: 0 0 6px 6px;
+
+  .window[data-max] & {
+    border-radius: 0;
+  }
 }
 
-.resize {
+/* the strips along the edges and corners that resize a window */
+.edge {
   position: absolute;
-  right: 0;
-  bottom: 0;
-  z-index: 2;
-  width: 18px;
-  height: 18px;
-  cursor: nwse-resize;
+  z-index: 5;
   touch-action: none;
+
+  &[data-edge='n'],
+  &[data-edge='s'] {
+    left: 8px;
+    right: 8px;
+    height: 6px;
+    cursor: ns-resize;
+  }
+
+  &[data-edge='e'],
+  &[data-edge='w'] {
+    top: 8px;
+    bottom: 8px;
+    width: 6px;
+    cursor: ew-resize;
+  }
+
+  &[data-edge='n'] {
+    top: -3px;
+  }
+
+  &[data-edge='s'] {
+    bottom: -3px;
+  }
+
+  &[data-edge='e'] {
+    right: -3px;
+  }
+
+  &[data-edge='w'] {
+    left: -3px;
+  }
+
+  &[data-edge='ne'],
+  &[data-edge='nw'],
+  &[data-edge='se'],
+  &[data-edge='sw'] {
+    width: 14px;
+    height: 14px;
+  }
+
+  &[data-edge='ne'] {
+    top: -4px;
+    right: -4px;
+    cursor: nesw-resize;
+  }
+
+  &[data-edge='sw'] {
+    bottom: -4px;
+    left: -4px;
+    cursor: nesw-resize;
+  }
+
+  &[data-edge='nw'] {
+    top: -4px;
+    left: -4px;
+    cursor: nwse-resize;
+  }
+
+  &[data-edge='se'] {
+    right: -4px;
+    bottom: -4px;
+    cursor: nwse-resize;
+  }
 }
 
-/* ---- inside windows ---- */
+/* ---- menus ---- */
+
+.menubar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 6px;
+  font-size: 0.86rem;
+  background: var(--ab-frame);
+}
+
+.menuRoot {
+  position: relative;
+}
+
+.menuTitle {
+  height: 24px;
+  padding: 0 8px;
+  font: inherit;
+  color: var(--ab-text);
+  background: transparent;
+  border: 0;
+  border-radius: 2px;
+  cursor: default;
+
+  &:hover,
+  &[data-open] {
+    color: #fff;
+    background: var(--ab-blue);
+  }
+}
+
+.menuList {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 2000;
+  display: grid;
+  min-width: 250px;
+  padding: 3px 0;
+  background: var(--ab-menu);
+  border: 1px solid #3c414c;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5);
+}
+
+.menuItem {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 14px 0 6px;
+  font: inherit;
+  font-size: 0.86rem;
+  text-align: left;
+  color: var(--ab-text);
+  background: transparent;
+  border: 0;
+  cursor: default;
+
+  &:hover:not(:disabled) {
+    color: #fff;
+    background: var(--ab-blue);
+
+    & .menuKey {
+      color: #fff;
+    }
+  }
+
+  &:disabled {
+    color: var(--ab-faint);
+  }
+}
+
+.menuIcon {
+  display: grid;
+  place-items: center;
+  font-size: 0.8rem;
+}
+
+.menuLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menuKey {
+  padding-left: 24px;
+  color: var(--ab-dim);
+}
+
+.menuSep {
+  height: 1px;
+  margin: 3px 0;
+  background: #3c414c;
+}
+
+/* a grey Kali "symbolic" icon drawn in the colour of the text around it */
+.sym {
+  display: inline-block;
+  flex-shrink: 0;
+  background: currentColor;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+}
+
+/* ---- controls inside windows ---- */
 
 .button {
   display: inline-flex;
@@ -402,15 +607,15 @@
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--ab-text);
-  background: rgba(255, 255, 255, 0.06);
-  border: 0;
-  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
   cursor: pointer;
   text-decoration: none;
   white-space: nowrap;
 
   &:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.13);
+    background: rgba(255, 255, 255, 0.14);
   }
 
   &:disabled {
@@ -421,15 +626,17 @@
   &[data-tone='primary'] {
     color: #fff;
     background: var(--ab-blue);
+    border-color: transparent;
 
     &:hover:not(:disabled) {
-      background: #2f6fe0;
+      background: #2f7fd9;
     }
   }
 
   &[data-tone='gold'] {
     color: #241a02;
     background: var(--ab-gold);
+    border-color: transparent;
 
     &:hover:not(:disabled) {
       background: #f8c650;
@@ -448,30 +655,66 @@
   }
 }
 
+.iconButton {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 28px;
+  padding: 0;
+  font-size: 1rem;
+  color: var(--ab-text);
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  &:disabled {
+    color: var(--ab-faint);
+    cursor: default;
+  }
+}
+
 .select,
 .input {
   height: 28px;
   padding: 0 8px;
   font: inherit;
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   color: var(--ab-text);
-  background: #0b1424;
-  border: 1px solid var(--ab-line);
-  border-radius: 6px;
+  background: #1e2128;
+  border: 1px solid #3c414c;
+  border-radius: 4px;
+  outline: none;
+
+  &:focus {
+    border-color: var(--ab-blue);
+  }
+
+  &[data-missing] {
+    border-color: #ec5f67;
+  }
 }
 
 .spacer {
   flex: 1;
 }
 
-.terminal {
-  flex: 1;
-  min-height: 0;
-  padding: 6px 4px 4px 10px;
-  background: #0b1424;
+.toolbar {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: var(--ab-frame);
+  border-bottom: 1px solid var(--ab-line);
 }
 
-/* a message over a window's body: the box is off, the shell ended, nothing is chosen */
+/* a message over a window's body: the box is off, the shell ended, nothing is open */
 .notice {
   position: absolute;
   inset: 0;
@@ -482,7 +725,7 @@
   gap: 12px;
   padding: 24px;
   text-align: center;
-  background: #0b1424;
+  background: var(--ab-pane);
 
   & h3 {
     margin: 0;
@@ -509,78 +752,673 @@
   color: #fca5a5;
 }
 
-.scroll {
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.85rem;
-
-  & th {
-    position: sticky;
-    top: 0;
-    padding: 8px 10px;
-    font-weight: 600;
-    text-align: left;
-    color: var(--ab-dim);
-    background: var(--ab-window);
-    border-bottom: 1px solid var(--ab-line);
-  }
-
-  & td {
-    padding: 6px 10px;
-    border-bottom: 1px solid var(--ab-line);
-    vertical-align: middle;
-  }
-
-  & tr:hover td {
-    background: rgba(255, 255, 255, 0.03);
-  }
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 4px;
-}
-
-.drop {
-  margin: 10px;
-  padding: 14px;
-  text-align: center;
-  color: var(--ab-dim);
-  border: 2px dashed rgba(255, 255, 255, 0.14);
-  border-radius: 10px;
-
-  &[data-over] {
-    color: #fff;
-    border-color: var(--ab-gold);
-    background: rgba(245, 184, 46, 0.08);
-  }
-}
-
 .frame {
   flex: 1;
   width: 100%;
   min-height: 0;
   background: #fff;
   border: 0;
+
+  /* while a window is moved or resized */
+  :global(body[data-box-dragging]) & {
+    pointer-events: none;
+  }
 }
 
-/* the picture viewer */
+/* a question asked inside a window */
+.dialogShade {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.dialog {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  min-width: 340px;
+  max-width: 460px;
+  padding: 18px;
+  background: var(--ab-menu);
+  border: 1px solid #3c414c;
+  border-radius: 6px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+
+  & .input {
+    width: 100%;
+  }
+}
+
+.dialogTitle {
+  font-weight: 700;
+  color: #fff;
+}
+
+.dialogText {
+  margin: 0;
+  line-height: 1.55;
+  color: var(--ab-dim);
+}
+
+.dialogButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  width: 100%;
+}
+
+/* ---- the terminal ---- */
+
+.termArea {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* a tab's terminals: one, or two split left and right ('h') or top and bottom ('v') */
+.tabPanes {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+
+  &[data-split='h'] {
+    flex-direction: row;
+  }
+
+  &[data-split='v'] {
+    flex-direction: column;
+  }
+
+  &[data-split] .termPane + .termPane {
+    border-left: 2px solid #1a1d23;
+  }
+
+  &[data-split='v'] .termPane + .termPane {
+    border-top: 2px solid #1a1d23;
+    border-left: 0;
+  }
+}
+
+/* sized by its window, so that the watermark in it can be too */
+.termPane {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: #23272f;
+  container-type: size;
+}
+
+/* the club's logo and name, faint behind the text, where Kali's terminal shows its own */
+.termMark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4cqw;
+  pointer-events: none;
+  opacity: 0.06;
+
+  & img,
+  & svg {
+    width: min(20cqw, 40cqh);
+    filter: grayscale(1) brightness(2.2);
+  }
+}
+
+.termMarkBox {
+  padding: 0.4cqw 2.4cqw 0.8cqw;
+  font-size: min(6.4cqw, 13cqh);
+  font-weight: 700;
+  white-space: nowrap;
+  color: #fff;
+  border: max(3px, 0.6cqw) solid #fff;
+  border-radius: 1.4cqw;
+}
+
+/* margins rather than padding: the terminal measures the space it has from this box's size */
+.terminal {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  margin: 6px 2px 2px 10px;
+
+  & :global(.xterm-viewport) {
+    background: transparent !important;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+  }
+}
+
+.tabbar {
+  display: flex;
+  flex-shrink: 0;
+  gap: 2px;
+  padding: 3px 6px 0;
+  background: var(--ab-frame);
+  border-bottom: 1px solid #1a1d23;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 220px;
+  height: 28px;
+  padding: 0 6px 0 10px;
+  font-size: 0.8rem;
+  color: var(--ab-dim);
+  background: #2f333c;
+  border-radius: 4px 4px 0 0;
+  cursor: default;
+
+  & img {
+    width: 14px;
+    height: 14px;
+  }
+
+  & span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &[data-active] {
+    color: #fff;
+    background: #23272f;
+    box-shadow: inset 0 2px 0 var(--ab-blue);
+  }
+}
+
+.tabClose {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  font-size: 0.9rem;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 3px;
+  cursor: pointer;
+
+  &:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.14);
+  }
+}
+
+.findBar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  color: var(--ab-dim);
+  background: var(--ab-frame);
+  border-top: 1px solid #1a1d23;
+
+  & .input {
+    width: 260px;
+  }
+}
+
+.findMissing {
+  font-size: 0.8rem;
+  color: #ec5f67;
+}
+
+/* ---- the file manager, made like Kali's Thunar ---- */
+
+.files {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--ab-pane);
+}
+
+.filesToolbar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 8px;
+  background: var(--ab-frame);
+}
+
+.crumbs {
+  display: flex;
+  flex: 1;
+  gap: 1px;
+  min-width: 0;
+  height: 28px;
+  margin: 0 6px;
+  padding: 2px;
+  overflow: hidden;
+  background: #1e2128;
+  border: 1px solid #3c414c;
+  border-radius: 4px;
+}
+
+.crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  font: inherit;
+  font-size: 0.84rem;
+  color: var(--ab-dim);
+  white-space: nowrap;
+  background: transparent;
+  border: 0;
+  border-radius: 3px;
+  cursor: pointer;
+
+  & img {
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  &[data-current] {
+    font-weight: 700;
+    color: #fff;
+  }
+}
+
+.filterBox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 8px;
+  color: var(--ab-dim);
+  background: #1e2128;
+  border: 1px solid #3c414c;
+  border-radius: 4px;
+}
+
+.filterInput {
+  width: 150px;
+  font: inherit;
+  font-size: 0.84rem;
+  color: var(--ab-text);
+  background: transparent;
+  border: 0;
+  outline: none;
+}
+
+.filesMain {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 170px minmax(0, 1fr);
+  min-height: 0;
+}
+
+.places {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 8px 0;
+  overflow: auto;
+  background: var(--ab-frame);
+  border-right: 1px solid #1a1d23;
+}
+
+.placesTitle {
+  padding: 8px 12px 4px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--ab-text);
+}
+
+.place {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 26px;
+  padding: 0 12px 0 16px;
+  font: inherit;
+  font-size: 0.86rem;
+  text-align: left;
+  color: var(--ab-text);
+  background: transparent;
+  border: 0;
+  cursor: default;
+
+  & img {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  &[data-current] {
+    color: #fff;
+    background: var(--ab-blue);
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  align-content: start;
+  gap: 6px;
+  padding: 14px;
+  overflow: auto;
+  outline: none;
+
+  &[data-over] {
+    background: rgba(59, 142, 234, 0.12);
+    box-shadow: inset 0 0 0 2px var(--ab-blue);
+  }
+}
+
+.item {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 6px;
+  min-height: 104px;
+  padding: 8px 4px;
+  font: inherit;
+  font-size: 0.84rem;
+  color: var(--ab-text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: default;
+
+  & img {
+    width: 56px;
+    height: 56px;
+  }
+
+  & span {
+    display: -webkit-box;
+    max-width: 100%;
+    overflow: hidden;
+    line-height: 1.3;
+    text-align: center;
+    word-break: break-word;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  &[data-selected] {
+    color: #fff;
+    background: rgba(59, 142, 234, 0.35);
+    border-color: rgba(108, 182, 255, 0.55);
+  }
+
+  /* a link: a small arrow on its icon */
+  &[data-link]::after {
+    content: '↪';
+    position: absolute;
+    top: 46px;
+    left: calc(50% + 14px);
+    font-size: 0.8rem;
+    color: #fff;
+    text-shadow: 0 0 3px #000;
+  }
+}
+
+.gridEmpty {
+  grid-column: 1 / -1;
+  padding: 40px;
+  text-align: center;
+  color: var(--ab-faint);
+}
+
+.filesNote {
+  flex-shrink: 0;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  color: var(--ab-dim);
+  background: var(--ab-frame);
+
+  &[data-error] {
+    color: #fca5a5;
+  }
+}
+
+.statusbar {
+  display: flex;
+  flex-shrink: 0;
+  gap: 16px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  color: var(--ab-dim);
+  background: var(--ab-frame);
+  border-top: 1px solid #1a1d23;
+}
+
+/* ---- the web browser ---- */
+
+.browser {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--ab-pane);
+}
+
+.browserTabs {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px 0;
+  background: #1e2128;
+}
+
+.browserTab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: 220px;
+  height: 32px;
+  padding: 0 6px 0 10px;
+  font-size: 0.82rem;
+  color: var(--ab-dim);
+  background: transparent;
+  border-radius: 6px 6px 0 0;
+  cursor: default;
+
+  & img {
+    width: 16px;
+    height: 16px;
+  }
+
+  & span {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &[data-active] {
+    color: #fff;
+    background: var(--ab-frame);
+  }
+}
+
+.browserBar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2px;
+  padding: 5px 8px;
+  background: var(--ab-frame);
+  border-bottom: 1px solid #1a1d23;
+}
+
+.address {
+  flex: 1;
+  height: 30px;
+  margin: 0 6px;
+  padding: 0 12px;
+  font: inherit;
+  font-size: 0.86rem;
+  color: var(--ab-text);
+  background: #1e2128;
+  border: 1px solid #3c414c;
+  border-radius: 15px;
+  outline: none;
+
+  &:focus {
+    border-color: var(--ab-blue);
+  }
+}
+
+.startPage {
+  flex: 1;
+  align-content: start;
+  justify-items: center;
+  gap: 26px;
+  min-height: 0;
+  padding: 50px 24px 30px;
+  overflow: auto;
+  background: #1f232b;
+}
+
+.startBrand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #fff;
+
+  & img,
+  & svg {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+  }
+
+  & span {
+    color: var(--ab-sky);
+  }
+}
+
+.startSearch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(640px, 100%);
+  height: 46px;
+  padding: 0 16px;
+  color: var(--ab-dim);
+  background: #2a2e37;
+  border: 1px solid #3c414c;
+  border-radius: 23px;
+
+  &:focus-within {
+    border-color: var(--ab-blue);
+  }
+}
+
+.startInput {
+  flex: 1;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--ab-text);
+  background: transparent;
+  border: 0;
+  outline: none;
+}
+
+.startTiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 12px;
+  width: min(780px, 100%);
+}
+
+.startTile {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 14px 8px;
+  font: inherit;
+  font-size: 0.8rem;
+  color: var(--ab-text);
+  background: #2a2e37;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--ab-blue);
+  }
+
+  & small {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    color: var(--ab-faint);
+  }
+}
+
+.startLetter {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #fff;
+  background: var(--ab-blue);
+  border-radius: 50%;
+}
+
+.startNote {
+  max-width: 640px;
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--ab-faint);
+}
+
+/* ---- the picture viewer ---- */
+
 .canvasArea {
   flex: 1;
   min-height: 0;
   overflow: auto;
   padding: 12px;
-  background-color: #0b1424;
+  background-color: #1e2128;
   background-image:
-    linear-gradient(45deg, #111e33 25%, transparent 25%), linear-gradient(-45deg, #111e33 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #111e33 75%), linear-gradient(-45deg, transparent 75%, #111e33 75%);
+    linear-gradient(45deg, #262a33 25%, transparent 25%), linear-gradient(-45deg, #262a33 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #262a33 75%), linear-gradient(-45deg, transparent 75%, #262a33 75%);
   background-size: 20px 20px;
   background-position:
     0 0,
@@ -595,25 +1433,14 @@
   }
 }
 
-.statusbar {
-  display: flex;
-  flex-shrink: 0;
-  gap: 16px;
-  padding: 4px 10px;
-  font-size: 0.78rem;
-  color: var(--ab-dim);
-  background: #0d1829;
-  border-top: 1px solid var(--ab-line);
-}
-
 .extract {
   display: grid;
   gap: 8px;
   max-height: 42%;
   padding: 8px 10px;
   overflow: auto;
-  background: #0d1829;
-  border-top: 1px solid var(--ab-line);
+  background: var(--ab-frame);
+  border-top: 1px solid #1a1d23;
 
   & pre {
     margin: 0;
@@ -623,8 +1450,8 @@
     white-space: pre-wrap;
     word-break: break-all;
     color: var(--ab-text);
-    background: #0b1424;
-    border-radius: 6px;
+    background: #1e2128;
+    border-radius: 4px;
   }
 
   & label {
@@ -635,11 +1462,14 @@
   }
 }
 
+/* ---- help ---- */
+
 .help {
   padding: 16px 20px;
   overflow: auto;
   line-height: 1.6;
   color: var(--ab-dim);
+  background: var(--ab-pane);
 
   & h3 {
     margin: 14px 0 4px;
@@ -649,13 +1479,5 @@
 
   & h3:first-child {
     margin-top: 0;
-  }
-
-  & code {
-    padding: 1px 6px;
-    font-size: 0.85em;
-    color: var(--ab-gold);
-    background: #0b1424;
-    border-radius: 4px;
   }
 }

@@ -17,6 +17,9 @@ importers:
       '@emotion/react':
         specifier: ^11.14.0
         version: 11.14.0(@types/react@19.3.0)(react@19.3.1)
+      '@fontsource/fira-code':
+        specifier: 5.2.7
+        version: 5.2.7
       '@mantine/carousel':
         specifier: ^9.7.4
         version: 9.7.4(@mantine/core@9.7.4(@mantine/hooks@9.7.4(react@19.3.1))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@mantine/hooks@9.7.4(react@19.3.1))(embla-carousel-react@8.6.0(react@19.3.1))(embla-carousel@8.6.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -77,9 +80,15 @@ importers:
       '@xdsec/wsrx':
         specifier: ^0.5.6
         version: 0.5.6
+      '@xterm/addon-canvas':
+        specifier: 0.7.0
+        version: 0.7.0(@xterm/xterm@5.5.0)
       '@xterm/addon-fit':
         specifier: 0.10.0
         version: 0.10.0(@xterm/xterm@5.5.0)
+      '@xterm/addon-search':
+        specifier: 0.15.0
+        version: 0.15.0(@xterm/xterm@5.5.0)
       '@xterm/xterm':
         specifier: 5.5.0
         version: 5.5.0
@@ -592,6 +601,9 @@ packages:
 
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
+
+  '@fontsource/fira-code@5.2.7':
+    resolution: {integrity: sha512-tnB9NNund9TwIym8/7DMJe573nlPEQb+fKUV5GL8TBYXjIhDvL0D7mgmNVNQUPhXp+R7RylQeiBdkA4EbOHPGQ==}
 
   '@jridgewell/gen-mapping@0.3.13':
     resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
@@ -1281,8 +1293,18 @@ packages:
     resolution: {integrity: sha512-LNhF5h4A+wGUBLTJ52/heBGq12quxaqMQNnG45ehyY1PcBb71pLvkYIRRqZL9x4NesbNHZ51+q65oGmrWsoBZA==}
     engines: {node: '>=18'}
 
+  '@xterm/addon-canvas@0.7.0':
+    resolution: {integrity: sha512-LF5LYcfvefJuJ7QotNRdRSPc9YASAVDeoT5uyXS/nZshZXjYplGXRECBGiznwvhNL2I8bq1Lf5MzRwstsYQ2Iw==}
+    peerDependencies:
+      '@xterm/xterm': ^5.0.0
+
   '@xterm/addon-fit@0.10.0':
     resolution: {integrity: sha512-UFYkDm4HUahf2lnEyHvio51TNGiLK66mqP2JoATy7hRZeXaGMRDr00JiSF7m63vR5WKATF605yEggJKsw0JpMQ==}
+    peerDependencies:
+      '@xterm/xterm': ^5.0.0
+
+  '@xterm/addon-search@0.15.0':
+    resolution: {integrity: sha512-ZBZKLQ+EuKE83CqCmSSz5y1tx+aNOCUaA7dm6emgOX+8J9H1FWXZyrKfzjwzV+V14TV3xToz1goIeRhXBS5qjg==}
     peerDependencies:
       '@xterm/xterm': ^5.0.0
 
@@ -3112,6 +3134,8 @@ snapshots:
 
   '@floating-ui/utils@0.2.12': {}
 
+  '@fontsource/fira-code@5.2.7': {}
+
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
       '@jridgewell/sourcemap-codec': 1.6.0
@@ -3599,7 +3623,15 @@ snapshots:
       ky: 2.2.0
       nanoid: 5.1.16
 
+  '@xterm/addon-canvas@0.7.0(@xterm/xterm@5.5.0)':
+    dependencies:
+      '@xterm/xterm': 5.5.0
+
   '@xterm/addon-fit@0.10.0(@xterm/xterm@5.5.0)':
+    dependencies:
+      '@xterm/xterm': 5.5.0
+
+  '@xterm/addon-search@0.15.0(@xterm/xterm@5.5.0)':
     dependencies:
       '@xterm/xterm': 5.5.0
 
