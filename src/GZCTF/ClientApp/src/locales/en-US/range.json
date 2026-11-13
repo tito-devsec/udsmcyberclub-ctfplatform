@@ -83,6 +83,139 @@
       "name": "Web Explorer"
     }
   },
+  "box": {
+    "app": {
+      "cyberchef": "CyberChef",
+      "files": "Files",
+      "help": "Help",
+      "lab": "Your lab",
+      "stego": "Picture viewer",
+      "terminal": "Terminal"
+    },
+    "cyberchef_missing": "CyberChef is not installed on this server yet. Ask your club's admins to set up the tools service.",
+    "dock": "Apps",
+    "extend": "Extend",
+    "files": {
+      "changed": "Changed",
+      "delete": "Delete",
+      "delete_confirm": "Delete ~/{{path}} from your box?",
+      "drop": "Drop files here to send them to your box",
+      "empty": "Your home folder has no files yet. Save some in the terminal, or send them from your computer.",
+      "fetch": "Download",
+      "name": "File",
+      "off": "Start your attack box to move files in and out of it.",
+      "refresh": "Refresh",
+      "send": "Send files",
+      "size": "Size",
+      "too_large": "{{name}} is larger than {{limit}} MB.",
+      "view": "View",
+      "where": "Sent files land in ~/uploads · up to {{limit}} MB each",
+      "working": "Sending {{name}}…"
+    },
+    "help": {
+      "copy": {
+        "text": "In the terminal, Ctrl+Shift+C copies what you selected and Ctrl+Shift+V pastes. Ctrl+C stops the running command, as in any terminal.",
+        "title": "Copy and paste"
+      },
+      "files": {
+        "text": "Files sends files from your computer to ~/uploads, and downloads any file in your home folder. Pictures open in the picture viewer with one click.",
+        "title": "Files"
+      },
+      "install": {
+        "text": "Your box cannot reach the internet. apt install and pip install work for the packages your club's admins approved; ask them for what a lab needs. A lab that needs more, such as a full desktop, can still be done from your own Linux machine.",
+        "title": "No internet, and how to install"
+      },
+      "target": {
+        "text": "Start a lab's machine on its page, and it joins your box as \"target\": try nmap target, curl http://target or nc target 9001. The command target lists its open ports. Only your own machine is there: no other student, and not the server.",
+        "title": "Your target"
+      },
+      "time": {
+        "text": "A box runs for two hours and can be extended in its last ten minutes. When it stops, everything in it is wiped: download what you want to keep.",
+        "title": "Time"
+      },
+      "tools": {
+        "text": "Type tools in the terminal for the list: nmap, curl, sqlmap, ffuf, john, hashcat, binwalk, exiftool, steghide, tshark, gdb, radare2, pwntools and more. CyberChef and the picture viewer run in this browser and need no box.",
+        "title": "Tools"
+      }
+    },
+    "left": "{{time}} left",
+    "no_target": "No lab machine",
+    "off": "Your attack box is off",
+    "off_hint": "It is a Kali Linux machine of your own, with the tools the labs call for. Your lab machine answers there as \"target\". It runs for two hours, and has no internet.",
+    "sign_in": "Sign in",
+    "signed_out": "Sign in first",
+    "signed_out_hint": "The attack box belongs to your account. Sign in, then come back to this page.",
+    "start": "Start attack box",
+    "starting": "Starting…",
+    "state_off": "Box off",
+    "stego": {
+      "bit": "Bit",
+      "box_off": "Box off",
+      "by_columns": "Column by column",
+      "colour": {
+        "a": "Alpha",
+        "b": "Blue",
+        "g": "Green",
+        "r": "Red"
+      },
+      "empty": "Open a picture from your box or from your computer. A picture from your computer stays in your browser.",
+      "extract": "Hidden bits",
+      "fit": "Fit",
+      "found": "{{count}} bytes read",
+      "from_box": "Open from your box…",
+      "from_computer": "Open from your computer",
+      "group": {
+        "colours": "One colour",
+        "plane_a": "Bits of alpha",
+        "plane_b": "Bits of blue",
+        "plane_g": "Bits of green",
+        "plane_r": "Bits of red",
+        "whole": "Whole picture"
+      },
+      "mode": "How to show it",
+      "msb_first": "Highest bit first",
+      "not_found": "That picture is no longer in your box.",
+      "nothing": "No picture open",
+      "save": "Save view",
+      "save_bytes": "Save bytes",
+      "stop_at_zero": "Stop at a zero byte",
+      "too_large": "That picture is too large to work with here (more than 4096 × 4096).",
+      "unreadable": "That file could not be read as a picture.",
+      "view": {
+        "alpha": "Alpha only",
+        "bit": "{{colour}} bit {{bit}}",
+        "blue": "Blue only",
+        "gray": "Grey",
+        "green": "Green only",
+        "invert": "Invert",
+        "normal": "As it is",
+        "random": "Every shade a colour",
+        "red": "Red only",
+        "stretch": "Stretch contrast"
+      },
+      "zoom": "Zoom"
+    },
+    "stop": "Stop",
+    "stop_confirm": "Stop your attack box? Everything in it is wiped, so fetch the files you want to keep first.",
+    "target": "target: {{title}}",
+    "target_hint": "Your lab machine answers in the box as \"target\". Start one on a lab's page.",
+    "terminal": {
+      "again": "Open it again",
+      "bigger": "Bigger text",
+      "clear": "Clear",
+      "copy": "Copy",
+      "ended": "The terminal closed",
+      "lost": "The connection to your box was lost.",
+      "paste": "Paste",
+      "smaller": "Smaller text"
+    },
+    "title": "Attack box",
+    "window": {
+      "close": "Close",
+      "fill": "Fill the screen",
+      "hide": "Hide"
+    }
+  },
   "catalogue": {
     "empty": "No modules match these filters.",
     "lead": "Every module on the platform. Take them in any order, or follow a skill path."
@@ -271,6 +404,8 @@
     "required": "Choose your cybersecurity level first."
   },
   "machine": {
+    "box_hint": "Your attack box reaches this machine as target, with Kali's tools ready.",
+    "box_open": "Open attack box",
     "copied": "Copied",
     "copy": "Copy the address",
     "description": "A private copy of this section's target, started only for you.",
@@ -324,6 +459,7 @@
     "updated": "Last updated {{date}}"
   },
   "nav": {
+    "attack_box": "Attack Box",
     "labs": "Labs",
     "members": "Members",
     "modules": "Modules",

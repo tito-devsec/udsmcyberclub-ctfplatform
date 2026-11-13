@@ -426,6 +426,29 @@
   }
 }
 
+/* under a machine: the way to the attack box, which reaches it as "target" */
+.boxLink {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  color: var(--r-body);
+  background: var(--r-raised);
+  border-radius: 8px;
+
+  & > svg {
+    color: var(--r-accent);
+  }
+
+  & > span {
+    flex: 1;
+    min-width: 220px;
+  }
+}
+
 /* ---- progress ---- */
 
 .progress {

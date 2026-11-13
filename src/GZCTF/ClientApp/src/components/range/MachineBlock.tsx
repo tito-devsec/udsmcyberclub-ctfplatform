@@ -4,6 +4,7 @@ import { FC, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Uicon } from '@Components/Uicon'
 import { Note } from '@Components/range/Parts'
+import { ATTACK_BOX_TAB, ATTACK_BOX_URL } from '@Utils/AttackBox'
 import { MachineInfo, rangeApi } from '@Utils/Range'
 import { showErrorMsg } from '@Utils/Shared'
 import classes from '@Styles/Range.module.css'
@@ -168,6 +169,23 @@ export const MachineBlock: FC<MachineBlockProps> = ({ module, section, machine, 
           {mine ? t('range.machine.running') : t('range.machine.offline')}
         </span>
         {mine && <span className={cx(classes.small, classes.dim)}>{t('range.machine.reload_hint')}</span>}
+      </div>
+
+      {/* the attack box reaches this machine as "target", with the tools already installed */}
+      <div className={classes.boxLink}>
+        <Uicon name="terminal" />
+        <span>{t('range.machine.box_hint')}</span>
+        <Button
+          component="a"
+          href={ATTACK_BOX_URL}
+          target={ATTACK_BOX_TAB}
+          variant="default"
+          radius="sm"
+          size="xs"
+          leftSection={<Uicon name="arrow-up-right-from-square" />}
+        >
+          {t('range.machine.box_open')}
+        </Button>
       </div>
     </div>
   )

@@ -167,3 +167,7 @@ faucet
 envelope
 unlock
 receipt
+
+# the attack box: its Files window and picture viewer
+images
+folder

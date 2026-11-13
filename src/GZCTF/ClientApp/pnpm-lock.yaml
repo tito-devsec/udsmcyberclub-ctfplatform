@@ -77,6 +77,12 @@ importers:
       '@xdsec/wsrx':
         specifier: ^0.5.6
         version: 0.5.6
+      '@xterm/addon-fit':
+        specifier: 0.10.0
+        version: 0.10.0(@xterm/xterm@5.5.0)
+      '@xterm/xterm':
+        specifier: 5.5.0
+        version: 5.5.0
       axios:
         specifier: ^1.20.0
         version: 1.20.0
@@ -1274,6 +1280,14 @@ packages:
   '@xdsec/wsrx@0.5.6':
     resolution: {integrity: sha512-LNhF5h4A+wGUBLTJ52/heBGq12quxaqMQNnG45ehyY1PcBb71pLvkYIRRqZL9x4NesbNHZ51+q65oGmrWsoBZA==}
     engines: {node: '>=18'}
+
+  '@xterm/addon-fit@0.10.0':
+    resolution: {integrity: sha512-UFYkDm4HUahf2lnEyHvio51TNGiLK66mqP2JoATy7hRZeXaGMRDr00JiSF7m63vR5WKATF605yEggJKsw0JpMQ==}
+    peerDependencies:
+      '@xterm/xterm': ^5.0.0
+
+  '@xterm/xterm@5.5.0':
+    resolution: {integrity: sha512-hqJHYaQb5OptNunnyAnkHyM8aCjZ1MEIDTQu1iIbbTD/xops91NB5yq1ZK/dC2JDbVWtF23zUtl9JE2NqwT87A==}
 
   abort-controller@3.0.0:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
@@ -3584,6 +3598,12 @@ snapshots:
     dependencies:
       ky: 2.2.0
       nanoid: 5.1.16
+
+  '@xterm/addon-fit@0.10.0(@xterm/xterm@5.5.0)':
+    dependencies:
+      '@xterm/xterm': 5.5.0
+
+  '@xterm/xterm@5.5.0': {}
 
   abort-controller@3.0.0:
     dependencies:

@@ -5,6 +5,7 @@ import { Link, useLocation } from 'react-router'
 import { WithNavBar } from '@Components/WithNavbar'
 import { PlayerAvatar } from '@Components/range/Community'
 import { SkillLevelPrompt } from '@Components/range/SkillLevel'
+import { ATTACK_BOX_TAB, ATTACK_BOX_URL } from '@Utils/AttackBox'
 import { profileUrl } from '@Utils/Community'
 import { useMe } from '@Utils/Range'
 import { useProposals } from '@Utils/Studio'
@@ -46,6 +47,11 @@ const RangeHeader: FC = () => {
             {t(tab.label)}
           </Link>
         ))}
+        {me && (
+          <a href={ATTACK_BOX_URL} target={ATTACK_BOX_TAB} className={classes.pill}>
+            {t('range.nav.attack_box')}
+          </a>
+        )}
         {me && me.role !== 'student' && (
           <Link to="/studio" className={classes.pill} data-active={pathname.startsWith('/studio') || undefined}>
             {t('range.nav.studio')}
