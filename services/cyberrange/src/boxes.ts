@@ -178,10 +178,10 @@ export function startBox(user: User) {
           NanoCpus: Math.round(config.boxCpus * 1e9),
           CpuShares: 128,
           PidsLimit: config.boxPids,
-          // root inside the box, but with little of root's power outside it: enough to
-          // install the approved packages, bind low ports and send raw packets (ping, nmap)
+          // root inside the box, but with little of root's power outside it: enough to install
+          // the approved packages, bind low ports, send raw packets (ping, nmap) and let sudo log
           CapDrop: ['ALL'],
-          CapAdd: ['CHOWN', 'DAC_OVERRIDE', 'FOWNER', 'FSETID', 'SETUID', 'SETGID', 'KILL', 'NET_RAW', 'NET_BIND_SERVICE'],
+          CapAdd: ['CHOWN', 'DAC_OVERRIDE', 'FOWNER', 'FSETID', 'SETUID', 'SETGID', 'KILL', 'NET_RAW', 'NET_BIND_SERVICE', 'AUDIT_WRITE'],
           SecurityOpt: ['no-new-privileges'],
           Ulimits: [{ Name: 'fsize', Soft: fileSize, Hard: fileSize }],
           Binds: [`${config.boxMirror}:/opt/mirror:ro`],
@@ -411,7 +411,8 @@ async function terminal(ws: WebSocket, req: IncomingMessage, cols: number, rows:
 
 // ---- files in and out ----
 
-const FILE_NAME = /^[A-Za-z0-9][A-Za-z0-9._ -]{0,99}$/
+// a file name the box accepts from the browser
+const FILE_NAME = /^[A-Za-z0-9][A-Za-z0-9._ ()+,-]{0,99}$/
 const fileLimit = config.boxFile * 1024 * 1024
 
 async function boxOf(user: User): Promise<Row> {
@@ -420,16 +421,19 @@ async function boxOf(user: User): Promise<Row> {
   return row
 }
 
-// A file in the box's home folder, as the browser named it.
-function inHome(path: string | null): string {
-  const parts = (path ?? '').split('/')
-  if (!path || path.length > 400 || path.includes('\0') || parts.some((part) => !part || part === '.' || part === '..')) {
-    throw new HttpError(400, 'That is not a file in your box.')
-  }
-  return `${HOME}/${path}`
+// A path in the box, as the browser sent it: absolute, or under the home folder. The box is the
+// student's own, so any of its folders may be looked at; `..` and odd characters are refused.
+function inBox(path: string | null, fallback = HOME): string {
+  const given = path || fallback
+  if (given.length > 1000 || given.includes('\0')) throw new HttpError(400, 'That is not a path in your box.')
+  const parts = (given.startsWith('/') ? given : `${HOME}/${given}`).split('/').filter(Boolean)
+  if (parts.some((part) => part === '.' || part === '..')) throw new HttpError(400, 'That is not a path in your box.')
+  return `/${parts.join('/')}`
 }
 
-// The files in the home folder, hidden ones left out: path, size and when they changed.
+const parentOf = (path: string) => path.slice(0, path.lastIndexOf('/')) || '/'
+
+// The files in the home folder and below, hidden ones left out: for the picture viewer.
 async function filesOf(row: Row) {
   const format = String.raw`%P\t%s\t%T@\n`
   const listed = await dockerExec(row.container_id, [
@@ -449,6 +453,39 @@ async function filesOf(row: Row) {
     .sort((a, b) => a.path.localeCompare(b.path))
 }
 
+const MOST_ENTRIES = 2000
+
+// What one folder holds (folders, files and links, hidden ones included: the window decides
+// what to show), and how much room the box's disk has left.
+async function folderOf(row: Row, path: string) {
+  const listed = await dockerExec(
+    row.container_id,
+    ['find', path, '-mindepth', '1', '-maxdepth', '1', '-printf', String.raw`%y\t%s\t%T@\t%m\t%f\0`],
+    8 * 1024 * 1024
+  )
+  if (listed.code !== 0 && !listed.out) throw new HttpError(404, 'There is no such folder in your box.')
+  const entries = listed.out
+    .split('\0')
+    .filter(Boolean)
+    .slice(0, MOST_ENTRIES)
+    .map((record) => {
+      const [kind, size, changed, mode] = record.split('\t', 4)
+      const name = record.split('\t').slice(4).join('\t')
+      return {
+        name,
+        type: kind === 'd' ? 'folder' : kind === 'l' ? 'link' : 'file',
+        size: Number(size) || 0,
+        changedAt: new Date(Number(changed) * 1000).toISOString(),
+        // its permissions, in octal: a file anyone may run gets the program icon
+        executable: kind === 'f' && /[1357]/.test(mode ?? ''),
+      }
+    })
+    .filter((entry) => entry.name)
+  const disk = await dockerExec(row.container_id, ['df', '-B1', '--output=avail', path]).catch(() => null)
+  const free = Number(disk?.out.split('\n')[1]?.trim()) || null
+  return { path, parent: path === '/' ? null : parentOf(path), entries, free }
+}
+
 // ---- the API ----
 
 // What the box's page needs: the box, the lab machine it reaches as "target", and the tools.
@@ -466,6 +503,8 @@ async function view(user: User) {
           expiresAt: machine.expiresAt,
           // the lab's page, or the module's section the machine belongs to
           lab: content.labByKey.get(machine.module)?.slug ?? null,
+          // where the student's own browser reaches the machine, as on the lab's page
+          entry: machine.entry,
         }
       : null,
     player: playerName(user.name),
@@ -499,9 +538,52 @@ route('DELETE', `${BASE}/box`, async (ctx) => {
 
 route('GET', `${BASE}/box/files`, async (ctx) => filesOf(await boxOf(await ctx.signedIn())))
 
+route('GET', `${BASE}/box/folder`, async (ctx) => {
+  const row = await boxOf(await ctx.signedIn())
+  return folderOf(row, inBox(ctx.query.get('path')))
+})
+
+// A new folder.
+route('POST', `${BASE}/box/folder`, async (ctx) => {
+  const row = await boxOf(await ctx.signedIn())
+  const { folder, name } = await ctx.body<{ folder?: unknown; name?: unknown }>()
+  if (typeof name !== 'string' || !FILE_NAME.test(name)) {
+    throw new HttpError(400, 'A name may use letters, digits, spaces, dots, dashes, brackets and _.')
+  }
+  const parent = inBox(typeof folder === 'string' ? folder : null)
+  const made = await dockerExec(row.container_id, ['mkdir', '--', `${parent === '/' ? '' : parent}/${name}`])
+  if (made.code !== 0) throw new HttpError(400, 'That folder could not be made: is the name taken?')
+  return folderOf(row, parent)
+})
+
+// A new name for a file or folder, in the same folder.
+route('POST', `${BASE}/box/rename`, async (ctx) => {
+  const row = await boxOf(await ctx.signedIn())
+  const { path, name } = await ctx.body<{ path?: unknown; name?: unknown }>()
+  if (typeof name !== 'string' || !FILE_NAME.test(name)) {
+    throw new HttpError(400, 'A name may use letters, digits, spaces, dots, dashes, brackets and _.')
+  }
+  const from = inBox(typeof path === 'string' ? path : '')
+  if (from === '/' || from === HOME) throw new HttpError(400, 'That folder cannot be renamed.')
+  const parent = parentOf(from)
+  const to = `${parent === '/' ? '' : parent}/${name}`
+  // mv -n does nothing, quietly, when the new name is taken: so look first
+  const moved = await dockerExec(row.container_id, [
+    'sh',
+    '-c',
+    'if [ -e "$2" ] || [ -L "$2" ]; then exit 3; fi; exec mv -n -- "$1" "$2"',
+    'sh',
+    from,
+    to,
+  ])
+  if (moved.code === 3) throw new HttpError(400, 'Something in this folder already has that name.')
+  if (moved.code !== 0) throw new HttpError(400, 'That could not be renamed.')
+  return folderOf(row, parent)
+})
+
 route('GET', `${BASE}/box/file`, async (ctx) => {
   const row = await boxOf(await ctx.signedIn())
-  const full = inHome(ctx.query.get('path'))
+  const full = inBox(ctx.query.get('path'), '')
   const where = `/containers/${row.container_id}/archive?path=${encodeURIComponent(full)}`
   const asked = await dockerBytes('HEAD', where)
   if (asked.status !== 200) throw new HttpError(404, 'There is no such file in your box.')
@@ -525,32 +607,37 @@ route('GET', `${BASE}/box/file`, async (ctx) => {
   return new BytesReply(data, 'application/octet-stream', name)
 })
 
-// A file from the student's computer, put in ~/uploads.
+// A file from the student's computer, put in the folder they have open (their home by default).
 route('PUT', `${BASE}/box/file`, async (ctx) => {
   const row = await boxOf(await ctx.signedIn())
-  const { name, data } = await ctx.body<{ name?: unknown; data?: unknown }>(fileLimit * 1.4 + 1024)
+  const { folder, name, data } = await ctx.body<{ folder?: unknown; name?: unknown; data?: unknown }>(fileLimit * 1.4 + 2048)
   if (typeof name !== 'string' || !FILE_NAME.test(name)) {
-    throw new HttpError(400, 'A file name may use letters, digits, spaces, dots, dashes and _, up to 100 characters.')
+    throw new HttpError(400, 'A file name may use letters, digits, spaces, dots, dashes, brackets and _, up to 100 characters.')
   }
   const bytes = typeof data === 'string' && /^[A-Za-z0-9+/]*=*$/.test(data) ? Buffer.from(data, 'base64') : null
   if (!bytes) throw new HttpError(400, 'The file did not arrive whole. Try again.')
   if (bytes.length > fileLimit) throw new HttpError(413, `Files up to ${config.boxFile} MB can be sent to a box.`)
-  const folder = encodeURIComponent(`${HOME}/uploads`)
-  const put = () => dockerBytes('PUT', `/containers/${row.container_id}/archive?path=${folder}`, tarOf(name, bytes))
+  const target = inBox(typeof folder === 'string' ? folder : null)
+  const put = () =>
+    dockerBytes('PUT', `/containers/${row.container_id}/archive?path=${encodeURIComponent(target)}`, tarOf(name, bytes))
   let res = await put()
   if (res.status === 404) {
     // the folder was removed in the terminal: make it again
-    await dockerExec(row.container_id, ['mkdir', '-p', `${HOME}/uploads`])
+    await dockerExec(row.container_id, ['mkdir', '-p', '--', target])
     res = await put()
   }
   if (res.status !== 200) {
     throw new Error(`Docker could not put the file in the box: ${res.status} ${res.body.toString().slice(0, 200)}`)
   }
-  return filesOf(row)
+  return folderOf(row, target)
 })
 
+// Removes a file or a folder with everything in it.
 route('DELETE', `${BASE}/box/file`, async (ctx) => {
   const row = await boxOf(await ctx.signedIn())
-  await dockerExec(row.container_id, ['rm', '-f', '--', inHome(ctx.query.get('path'))])
-  return filesOf(row)
+  const path = inBox(ctx.query.get('path'), '')
+  // the root, the home folder and the folders right under the root stay
+  if (path === HOME || path.split('/').filter(Boolean).length < 2) throw new HttpError(400, 'That folder cannot be deleted.')
+  await dockerExec(row.container_id, ['rm', '-rf', '--', path])
+  return folderOf(row, parentOf(path))
 })
