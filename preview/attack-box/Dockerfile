@@ -24,6 +24,13 @@ RUN apt-get update \
  && gzip -d /usr/share/wordlists/rockyou.txt.gz \
  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# xz and bzip2, which lab files come wrapped in, and pycryptodome under the name crypto solver
+# scripts import it by ("from Crypto..."): Kali's own package names it Cryptodome.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends xz-utils bzip2 \
+ && apt-get clean && rm -rf /var/lib/apt/lists/* \
+ && pip install --no-cache-dir --break-system-packages --root-user-action=ignore pycryptodome==3.23.0
+
 # Kali lets nmap send raw packets as any user through file capabilities. A box runs with fewer
 # powers than those, so it refuses to start such a program, and its root user needs none of them.
 # The systemd shell scripts only add markers that a browser terminal shows as noise.
