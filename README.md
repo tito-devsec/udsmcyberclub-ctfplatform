@@ -39,6 +39,8 @@ The name, slogan, colour and logo are stored in the database, so set them once u
 
 The club's own artwork is part of the interface: the logo of each category, worn on the seal of certificates, is in `src/GZCTF/ClientApp/src/assets/categories`, and the medal of each badge on profiles is in `src/GZCTF/ClientApp/src/assets/badges`. To change one, replace its SVG with a new one of the same name and rebuild the interface.
 
+The CyberRange pages are drawn in a flat style (Flat Design 2.0): flat colours and simple shapes, with soft shadows only under cards and other things that can be pressed. Each category has its own flat colour, the same as on its logo, set in `CategoryColour` in `src/GZCTF/ClientApp/src/utils/Range.ts`. The Games pages keep GZCTF's own look.
+
 ## License
 
 The core code is licensed under the [GNU AGPL v3](LICENSE.txt). Anyone running a modified version for others must offer them its source code.
