@@ -1,0 +1,2 @@
+# The repository ignores bin/ folders (build output); the box's own commands live in one.
+!rootfs/usr/local/bin/

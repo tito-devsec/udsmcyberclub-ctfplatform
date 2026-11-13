@@ -1,0 +1,19 @@
+#!/bin/bash
+# The attack box's welcome: the club's art and the box's rules, shown once, in the first
+# terminal opened after the box starts, in the largest size the terminal has room for.
+# ENTER clears it.
+here=/usr/local/share/cyberrange
+cols=$(tput cols 2> /dev/null || echo 100)
+rows=$(tput lines 2> /dev/null || echo 30)
+if [ "${cols:-100}" -ge 88 ] && [ "${rows:-30}" -ge 24 ]; then
+  art=$here/welcome.ans
+elif [ "${cols:-100}" -ge 80 ] && [ "${rows:-30}" -ge 19 ]; then
+  art=$here/welcome-narrow.ans
+else
+  art=$here/welcome-small.ans
+fi
+player=$(printf '%s' "${CR_PLAYER:-player}" | tr -cd 'A-Za-z0-9_.-' | cut -c1-32)
+clear
+sed "s/@PLAYER@/${player:-player}/" "$art"
+read -r -s _
+clear

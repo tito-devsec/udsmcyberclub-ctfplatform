@@ -1,0 +1,9 @@
+#!/bin/bash
+# pip in the attack box: it installs from the club's approved mirror only (see /etc/pip.conf).
+name=$(basename "$0")
+"/usr/bin/$name" "$@"
+code=$?
+if [ "$code" != 0 ] && [ "$1" = install ]; then
+  echo "Only Python packages your club's admins approved can be installed here. Ask them to add what a lab needs." >&2
+fi
+exit "$code"

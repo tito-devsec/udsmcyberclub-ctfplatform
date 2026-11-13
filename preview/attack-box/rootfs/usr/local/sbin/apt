@@ -1,0 +1,15 @@
+#!/bin/bash
+# apt and apt-get in the attack box: they install from the club's approved mirror, whose list
+# is read again before each install so that new approvals show up at once.
+name=$(basename "$0")
+installing=0
+for word in "$@"; do
+  case "$word" in install | reinstall | source | download) installing=1 ;; esac
+done
+[ "$installing" = 1 ] && /usr/bin/apt-get update -qq > /dev/null 2>&1
+"/usr/bin/$name" "$@"
+code=$?
+if [ "$installing" = 1 ] && [ "$code" != 0 ]; then
+  echo "Only packages your club's admins approved can be installed here. Ask them to add what a lab needs." >&2
+fi
+exit "$code"

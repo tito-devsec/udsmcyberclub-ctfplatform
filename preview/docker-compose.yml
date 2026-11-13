@@ -101,13 +101,33 @@ services:
       SUPERADMINS: ${SUPERADMINS:-Admin}
       # address students use to reach their machine; on a real server, its domain or IP
       PUBLIC_ENTRY: 127.0.0.1
+      # where the browser tools (CyberChef) are, shown in the attack box; on a real server, a
+      # domain of their own such as https://tools.example.org
+      TOOLS_URL: http://localhost:3001
+      # The attack box (see attack-box/ and the README): how long one runs, and how many may
+      # run at once. BOX_MEMORY_MB, BOX_CPUS, BOX_PIDS, BOX_DISK_MB and BOX_FILE_MB limit each.
+      BOX_MINUTES: 120
+      BOX_SEATS: 40
     volumes:
       - ../content:/content:ro
-      # starts and stops the practice machines
+      # starts and stops the practice machines and the attack boxes
       - /var/run/docker.sock:/var/run/docker.sock
+      # the approved packages for attack boxes (see mirror.mjs); mounted here only so that
+      # compose creates the volume, which every box then reads
+      - box-mirror:/mirror:ro
     depends_on:
       db:
         condition: service_healthy
+
+  # Tools that run in the student's browser, CyberChef first, on an address of their own so
+  # that nothing they show can act on the platform with a student's sign-in.
+  tools:
+    build: ./tools
+    image: udsm-tools:local
+    restart: unless-stopped
+    ports:
+      # http://localhost:3001, reachable from this machine only
+      - "127.0.0.1:3001:80"
 
   # The front door: /api/range goes to the CyberRange service, everything else to the platform.
   proxy:
@@ -126,6 +146,8 @@ services:
 volumes:
   gzctf-files:
   gzctf-db:
+  box-mirror:
+    name: cyberrange-mirror
 
 # Networks for challenge instances. GZCTF creates these itself when they are missing,
 # but then every instance can reach every other one, so a player who gets a shell in

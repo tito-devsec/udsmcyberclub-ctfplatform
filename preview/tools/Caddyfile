@@ -1,0 +1,10 @@
+# Serves the browser tools as plain files. Nothing here talks to the platform.
+:80 {
+	root * /srv
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy no-referrer
+	}
+	redir / /cyberchef/
+	file_server
+}

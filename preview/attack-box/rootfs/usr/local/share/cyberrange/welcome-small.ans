@@ -1,0 +1,10 @@
+[1m[38;2;255;255;255mUDSM Cyber[38;2;125;211;252mRange[0m [38;2;157;176;204mattack box[0m
+
+[1m[38;2;255;255;255mWelcome to your attack box, [38;2;245;184;46m@PLAYER@[38;2;255;255;255m![0m
+ [38;2;245;184;46m1.[0m [1mNo internet.[0m Your lab machine answers here as [1m[38;2;125;211;252mtarget[0m, and nothing else does.
+ [38;2;245;184;46m2.[0m [38;2;239;68;68mAttack only your own target.[0m Testing other systems without permission is a
+    crime under Tanzania's Cybercrimes Act, 2015.
+ [38;2;245;184;46m3.[0m Keep nothing personal here: when the box stops, everything in it is wiped.
+Type [1m[38;2;245;184;46mtools[0m for the tool list. [1mapt install[0m and [1mpip install[0m add what your admins approved.
+
+[38;2;34;197;94mPress ENTER to start.[0m
