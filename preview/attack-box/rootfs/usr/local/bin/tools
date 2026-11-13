@@ -1,10 +1,12 @@
 #!/bin/sh
-# Lists the tools installed in the attack box, by what they are for.
-b=$(printf '\033[1;38;2;245;184;46m'); n=$(printf '\033[0m')
+# Lists the tools installed in the attack box, by what they are for, then commands to start
+# from. The tools reach the student's lab machine, which answers as "target": the box has no
+# internet, so they reach nothing else.
+b=$(printf '\033[1;38;2;245;184;46m'); s=$(printf '\033[1;38;2;108;182;255m'); g=$(printf '\033[38;2;54;182;160m'); n=$(printf '\033[0m')
 cat <<LIST
 
-${b}Looking around${n}      nmap  target  ping  dig  curl  wget  nc  ncat  socat  telnet  ftp  ssh
-${b}Web${n}                 sqlmap  ffuf  gobuster  dirb  nikto  whatweb  curl
+${b}Looking around${n}      target  nmap  ping  dig  curl  wget  nc  ncat  socat  telnet  ftp  ssh
+${b}Web${n}                 whatweb  nikto  ffuf  gobuster  dirb  sqlmap  curl
 ${b}Passwords${n}           john  hashcat  hydra  hashid      wordlists in /usr/share/wordlists
 ${b}Crypto and coding${n}   python3 (pwntools, pycryptodome, requests, scapy, pymodbus, PIL)  openssl  gpg  xxd
 ${b}Files and forensics${n} file  strings  binwalk  foremost  exiftool  pdftotext  sqlite3  7z  unzip  mmls  fls
@@ -12,6 +14,26 @@ ${b}Pictures${n}            steghide  pngcheck  identify  convert  exiftool
 ${b}Network captures${n}    tshark  tcpdump  scapy
 ${b}Programs${n}            gdb  radare2 (r2)  ltrace  strace  objdump  readelf  gcc  make  pwn checksec
 ${b}Editors and shell${n}   nano  vim  less  tmux  jq  tree  htop
+
+${s}They reach your lab machine, which answers here as target.${n} The box has no
+internet, so other names (google.com, any website) do not resolve here: read up
+in Firefox instead. Start a machine on its lab page first, then try:
+
+  ${g}target${n}                                 its open ports
+  ${g}nmap -sV target${n}                        what runs on those ports
+  ${g}whatweb http://target${n}                  what its website is built with
+  ${g}curl -i http://target/${n}                 a page, with its headers
+  ${g}gobuster dir -u http://target -w /usr/share/wordlists/dirb/common.txt${n}
+                                         pages that are not linked anywhere
+  ${g}nikto -h http://target${n}                 common web server mistakes
+  ${g}sqlmap -u 'http://target/item?id=1' --batch${n}   SQL injection in a parameter
+  ${g}hydra -l admin -P /usr/share/wordlists/rockyou.txt ssh://target${n}
+                                         guess a login's password
+  ${g}nc target 9001${n}                         talk to a port by hand
+  ${g}hashid '<hash>'${n}                        what kind of hash it is
+  ${g}john --wordlist=/usr/share/wordlists/rockyou.txt hash.txt${n}
+                                         crack the hashes in a file
+  ${g}binwalk -e file.bin${n}   ${g}exiftool photo.jpg${n}   ${g}steghide extract -sf photo.jpg${n}
 
 Something missing?  apt install <package>  and  pip install <package>  work for the
 packages your club's admins have approved. Ask them to add what a lab needs.

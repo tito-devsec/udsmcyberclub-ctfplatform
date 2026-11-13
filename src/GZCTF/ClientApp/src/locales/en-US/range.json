@@ -159,6 +159,31 @@
         "text": "Firefox ESR runs on the club's server next to your box, and everything you open stays in its window: searches and every website. Your lab machine opens as http://target, a web server you start in your box as http://box:8000, and downloads land in your box's ~/Downloads. Ctrl+V pastes what you copied on your own computer, and what you copy in Firefox reaches your computer too. Websites see the club's server, not you, and the club keeps a list of the sites visited from the box.",
         "title": "Firefox"
       },
+      "commands": {
+        "binwalk": "files hidden inside another file",
+        "checksec": "a program's protections, before attacking it",
+        "copied": "Copied",
+        "copy": "Copy",
+        "curl": "a page, with the headers the server sent",
+        "exiftool": "a picture's hidden details",
+        "ffuf": "the same, faster, with FUZZ where the words go",
+        "gobuster": "pages and folders that are not linked anywhere",
+        "hashcat": "the same with hashcat (-m 0 is MD5)",
+        "hashid": "what kind of hash a string is",
+        "hint": "Click a command to copy it, then paste it in the terminal with Ctrl+Shift+V.",
+        "hydra": "guess a login's password from a wordlist",
+        "john": "crack the hashes in a file",
+        "nc": "talk to a port by hand",
+        "nikto": "common mistakes in a web server",
+        "ports": "the open ports of your lab machine",
+        "serve": "share a folder of your box: Firefox opens it as http://box:8000",
+        "services": "what runs on those ports, and which versions",
+        "sqlmap": "SQL injection in a page's parameter",
+        "steghide": "data hidden in a picture",
+        "strings": "the readable text inside a program",
+        "tshark": "what a network capture holds",
+        "whatweb": "what its website is built with"
+      },
       "files": {
         "text": "The File Manager shows the whole box. Drop files on it from your computer to send them into the folder that is open, double-click a file to download it, and right-click for more. Pictures open in the picture viewer.",
         "title": "File Manager"
@@ -180,8 +205,8 @@
         "title": "Time"
       },
       "tools": {
-        "text": "Type tools in the terminal for the list: nmap, curl, sqlmap, ffuf, john, hashcat, binwalk, exiftool, steghide, tshark, gdb, radare2, pwntools and more. CyberChef and the picture viewer run in this browser and need no box.",
-        "title": "Tools"
+        "text": "Your box has the tools the labs call for: type tools in the terminal for the full list, by topic. They reach your lab machine, which answers as target. The box has no internet, so names such as google.com or any website do not resolve in it: that is on purpose, so that nobody attacks a real site from the club's server. Read up in Firefox instead. CyberChef and the picture viewer need no box. Start a machine on its lab page, then try these:",
+        "title": "Tools and commands"
       }
     },
     "left": "{{time}} left",

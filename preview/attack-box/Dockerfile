@@ -43,7 +43,8 @@ COPY rootfs/ /
 # ~/Downloads is shared with the box's Firefox (attack-browser), which runs as user 1000
 RUN chmod 755 /usr/local/bin/tools /usr/local/bin/target /usr/local/sbin/apt /usr/local/sbin/apt-get /usr/local/sbin/pip /usr/local/sbin/pip3 /usr/local/share/cyberrange/welcome /usr/local/sbin/cyberrange-start \
  && mkdir -p /root/Desktop /root/Documents /root/Downloads /root/Music /root/Pictures /root/Public /root/Templates /root/Videos \
- && chown 1000:1000 /root/Downloads
+ && chown 1000:1000 /root/Downloads \
+ && ln -s /usr/bin/vim.tiny /usr/local/bin/vim
 
 WORKDIR /root
 CMD ["/usr/local/sbin/cyberrange-start"]

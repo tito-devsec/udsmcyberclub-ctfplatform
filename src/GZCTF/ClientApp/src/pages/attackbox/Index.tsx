@@ -2,6 +2,7 @@ import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Uicon } from '@Components/Uicon'
 import { MainIcon } from '@Components/icon/MainIcon'
+import { BoxCommands } from '@Components/range/box/Commands'
 import { BoxFiles } from '@Components/range/box/Files'
 import { BoxFirefox } from '@Components/range/box/Firefox'
 import { ContextMenu, MenuItem } from '@Components/range/box/MenuBar'
@@ -26,7 +27,7 @@ const APPS: Record<AppName, { image: string; w: number; h: number; many?: boolea
   browser: { image: Icons.firefox, w: 1180, h: 740 },
   cyberchef: { image: Icons.cyberchef, w: 1180, h: 680 },
   stego: { image: Icons.imageViewer, w: 960, h: 640 },
-  help: { image: Icons.help, w: 660, h: 580 },
+  help: { image: Icons.help, w: 860, h: 640 },
 }
 const LAUNCHERS: AppName[] = ['terminal', 'files', 'browser', 'cyberchef', 'stego']
 // the desktop's size until it is measured
@@ -307,10 +308,11 @@ const AttackBoxPage: FC = () => {
     }
     return (
       <div className={classes.help}>
-        {(['target', 'terminal', 'files', 'browser', 'tools', 'install', 'time'] as const).map((part) => (
+        {(['target', 'tools', 'terminal', 'files', 'browser', 'install', 'time'] as const).map((part) => (
           <div key={part}>
             <h3>{t(`range.box.help.${part}.title`)}</h3>
             <div>{t(`range.box.help.${part}.text`)}</div>
+            {part === 'tools' && <BoxCommands />}
           </div>
         ))}
       </div>

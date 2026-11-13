@@ -4,9 +4,10 @@
 here=/usr/local/share/cyberrange
 cols=$(tput cols 2> /dev/null || echo 100)
 rows=$(tput lines 2> /dev/null || echo 30)
-if [ "${cols:-100}" -ge 88 ] && [ "${rows:-30}" -ge 24 ]; then
+# each needs its own lines, two for the lab machine's line and two for the prompt
+if [ "${cols:-100}" -ge 88 ] && [ "${rows:-30}" -ge 26 ]; then
   art=$here/welcome.ans
-elif [ "${cols:-100}" -ge 80 ] && [ "${rows:-30}" -ge 19 ]; then
+elif [ "${cols:-100}" -ge 80 ] && [ "${rows:-30}" -ge 21 ]; then
   art=$here/welcome-narrow.ans
 else
   art=$here/welcome-small.ans

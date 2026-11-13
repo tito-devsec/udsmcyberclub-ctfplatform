@@ -1311,3 +1311,53 @@
     margin-top: 0;
   }
 }
+
+/* commands to start from, in the Help window: a click copies one */
+.commandsHint {
+  margin: 8px 0 4px;
+  font-size: 0.8rem;
+  color: var(--ab-faint);
+}
+
+.commands {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+
+  & td {
+    padding: 3px 0;
+    vertical-align: middle;
+  }
+
+  & td:first-child {
+    width: 58%;
+  }
+
+  & td + td {
+    padding-left: 12px;
+  }
+
+  & td[data-copied] {
+    color: #5fd7a7;
+  }
+}
+
+.command {
+  display: block;
+  width: 100%;
+  padding: 3px 8px;
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  text-align: left;
+  word-break: break-all;
+  color: #5fd7a7;
+  background: #1e2128;
+  border: 1px solid #3c414c;
+  border-radius: 4px;
+  cursor: copy;
+
+  &:hover {
+    border-color: var(--ab-blue);
+  }
+}
