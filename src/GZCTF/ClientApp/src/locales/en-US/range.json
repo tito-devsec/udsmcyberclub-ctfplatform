@@ -85,7 +85,7 @@
   },
   "box": {
     "app": {
-      "browser": "Web Browser",
+      "browser": "Firefox ESR",
       "cyberchef": "CyberChef",
       "files": "File Manager",
       "help": "Help",
@@ -94,15 +94,6 @@
       "terminal": "Terminal Emulator"
     },
     "applications": "Applications",
-    "browser": {
-      "address": "Search the web or enter an address",
-      "lab": "{{title}} (your lab)",
-      "new_tab": "Open a new tab",
-      "note": "Pages open here when their site allows it, and the rest (marked ↗) in a tab of your own browser, as searches do. This browser runs on your computer, not in the box: the box itself has no internet.",
-      "outside": "Open in your own browser",
-      "search": "Search the web",
-      "start": "New Tab"
-    },
     "cyberchef_missing": "CyberChef is not installed on this server yet. Ask your club's admins to set up the tools service.",
     "desktop": {
       "home": "Home"
@@ -154,10 +145,19 @@
       "untitled": "Untitled Folder",
       "working": "Working on {{name}}..."
     },
+    "firefox": {
+      "again": "Connect again",
+      "closed": "Firefox is not connected",
+      "closed_hint": "The connection to Firefox closed. Firefox keeps running next to your box for a while, so connecting again takes you back to where you were.",
+      "disabled": "Firefox is turned off on this server.",
+      "failed": "Firefox could not start",
+      "off": "Start your attack box to use Firefox. It runs on the club's server, next to your box.",
+      "starting": "Starting Firefox..."
+    },
     "help": {
       "browser": {
-        "text": "The Web Browser opens your lab's web page, CyberChef and sites for looking things up. It runs on your computer, not in the box, so the box itself stays off the internet.",
-        "title": "Web Browser"
+        "text": "Firefox ESR runs on the club's server next to your box, and everything you open stays in its window: searches and every website. Your lab machine opens as http://target, a web server you start in your box as http://box:8000, and downloads land in your box's ~/Downloads. Ctrl+V pastes what you copied on your own computer, and what you copy in Firefox reaches your computer too. Websites see the club's server, not you, and the club keeps a list of the sites visited from the box.",
+        "title": "Firefox"
       },
       "files": {
         "text": "The File Manager shows the whole box. Drop files on it from your computer to send them into the folder that is open, double-click a file to download it, and right-click for more. Pictures open in the picture viewer.",

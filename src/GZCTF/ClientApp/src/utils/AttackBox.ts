@@ -24,6 +24,8 @@ export interface BoxView {
   cyberchef: string | null
   // the largest file sent into or fetched from the box, in MB
   fileLimit: number
+  // whether the server runs the box's Firefox
+  browser: boolean
 }
 
 // the home folder in the box: the student is root there
@@ -66,6 +68,8 @@ export const boxApi = {
   upload: (folder: string, name: string, data: string) =>
     rangeCall<BoxFolder>('PUT', `${BASE}/file`, { folder, name, data }),
   remove: (path: string) => rangeCall<BoxFolder>('DELETE', `${BASE}/file?path=${encodeURIComponent(path)}`),
+  // Firefox on the server, next to the box: started when its window opens
+  startBrowser: () => rangeCall<{ running: boolean }>('POST', `${BASE}/browser`),
 }
 
 // "/root/Documents" + "notes.txt"
@@ -77,6 +81,10 @@ export const boxFileUrl = (path: string) => `${BASE}/file?path=${encodeURICompon
 // The address of a terminal in the box, for a WebSocket.
 export const terminalUrl = (cols: number, rows: number) =>
   `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}${BASE}/terminal?cols=${cols}&rows=${rows}`
+
+// The address of the box's Firefox screen (VNC), for a WebSocket.
+export const browserScreenUrl = () =>
+  `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}${BASE}/browser/screen`
 
 export const isPicture = (path: string) => /\.(png|jpe?g|gif|bmp|webp)$/i.test(path)
 

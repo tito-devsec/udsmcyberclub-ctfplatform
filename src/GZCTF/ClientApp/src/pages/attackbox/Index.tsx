@@ -2,8 +2,8 @@ import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Uicon } from '@Components/Uicon'
 import { MainIcon } from '@Components/icon/MainIcon'
-import { BoxBrowser } from '@Components/range/box/Browser'
 import { BoxFiles } from '@Components/range/box/Files'
+import { BoxFirefox } from '@Components/range/box/Firefox'
 import { ContextMenu, MenuItem } from '@Components/range/box/MenuBar'
 import { PictureSource, StegoViewer } from '@Components/range/box/Stego'
 import { TerminalApp } from '@Components/range/box/TerminalApp'
@@ -22,7 +22,8 @@ import classes from '@Styles/AttackBox.module.css'
 const APPS: Record<AppName, { image: string; w: number; h: number; many?: boolean }> = {
   terminal: { image: Icons.terminal, w: 940, h: 620, many: true },
   files: { image: Icons.home, w: 960, h: 600, many: true },
-  browser: { image: Icons.browser, w: 1100, h: 700, many: true },
+  // Firefox has tabs and windows of its own
+  browser: { image: Icons.firefox, w: 1180, h: 740 },
   cyberchef: { image: Icons.cyberchef, w: 1180, h: 680 },
   stego: { image: Icons.imageViewer, w: 960, h: 640 },
   help: { image: Icons.help, w: 660, h: 580 },
@@ -60,7 +61,8 @@ const left = (until: string, now: number) => formatMinutes(Math.max(0, Math.ceil
 
 // The attack box: a desktop in the browser made like Kali's (Xfce): a panel along the top, icons
 // on a wallpaper drawn for the club, and windows for a terminal in the student's own Kali box,
-// its files, a web browser, CyberChef, a picture viewer for hidden data, and help.
+// its files, Firefox (running on the server next to the box), CyberChef, a picture viewer for
+// hidden data, and help.
 const AttackBoxPage: FC = () => {
   const { t, i18n } = useTranslation()
   const { error: signInError } = useUser()
@@ -284,10 +286,11 @@ const AttackBoxPage: FC = () => {
     }
     if (win.app === 'browser') {
       return (
-        <BoxBrowser
-          target={view?.target ? { title: view.target.title, entry: view.target.entry } : null}
-          cyberchef={view?.cyberchef ?? null}
-          onTitle={titleSetters[win.id]!}
+        <BoxFirefox
+          running={running}
+          enabled={view?.browser ?? false}
+          active={frontmost?.id === win.id}
+          onFullscreen={() => fullscreen(win.id)}
         />
       )
     }

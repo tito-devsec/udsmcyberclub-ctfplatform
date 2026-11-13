@@ -14,6 +14,7 @@ import audio from '../../../assets/attackbox/icons/audio-x-generic.svg'
 import computer from '../../../assets/attackbox/icons/computer.svg'
 import drive from '../../../assets/attackbox/icons/drive-harddisk-system.svg'
 import find from '../../../assets/attackbox/icons/edit-find-symbolic.svg'
+import firefox from '../../../assets/attackbox/icons/firefox-esr.svg'
 import documents from '../../../assets/attackbox/icons/folder-documents.svg'
 import download from '../../../assets/attackbox/icons/folder-download.svg'
 import music from '../../../assets/attackbox/icons/folder-music.svg'
@@ -37,7 +38,6 @@ import desktop from '../../../assets/attackbox/icons/user-desktop.svg'
 import trash from '../../../assets/attackbox/icons/user-trash.svg'
 import video from '../../../assets/attackbox/icons/video-x-generic.svg'
 import reload from '../../../assets/attackbox/icons/view-refresh-symbolic.svg'
-import browser from '../../../assets/attackbox/icons/web-browser.svg'
 import close from '../../../assets/attackbox/icons/window-close-symbolic.svg'
 import imageViewer from '../../../assets/attackbox/image-viewer.svg'
 import science from '../../../assets/attackbox/science.svg'
@@ -51,7 +51,7 @@ export const Icons = {
   science,
   imageViewer,
   cyberchef,
-  browser,
+  firefox,
   folder,
   desktop,
   documents,

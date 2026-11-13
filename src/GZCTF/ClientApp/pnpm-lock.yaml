@@ -62,6 +62,9 @@ importers:
       '@microsoft/signalr':
         specifier: ^10.0.11
         version: 10.0.11
+      '@novnc/novnc':
+        specifier: 1.7.0
+        version: 1.7.0
       '@shikijs/colorized-brackets':
         specifier: ^4.5.0
         version: 4.5.0
@@ -802,6 +805,9 @@ packages:
   '@napi-rs/canvas@1.0.13':
     resolution: {integrity: sha512-b87ugZpQ5ViwqVBkjervxpwa0GmJPsKHLBNoZN6GpjWeHzTbDUGryriq+2DYW2XbB+xCqSIINQysC0/I87nPbw==}
     engines: {node: '>= 10'}
+
+  '@novnc/novnc@1.7.0':
+    resolution: {integrity: sha512-ucEJOx4T2avIRCleodk7YobZj5O2Ga2AeLfQ69A/yjG9HHba2+PDgwSkN3FttrmG+70ZGx21sElNFouK13RzyA==}
 
   '@oxc-project/types@0.155.0':
     resolution: {integrity: sha512-SeE8JPwW1xs1tHeNycjUtUBdhorRa8o4jlvjwk49R7/Z291i+4DQa7JJIgOm/TaYQZx+QrPQbVJ/9c8dMIZN8Q==}
@@ -3324,6 +3330,8 @@ snapshots:
       '@napi-rs/canvas-win32-arm64-msvc': 1.0.13
       '@napi-rs/canvas-win32-x64-msvc': 1.0.13
     optional: true
+
+  '@novnc/novnc@1.7.0': {}
 
   '@oxc-project/types@0.155.0': {}
 
