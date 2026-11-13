@@ -12,25 +12,19 @@ alias grep='grep --color=auto'
 alias ip='ip -color=auto'
 export EDITOR=nano
 
-# the prompt, in the club's blue and gold: the box's address, then udsmcyberrange@<player>
-__cr_ip=$(hostname -I 2>/dev/null | awk '{print $1}')
-__cr_player=$(printf '%s' "${CR_PLAYER:-player}" | tr -cd 'A-Za-z0-9_.-' | cut -c1-32)
-__b='\[\e[38;2;96;150;240m\]'
-__g='\[\e[38;2;245;184;46m\]'
-__w='\[\e[97m\]'
-__c='\[\e[38;2;125;211;252m\]'
-PS1="${__b}┌─[${__g}attack-box${__b}]─[${__w}${__cr_ip:-no network}${__b}]─[${__g}udsmcyberrange${__w}@${__c}${__cr_player:-player}${__b}]─[${__w}\w${__b}]\n${__b}└──╼ ${__g}\\$\[\e[0m\] "
-unset __b __g __w __c
+# whose box this is: written down when the box starts, so that it survives sudo and su
+__cr_player=$(cat /etc/cyberrange/player 2> /dev/null || printf '%s' "${CR_PLAYER:-player}")
+__cr_player=$(printf '%s' "$__cr_player" | tr -cd 'A-Za-z0-9_.-' | cut -c1-32)
 
-# a few words when a terminal opens; the first terminal of a box shows the welcome first
-if shopt -q login_shell; then
-  mkdir /run/cyberrange-welcomed 2> /dev/null && /usr/local/share/cyberrange/welcome
-  printf '\n  \e[1;38;2;245;184;46mUDSM CyberRange\e[0m \e[38;2;96;150;240m·\e[0m attack box\n\n'
-  if getent hosts target > /dev/null 2>&1; then
-    printf '  Your lab machine answers as \e[1mtarget\e[0m. Type \e[1mtarget\e[0m to see its open ports.\n'
-  else
-    printf '  No lab machine is attached yet. Start one on the lab page and it answers as \e[1mtarget\e[0m.\n'
-  fi
-  printf '  Files sent from the Files window land in \e[1m~/uploads\e[0m.\n'
-  printf '  There is no internet here. Type \e[1mtools\e[0m to see what is installed.\n\n'
-fi
+# the prompt, drawn the way Kali draws its own:
+#   ┌──(udsmcyberrange@<player>)-[~]
+#   └─#
+__l='\[\e[38;2;54;182;160m\]'
+__u='\[\e[1;38;2;59;142;234m\]'
+__d='\[\e[1;97m\]'
+__0='\[\e[0m\]'
+PS1="${__l}┌──(${__u}udsmcyberrange@${__cr_player:-player}${__0}${__l})-[${__d}\w${__0}${__l}]\n${__l}└─${__u}"'\$'"${__0} "
+unset __l __u __d __0
+
+# every new terminal opens on the club's welcome
+shopt -q login_shell && /usr/local/share/cyberrange/welcome

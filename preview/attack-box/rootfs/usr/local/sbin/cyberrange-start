@@ -1,0 +1,6 @@
+#!/bin/sh
+# The box's first program: writes down whose box it is, for the prompt (sudo and su drop the
+# environment it came in), then waits until the box is stopped.
+mkdir -p /etc/cyberrange
+printf '%s' "${CR_PLAYER:-player}" > /etc/cyberrange/player
+exec sleep infinity

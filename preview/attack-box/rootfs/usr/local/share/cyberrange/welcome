@@ -1,7 +1,6 @@
 #!/bin/bash
-# The attack box's welcome: the club's art and the box's rules, shown once, in the first
-# terminal opened after the box starts, in the largest size the terminal has room for.
-# ENTER clears it.
+# The attack box's welcome, at the top of every new terminal: the club's art and the box's
+# rules, in the largest size the terminal has room for, then whether a lab machine is here.
 here=/usr/local/share/cyberrange
 cols=$(tput cols 2> /dev/null || echo 100)
 rows=$(tput lines 2> /dev/null || echo 30)
@@ -12,8 +11,13 @@ elif [ "${cols:-100}" -ge 80 ] && [ "${rows:-30}" -ge 19 ]; then
 else
   art=$here/welcome-small.ans
 fi
-player=$(printf '%s' "${CR_PLAYER:-player}" | tr -cd 'A-Za-z0-9_.-' | cut -c1-32)
-clear
+player=$(cat /etc/cyberrange/player 2> /dev/null || printf '%s' "${CR_PLAYER:-player}")
+player=$(printf '%s' "$player" | tr -cd 'A-Za-z0-9_.-' | cut -c1-32)
 sed "s/@PLAYER@/${player:-player}/" "$art"
-read -r -s _
-clear
+
+ip=$(getent hosts target 2> /dev/null | awk '{print $1; exit}')
+if [ -n "$ip" ]; then
+  printf ' \033[38;2;34;197;94m●\033[0m Your lab machine is \033[1mtarget\033[0m (%s). Type \033[1mtarget\033[0m to see its open ports.\n\n' "$ip"
+else
+  printf ' \033[38;2;157;176;204m○ No lab machine yet: start one on its lab page, and it answers here as target.\033[0m\n\n'
+fi
