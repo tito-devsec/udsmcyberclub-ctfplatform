@@ -8,7 +8,7 @@ import { WithRole } from '@Components/WithRole'
 import { useCelebrate } from '@Components/range/Celebrate'
 import { MachineBlock } from '@Components/range/MachineBlock'
 import { ChapterBlock } from '@Components/range/Outline'
-import { Cover, Note, PoweredBy, StripedProgress, Xp } from '@Components/range/Parts'
+import { Cover, Note, PoweredBy, ProgressBar, Xp } from '@Components/range/Parts'
 import { QuestionItem } from '@Components/range/QuestionItem'
 import { RangePage } from '@Components/range/RangePage'
 import { SafeMarkdown } from '@Components/range/SafeMarkdown'
@@ -96,13 +96,18 @@ const SectionReader: FC = () => {
           </Tooltip>
           {section && (
             <Link to={moduleUrl(section.module.slug)} className={classes.readerModule}>
-              <Cover icon={coverIcon(section.module.icon, section.module.category)} seed={section.module.slug} square />
+              <Cover
+                icon={coverIcon(section.module.icon, section.module.category)}
+                seed={section.module.slug}
+                category={section.module.category}
+                square
+              />
               <div style={{ minWidth: 0 }}>
                 <div className={classes.between} style={{ marginBottom: 7 }}>
                   <span className={classes.readerModuleTitle}>{section.module.title}</span>
                   <span className={cx(classes.small, classes.dim)}>{percent}%</span>
                 </div>
-                <StripedProgress value={percent} size="sm" />
+                <ProgressBar value={percent} size="sm" />
               </div>
             </Link>
           )}

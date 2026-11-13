@@ -1,6 +1,6 @@
 // Client for the CyberRange service (services/cyberrange), which the proxy serves under
 // /api/range. It uses the same sign-in as the rest of the platform: the browser's GZCTF cookie.
-import { useCallback } from 'react'
+import { CSSProperties, useCallback } from 'react'
 import useSWR, { SWRConfiguration, useSWRConfig } from 'swr'
 import { UiconName, uicons } from '@Utils/Uicons'
 import { useUser } from '@Hooks/useUser'
@@ -260,6 +260,30 @@ export const rangeApi = {
 export const pathUrl = (path: string) => `/paths/${path}`
 export const moduleUrl = (module: string) => `/modules/${module}`
 export const sectionUrl = (module: string, section: string) => `/modules/${module}/${section}`
+
+// Each category's flat colour and a deeper shade of it, the same as on the club's category logos.
+// The general category takes the club's blue.
+export const CategoryColour: Record<Category, [string, string]> = {
+  general: ['#0864af', '#064579'],
+  web: ['#3b82f6', '#1d4ed8'],
+  crypto: ['#eab308', '#a16207'],
+  forensics: ['#14b8a6', '#0f766e'],
+  osint: ['#8b5cf6', '#6d28d9'],
+  reverse: ['#f97316', '#c2410c'],
+  pwn: ['#ef4444', '#b91c1c'],
+  stego: ['#ec4899', '#be185d'],
+  misc: ['#94a3b8', '#475569'],
+  hardware: ['#22c55e', '#15803d'],
+  ics: ['#84cc16', '#4d7c0f'],
+  ai: ['#0ea5e9', '#0369a1'],
+  web3: ['#d946ef', '#a21caf'],
+}
+
+// The colours of a cover, an emblem or a lab's banner, as the CSS variables --cat and --cat-deep.
+export const categoryStyle = (category?: Category | null): CSSProperties => {
+  const [colour, deep] = CategoryColour[category ?? 'general']
+  return { '--cat': colour, '--cat-deep': deep } as CSSProperties
+}
 
 export const CategoryIcon: Record<Category, UiconName> = {
   general: 'book-open-cover',

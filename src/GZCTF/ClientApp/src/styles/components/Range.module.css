@@ -1,18 +1,25 @@
-/* The look of the CyberRange pages: skill paths, modules and the section reader. */
+/* The look of the CyberRange pages: skill paths, modules and the section reader.
+   Flat Design 2.0: flat colours and simple shapes, with a soft shadow under whatever sits above
+   the page or can be pressed. No glows, textures or gradients. */
 
 /* The colours, for the pages and for anything of theirs that opens outside them (the outline drawer). */
 .theme {
   --r-bg: light-dark(#f1f4f9, #0f1826);
   --r-card: light-dark(#ffffff, #172131);
   --r-raised: light-dark(#edf1f7, #1f2b3d);
-  --r-border: light-dark(#dbe3ee, #243146);
+  --r-border: light-dark(#e1e7f0, #243146);
   --r-text: light-dark(#152033, #ffffff);
   --r-body: light-dark(#3b4a61, #b9c5d8);
   --r-dim: light-dark(#5d6d86, #8f9fb8);
   --r-accent: light-dark(var(--mantine-primary-color-filled), var(--mantine-primary-color-4));
   --r-accent-soft: light-dark(alpha(var(--mantine-primary-color-6), 0.1), alpha(var(--mantine-primary-color-5), 0.16));
-  --r-hatch: light-dark(#c2cddd, #394860);
+  --r-track: light-dark(#e2e8f1, #26344a);
   --r-done: light-dark(var(--mantine-color-teal-7), var(--mantine-color-teal-4));
+  --r-shadow: light-dark(rgba(16, 36, 70, 0.07), rgba(0, 0, 0, 0.26));
+  --r-shadow-strong: light-dark(rgba(16, 36, 70, 0.14), rgba(0, 0, 0, 0.42));
+  /* how high something sits: a card, and a card under the pointer */
+  --r-lift: 0 1px 2px var(--r-shadow), 0 4px 14px var(--r-shadow);
+  --r-lift-hover: 0 2px 4px var(--r-shadow), 0 14px 30px var(--r-shadow-strong);
 }
 
 .surface {
@@ -218,6 +225,11 @@
   white-space: nowrap;
   color: var(--r-dim);
 
+  /* a category's label shows its icon in the category's colour */
+  &[data-cat] svg {
+    color: light-dark(var(--cat-deep), var(--cat)) !important;
+  }
+
   & svg {
     color: var(--r-accent);
   }
@@ -248,6 +260,7 @@
   background: var(--r-card);
   border: 1px solid var(--r-border);
   border-radius: 10px;
+  box-shadow: var(--r-lift);
 }
 
 .inset {
@@ -280,11 +293,9 @@
   color: var(--r-dim);
 }
 
-/* ---- cover art ---- */
+/* ---- cover art: flat shapes in the category's colour (--cat, --cat-deep), and the icon on a white disc ---- */
 
 .cover {
-  --cx: 50%;
-  --cy: 50%;
   position: relative;
   display: grid;
   place-items: center;
@@ -292,82 +303,109 @@
   isolation: isolate;
   aspect-ratio: 16 / 9;
   border-radius: 8px;
-  background: linear-gradient(140deg, #0a111d 0%, #101c31 55%, #0c182b 100%);
-  color: var(--mantine-primary-color-3);
+  background: var(--cat, var(--mantine-primary-color-filled));
 
   &[data-square] {
     aspect-ratio: 1;
   }
-
-  &[data-v='1'] {
-    --cx: 32%;
-    --cy: 42%;
-    background: linear-gradient(200deg, #0a111d 0%, #12203a 60%, #0b1628 100%);
-  }
-
-  &[data-v='2'] {
-    --cx: 68%;
-    --cy: 38%;
-    background: linear-gradient(100deg, #0b1322 0%, #0f1d34 50%, #0a1424 100%);
-  }
-
-  &[data-v='3'] {
-    --cx: 50%;
-    --cy: 66%;
-    background: linear-gradient(20deg, #0a111d 0%, #111f37 55%, #0c1729 100%);
-  }
 }
 
-.coverGrid {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background-image:
-    linear-gradient(rgba(130, 170, 230, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(130, 170, 230, 0.1) 1px, transparent 1px);
-  background-size: 22px 22px;
-  mask-image: radial-gradient(ellipse at var(--cx) var(--cy), #000 8%, transparent 78%);
-}
+/* flat circles behind a cover or a lab's picture: a large one in a deeper shade of its colour and a
+   small one in a lighter shade, placed by data-v (0 to 3) */
+.shapes {
+  isolation: isolate;
 
-.coverGlow {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: radial-gradient(
-    circle at var(--cx) var(--cy),
-    alpha(var(--mantine-primary-color-5), 0.38),
-    transparent 52%
-  );
-}
-
-.coverRing {
-  position: absolute;
-  left: var(--cx);
-  top: var(--cy);
-  z-index: -1;
-  height: 78%;
-  aspect-ratio: 1;
-  border: 1px solid alpha(var(--mantine-primary-color-3), 0.22);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-
+  &::before,
   &::after {
     content: '';
     position: absolute;
-    inset: -16%;
-    border: 1px dashed alpha(var(--mantine-primary-color-3), 0.16);
+    z-index: -1;
+    aspect-ratio: 1;
     border-radius: 50%;
+  }
+
+  &::before {
+    right: -22%;
+    top: -70%;
+    height: 150%;
+    background: color-mix(in srgb, var(--cat-deep, #064579) 55%, var(--cat, #0864af));
+  }
+
+  &::after {
+    left: -8%;
+    bottom: -38%;
+    height: 72%;
+    background: color-mix(in srgb, #fff 18%, var(--cat, #0864af));
+  }
+
+  &[data-v='1'] {
+    &::before {
+      right: auto;
+      left: -30%;
+      top: auto;
+      bottom: -80%;
+    }
+
+    &::after {
+      left: auto;
+      right: -6%;
+      bottom: auto;
+      top: -30%;
+      height: 62%;
+    }
+  }
+
+  &[data-v='2'] {
+    &::before {
+      right: -36%;
+      top: auto;
+      bottom: -72%;
+    }
+
+    &::after {
+      left: 6%;
+      bottom: auto;
+      top: -40%;
+      height: 58%;
+    }
+  }
+
+  &[data-v='3'] {
+    &::before {
+      right: auto;
+      left: -22%;
+      top: -82%;
+    }
+
+    &::after {
+      left: auto;
+      right: -12%;
+      bottom: -42%;
+      height: 78%;
+    }
   }
 }
 
-.coverIcon {
-  position: absolute;
-  left: var(--cx);
-  top: var(--cy);
-  height: 44%;
-  width: auto;
-  transform: translate(-50%, -50%);
-  filter: drop-shadow(0 0 14px alpha(var(--mantine-primary-color-5), 0.65));
+.coverDisc {
+  display: grid;
+  place-items: center;
+  height: 50%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--cat-deep, #064579);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.14),
+    0 8px 18px rgba(0, 0, 0, 0.16);
+
+  & svg {
+    width: auto;
+    height: 48%;
+  }
+
+  .cover[data-square] & {
+    height: 62%;
+  }
 }
 
 .badge {
@@ -397,11 +435,10 @@
   height: 8px;
   overflow: hidden;
   border-radius: 99px;
-  background-image: repeating-linear-gradient(115deg, var(--r-hatch) 0 2px, transparent 2px 7px);
+  background: var(--r-track);
 
   &[data-size='lg'] {
-    height: 16px;
-    background-image: repeating-linear-gradient(115deg, var(--r-hatch) 0 3px, transparent 3px 10px);
+    height: 14px;
   }
 
   &[data-size='sm'] {
@@ -414,6 +451,11 @@
   border-radius: 99px;
   background: var(--r-accent);
   transition: width 0.4s ease;
+
+  /* a category's progress, in the category's colour */
+  .progress[data-cat] & {
+    background: var(--cat);
+  }
 }
 
 .progressRow {
@@ -509,13 +551,14 @@
   background: var(--r-card);
   border: 1px solid var(--r-border);
   border-radius: 10px;
+  box-shadow: var(--r-lift);
   transition:
     transform 0.15s ease,
-    border-color 0.15s ease;
+    box-shadow 0.15s ease;
 
   &:hover {
-    border-color: var(--r-accent);
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    box-shadow: var(--r-lift-hover);
   }
 }
 
@@ -570,10 +613,14 @@
   background: var(--r-card);
   border: 1px solid var(--r-border);
   border-radius: 10px;
-  transition: border-color 0.15s ease;
+  box-shadow: var(--r-lift);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 
   &:hover {
-    border-color: var(--r-accent);
+    transform: translateY(-3px);
+    box-shadow: var(--r-lift-hover);
   }
 
   @mixin smaller-than $mantine-breakpoint-xs {
@@ -694,16 +741,17 @@
   border-radius: 10px 10px 0 0;
   background: light-dark(#eaf2fb, #13233b);
 
+  /* one flat circle in a deeper tint */
   &::before {
     content: '';
     position: absolute;
-    inset: 0;
+    top: -70px;
+    right: -50px;
     z-index: -1;
-    background-image:
-      linear-gradient(alpha(var(--mantine-primary-color-5), 0.12) 1px, transparent 1px),
-      linear-gradient(90deg, alpha(var(--mantine-primary-color-5), 0.12) 1px, transparent 1px);
-    background-size: 20px 20px;
-    mask-image: radial-gradient(ellipse at 20% 50%, #000 5%, transparent 75%);
+    width: 200px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: light-dark(#dce8f7, #182c48);
   }
 }
 
@@ -830,6 +878,7 @@
   background: var(--r-card);
   border: 1px solid var(--r-border);
   border-radius: 10px;
+  box-shadow: var(--r-lift);
 
   & + & {
     margin-top: 14px;
@@ -1165,6 +1214,7 @@
   background: var(--r-card);
   border: 1px solid var(--r-border);
   border-radius: 10px;
+  box-shadow: var(--r-lift);
 
   & + & {
     margin-top: 12px;

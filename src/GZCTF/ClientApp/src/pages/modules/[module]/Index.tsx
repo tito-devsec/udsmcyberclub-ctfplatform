@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { Uicon } from '@Components/Uicon'
 import { ChapterBlock } from '@Components/range/Outline'
-import { CategoryLabel, Cover, Label, Note, PoweredBy, StripedProgress, Xp } from '@Components/range/Parts'
+import { CategoryLabel, Cover, Label, Note, PoweredBy, ProgressBar, Xp } from '@Components/range/Parts'
 import { RangePage } from '@Components/range/RangePage'
 import { SafeMarkdown } from '@Components/range/SafeMarkdown'
 import {
@@ -102,7 +102,7 @@ const ModulePage: FC = () => {
                       <strong>{t('range.module.progress')}</strong>
                       <strong style={{ color: 'var(--r-accent)' }}>{t('range.progress.completed', { percent })}</strong>
                     </div>
-                    <StripedProgress value={percent} size="lg" />
+                    <ProgressBar value={percent} size="lg" />
                   </div>
 
                   <div style={{ marginTop: 6 }}>{action}</div>
@@ -110,6 +110,7 @@ const ModulePage: FC = () => {
                 <Cover
                   icon={coverIcon(module.icon, module.category)}
                   seed={module.slug}
+                  category={module.category}
                   className={classes.heroCover}
                 />
               </section>

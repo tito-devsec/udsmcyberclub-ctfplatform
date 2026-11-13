@@ -13,7 +13,7 @@ export const ModuleCard: FC<{ module: ModuleSummary }> = ({ module }) => {
   return (
     <Link to={moduleUrl(module.slug)} className={classes.moduleCard}>
       <div className={classes.moduleCardCover}>
-        <Cover icon={coverIcon(module.icon, module.category)} seed={module.slug}>
+        <Cover icon={coverIcon(module.icon, module.category)} seed={module.slug} category={module.category}>
           {module.status === 'started' && <span className={classes.badge}>{t('range.status.started')}</span>}
         </Cover>
       </div>
@@ -47,7 +47,7 @@ export const PathCard: FC<{ path: PathSummary }> = ({ path }) => {
 
   return (
     <Link to={pathUrl(path.slug)} className={classes.pathCard}>
-      <Cover icon={coverIcon(path.icon)} seed={path.slug} style={{ aspectRatio: '4 / 3' }}>
+      <Cover icon={coverIcon(path.icon)} seed={path.slug} category={path.category} style={{ aspectRatio: '4 / 3' }}>
         {path.enrolled && <span className={classes.badge}>{t('range.path.enrolled')}</span>}
       </Cover>
       <div className={classes.pathCardBody}>
@@ -68,7 +68,7 @@ export const PathCard: FC<{ path: PathSummary }> = ({ path }) => {
 // One module of a path, as a row with its progress.
 export const ModuleRow: FC<{ module: ModuleSummary }> = ({ module }) => (
   <Link to={moduleUrl(module.slug)} className={classes.row}>
-    <Cover icon={coverIcon(module.icon, module.category)} seed={module.slug} square />
+    <Cover icon={coverIcon(module.icon, module.category)} seed={module.slug} category={module.category} square />
     <div style={{ minWidth: 0 }}>
       <CategoryLabel category={module.category} />
       <div className={classes.rowTitle}>{module.title}</div>

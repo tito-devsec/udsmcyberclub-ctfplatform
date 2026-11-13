@@ -1,16 +1,16 @@
 import { Menu, Skeleton } from '@mantine/core'
-import { FC, useId } from 'react'
+import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { Uicon } from '@Components/Uicon'
-import { StripedProgress, Xp } from '@Components/range/Parts'
+import { ProgressBar, Xp } from '@Components/range/Parts'
 import { profileUrl } from '@Utils/Community'
 import { rangeApi, RankIcons, SKILL_LEVELS, SkillLevel, SkillLevelIcon, useMe } from '@Utils/Range'
 import { showErrorMsg } from '@Utils/Shared'
 import { uicons, UICON_SIZE } from '@Utils/Uicons'
 import classes from '@Styles/Range.module.css'
 
-// the two colours of each rank's emblem, from Script Kiddie to Omniscient
+// the two flat tones of each rank's emblem, from Script Kiddie to Omniscient: its rim and its face
 const RANK_COLOURS: [string, string][] = [
   ['#8b9ab3', '#4a576d'],
   ['#5fb0f5', '#0864af'],
@@ -23,23 +23,16 @@ const RANK_COLOURS: [string, string][] = [
 const HEXAGON = 'M48 3 87 25.5v45L48 93 9 70.5v-45z'
 const INNER_HEXAGON = 'M48 12 79 30v36L48 84 17 66V30z'
 
-// A rank's emblem: its icon on a hexagon in the rank's colours.
+// A rank's emblem: its icon on a hexagon in the rank's two tones.
 export const RankEmblem: FC<{ rank: number; size?: number; title?: string }> = ({ rank, size = 92, title }) => {
-  const id = useId()
   const index = Math.min(Math.max(rank, 0), RANK_COLOURS.length - 1)
-  const [from, to] = RANK_COLOURS[index]
+  const [rim, face] = RANK_COLOURS[index]
   const glyph = 34
 
   return (
     <svg viewBox="0 0 96 96" width={size} height={size} role="img" aria-label={title} style={{ flexShrink: 0 }}>
-      <defs>
-        <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor={from} />
-          <stop offset="1" stopColor={to} />
-        </linearGradient>
-      </defs>
-      <path d={HEXAGON} fill={`url(#${id})`} />
-      <path d={INNER_HEXAGON} fill="rgba(7, 13, 24, 0.55)" stroke="rgba(255, 255, 255, 0.28)" strokeWidth="1" />
+      <path d={HEXAGON} fill={rim} />
+      <path d={INNER_HEXAGON} fill={face} />
       <g transform={`translate(${48 - glyph / 2} ${48 - glyph / 2}) scale(${glyph / UICON_SIZE})`} fill="#fff">
         <path d={uicons[RankIcons[index]]} />
       </g>
@@ -92,7 +85,7 @@ export const RankCard: FC = () => {
               {inLevel}/{levelSize}
             </span>
           </div>
-          <StripedProgress value={Math.round((inLevel / levelSize) * 100)} size="sm" />
+          <ProgressBar value={Math.round((inLevel / levelSize) * 100)} size="sm" />
         </div>
       </div>
 

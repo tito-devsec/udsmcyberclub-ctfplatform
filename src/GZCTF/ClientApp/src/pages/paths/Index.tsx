@@ -38,7 +38,7 @@ const EnrolledPath: FC<{ slug: string }> = ({ slug }) => {
   return (
     <div className={classes.card} style={{ padding: 20 }}>
       <Link to={pathUrl(path.slug)} className={cx(classes.row, classes.rowLarge)}>
-        <Cover icon={coverIcon(path.icon)} seed={path.slug} square />
+        <Cover icon={coverIcon(path.icon)} seed={path.slug} category={path.category} square />
         <div style={{ display: 'grid', gap: 6, minWidth: 0 }}>
           <div className={classes.labels}>
             <span className={classes.badge} data-inline>
@@ -121,7 +121,12 @@ const PickPath: FC<{ paths: PathSummary[]; level: SkillLevel | null }> = ({ path
         </p>
       </div>
       <div className={cx(classes.inset, classes.pathCard)} style={{ background: 'var(--r-bg)' }}>
-        <Cover icon={coverIcon(suggested.icon)} seed={suggested.slug} style={{ aspectRatio: '4 / 3' }} />
+        <Cover
+          icon={coverIcon(suggested.icon)}
+          seed={suggested.slug}
+          category={suggested.category}
+          style={{ aspectRatio: '4 / 3' }}
+        />
         <div className={classes.pathCardBody}>
           <div className={classes.labels}>
             <PathLabel />

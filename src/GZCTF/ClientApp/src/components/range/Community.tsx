@@ -1,33 +1,16 @@
 import { Tooltip } from '@mantine/core'
 import cx from 'clsx'
-import { CSSProperties, FC, useId } from 'react'
+import { CSSProperties, FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { Uicon } from '@Components/Uicon'
-import { Label, Xp } from '@Components/range/Parts'
+import { Label, variantOf, Xp } from '@Components/range/Parts'
 import { BadgeArt } from '@Utils/Artwork'
 import { labUrl, LabSummary, profileUrl } from '@Utils/Community'
-import { Category, coverIcon, DifficultyIcon } from '@Utils/Range'
+import { categoryStyle, coverIcon, DifficultyIcon } from '@Utils/Range'
 import { UICON_SIZE, UiconName, uicons } from '@Utils/Uicons'
 import classes from '@Styles/Community.module.css'
 import range from '@Styles/Range.module.css'
-
-// the tint of a lab's picture, by category
-export const categoryTone: Record<Category, number> = {
-  general: 0,
-  web: 0,
-  crypto: 3,
-  forensics: 2,
-  osint: 5,
-  reverse: 1,
-  pwn: 4,
-  stego: 2,
-  misc: 1,
-  hardware: 3,
-  ics: 4,
-  ai: 5,
-  web3: 1,
-}
 
 // A lab in the catalogue: its emblem, what it is worth, how hard it is and who solved it.
 export const LabCard: FC<{ lab: LabSummary }> = ({ lab }) => {
@@ -35,7 +18,11 @@ export const LabCard: FC<{ lab: LabSummary }> = ({ lab }) => {
 
   return (
     <Link to={labUrl(lab.slug)} className={classes.labCard}>
-      <div className={classes.labCover} data-tone={categoryTone[lab.category]}>
+      <div
+        className={cx(classes.labCover, range.shapes)}
+        data-v={variantOf(lab.slug)}
+        style={categoryStyle(lab.category)}
+      >
         <span className={classes.emblem}>
           <Uicon name={coverIcon(lab.icon, lab.category)} />
         </span>
@@ -75,32 +62,19 @@ export const LabCard: FC<{ lab: LabSummary }> = ({ lab }) => {
 
 const HEXAGON = 'M48 3 87 25.5v45L48 93 9 70.5v-45z'
 
-// A medal: an icon on a hexagon in two colours, for a badge the club has no artwork for yet.
+// A medal: an icon on a hexagon in two flat tones, for a badge the club has no artwork for yet.
 export const Medal: FC<{ icon: UiconName; colours: [string, string]; size?: number; title?: string }> = ({
   icon,
   colours,
   size = 64,
   title,
 }) => {
-  const id = useId()
   const glyph = 40
 
   return (
     <svg viewBox="0 0 96 96" width={size} height={size} role="img" aria-label={title} style={{ flexShrink: 0 }}>
-      <defs>
-        <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor={colours[0]} />
-          <stop offset="1" stopColor={colours[1]} />
-        </linearGradient>
-      </defs>
-      <path d={HEXAGON} fill={`url(#${id})`} />
-      <path
-        d={HEXAGON}
-        fill="none"
-        stroke="rgba(255, 255, 255, 0.35)"
-        strokeWidth="2"
-        transform="translate(7.2 7.2) scale(0.85)"
-      />
+      <path d={HEXAGON} fill={colours[0]} />
+      <path d={HEXAGON} fill={colours[1]} transform="translate(7.2 7.2) scale(0.85)" />
       <g transform={`translate(${48 - glyph / 2} ${48 - glyph / 2}) scale(${glyph / UICON_SIZE})`} fill="#fff">
         <path d={uicons[icon]} />
       </g>
@@ -120,17 +94,16 @@ export const BadgeMedal: FC<{ id: string; size?: number }> = ({ id, size = 64 })
   )
 }
 
-// the two colours of the gold, silver and bronze medals
+// the two flat tones of the gold, silver and bronze medals
 const METALS: Record<number, [string, string]> = {
-  1: ['#ffe08a', '#e3a622'],
-  2: ['#f1f4f8', '#9ba7b9'],
-  3: ['#f3c29a', '#b9692f'],
+  1: ['#f5c542', '#d99a1e'],
+  2: ['#d5dce6', '#a3afc0'],
+  3: ['#e2a26e', '#b9692f'],
 }
 
 // The medal of one of the top three: a disc with their place, hanging from a ribbon.
 export const PlaceMedal: FC<{ place: number; size?: number }> = ({ place, size = 48 }) => {
-  const id = useId()
-  const [from, to] = METALS[place] ?? METALS[3]
+  const [face, rim] = METALS[place] ?? METALS[3]
 
   return (
     <svg
@@ -141,16 +114,10 @@ export const PlaceMedal: FC<{ place: number; size?: number }> = ({ place, size =
       aria-label={`#${place}`}
       style={{ flexShrink: 0 }}
     >
-      <defs>
-        <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor={from} />
-          <stop offset="1" stopColor={to} />
-        </linearGradient>
-      </defs>
-      <path d="M12 0h15l11 30H23z" fill="#2b7cd2" />
+      <path d="M12 0h15l11 30H23z" fill="#3b82f6" />
       <path d="M52 0H37L26 30h15z" fill="#0864af" />
-      <circle cx="32" cy="56" r="26" fill={`url(#${id})`} />
-      <circle cx="32" cy="56" r="20" fill="none" stroke="rgba(255, 255, 255, 0.6)" strokeWidth="2" />
+      <circle cx="32" cy="56" r="26" fill={rim} />
+      <circle cx="32" cy="56" r="20" fill={face} />
       <text x="32" y="65" textAnchor="middle" fontSize="26" fontWeight="800" fill="#1c2434">
         {place}
       </text>
@@ -179,7 +146,7 @@ export const PlayerAvatar: FC<PlayerAvatarProps> = ({ name, avatar, className, s
         fontWeight: 800,
         fontSize: '1.1em',
         color: '#fff',
-        background: 'linear-gradient(135deg, #2b7cd2, #0864af)',
+        background: '#0864af',
         ...style,
       }}
     >

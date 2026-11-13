@@ -28,6 +28,7 @@
   border-radius: 10px;
   border: 1px solid var(--r-border);
   background: light-dark(#eaf2fb, #13233b);
+  box-shadow: var(--r-lift);
 }
 
 .sideTitle {
@@ -83,6 +84,11 @@
   &[data-empty]:not([data-active]) {
     opacity: 0.55;
   }
+
+  /* each category's icon in its own colour */
+  &[data-cat] svg {
+    color: light-dark(var(--cat-deep), var(--cat));
+  }
 }
 
 .categoryCount {
@@ -106,62 +112,43 @@
   background: var(--r-card);
   border: 1px solid var(--r-border);
   border-radius: 10px;
+  box-shadow: var(--r-lift);
   transition:
     transform 0.15s ease,
-    border-color 0.15s ease;
+    box-shadow 0.15s ease;
 
   &:hover {
-    border-color: var(--r-accent);
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    box-shadow: var(--r-lift-hover);
   }
 }
 
-/* a lab's picture: its emblem on a soft glow, a different tint for each category */
+/* a lab's picture: its emblem over flat circles (Range's .shapes) in its category's colour */
 .labCover {
-  --tint: var(--mantine-primary-color-5);
   position: relative;
   display: grid;
   place-items: center;
   height: 150px;
   margin: 14px 14px 0;
   overflow: hidden;
+  isolation: isolate;
   border-radius: 8px;
-  background:
-    radial-gradient(circle at 30% 20%, alpha(var(--tint), 0.55), transparent 55%),
-    radial-gradient(circle at 80% 90%, alpha(var(--tint), 0.35), transparent 50%), #0b1422;
-
-  &[data-tone='1'] {
-    --tint: #23b5a6;
-  }
-
-  &[data-tone='2'] {
-    --tint: #8a63e6;
-  }
-
-  &[data-tone='3'] {
-    --tint: #e0902f;
-  }
-
-  &[data-tone='4'] {
-    --tint: #d9486e;
-  }
-
-  &[data-tone='5'] {
-    --tint: #3fae62;
-  }
+  background: var(--cat, var(--mantine-primary-color-filled));
 }
 
+/* a lab's icon on a white disc, in its category's deeper shade */
 .emblem {
   display: grid;
   place-items: center;
   width: 84px;
   height: 84px;
   font-size: 2.2rem;
-  color: #fff;
+  color: var(--cat-deep, var(--mantine-primary-color-filled));
   border-radius: 50%;
-  background: rgba(8, 14, 26, 0.72);
-  border: 3px solid var(--tint, var(--mantine-primary-color-5));
-  box-shadow: 0 0 28px alpha(var(--tint, var(--mantine-primary-color-5)), 0.55);
+  background: #fff;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.14),
+    0 8px 18px rgba(0, 0, 0, 0.16);
 
   &[data-size='lg'] {
     width: 112px;
@@ -200,33 +187,35 @@
 /* ---- labs: one lab ---- */
 
 .labHero {
-  --tint: var(--mantine-primary-color-5);
   position: relative;
   overflow: hidden;
+  isolation: isolate;
   padding: 28px 0 32px;
-  background:
-    radial-gradient(ellipse at 25% 0%, alpha(var(--tint), 0.5), transparent 60%),
-    radial-gradient(ellipse at 85% 100%, alpha(var(--tint), 0.28), transparent 55%), light-dark(#101c30, #0b1422);
+  background: var(--cat-deep, #064579);
   color: #fff;
 
-  &[data-tone='1'] {
-    --tint: #23b5a6;
+  /* two flat circles in the category's own colour */
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--cat, #0864af) 60%, var(--cat-deep, #064579));
   }
 
-  &[data-tone='2'] {
-    --tint: #8a63e6;
+  &::before {
+    top: -55%;
+    right: -4%;
+    height: 190%;
   }
 
-  &[data-tone='3'] {
-    --tint: #e0902f;
-  }
-
-  &[data-tone='4'] {
-    --tint: #d9486e;
-  }
-
-  &[data-tone='5'] {
-    --tint: #3fae62;
+  &::after {
+    bottom: -75%;
+    left: 34%;
+    height: 120%;
+    background: color-mix(in srgb, var(--cat, #0864af) 30%, var(--cat-deep, #064579));
   }
 }
 
@@ -240,10 +229,10 @@
   color: #fff;
   text-decoration: none;
   border-radius: 8px;
-  background: rgba(8, 14, 26, 0.55);
+  background: rgba(255, 255, 255, 0.16);
 
   &:hover {
-    background: rgba(8, 14, 26, 0.8);
+    background: rgba(255, 255, 255, 0.26);
   }
 }
 
@@ -357,6 +346,7 @@
   background: var(--r-card);
   border: 1px solid var(--r-border);
   border-radius: 10px;
+  box-shadow: var(--r-lift);
 }
 
 .panelTitle {
@@ -398,6 +388,7 @@
   background: var(--r-card);
   border: 1px solid var(--r-border);
   border-radius: 12px;
+  box-shadow: var(--r-lift);
 }
 
 .avatarBox {
@@ -655,6 +646,7 @@
   background: var(--r-card);
   border: 1px solid var(--r-border);
   border-radius: 10px;
+  box-shadow: var(--r-lift);
 
   &[data-locked] {
     & svg,
@@ -699,18 +691,22 @@
   background: var(--r-card);
   border: 1px solid var(--r-border);
   border-radius: 10px;
-  transition: border-color 0.15s ease;
+  box-shadow: var(--r-lift);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 
   &::before {
     content: '';
     position: absolute;
     inset: 0 0 auto 0;
     height: 5px;
-    background: linear-gradient(90deg, var(--mantine-primary-color-filled), var(--mantine-primary-color-3));
+    background: var(--mantine-primary-color-filled);
   }
 
   &:hover {
-    border-color: var(--r-accent);
+    transform: translateY(-3px);
+    box-shadow: var(--r-lift-hover);
   }
 }
 
@@ -745,6 +741,10 @@
   border: 1px solid var(--r-border);
   border-top: 4px solid var(--metal);
   border-radius: 14px;
+  box-shadow: var(--r-lift);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 
   &[data-place='1'] {
     --metal: #f2c14e;
@@ -759,11 +759,12 @@
   }
 
   &[data-me] {
-    background: linear-gradient(var(--r-accent-soft), var(--r-accent-soft)), var(--r-card);
+    background: color-mix(in srgb, var(--r-accent) 10%, var(--r-card));
   }
 
   &:hover {
-    border-color: var(--metal);
+    transform: translateY(-3px);
+    box-shadow: var(--r-lift-hover);
   }
 }
 
@@ -805,6 +806,7 @@
   background: var(--r-card);
   border: 1px solid var(--r-border);
   border-radius: 12px;
+  box-shadow: var(--r-lift);
 }
 
 .table {
@@ -931,7 +933,9 @@
   color: #152033;
   background: #fff;
   border-radius: 6px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.12),
+    0 16px 40px rgba(0, 0, 0, 0.24);
   page: certificate;
 }
 
@@ -940,9 +944,7 @@
   flex-direction: column;
   min-width: 0;
   padding: 4.2cqw 4.6cqw 3cqw 5cqw;
-  background:
-    radial-gradient(circle at 0% 0%, rgba(8, 100, 175, 0.1), transparent 42%),
-    radial-gradient(circle at 70% 100%, rgba(8, 100, 175, 0.08), transparent 46%), #f6f9fd;
+  background: #f6f9fd;
 }
 
 .certTop {
@@ -1052,19 +1054,41 @@
   color: #5d6d86;
 }
 
-/* the blue side: the university, the seal and the club */
+/* the blue side: the university, the seal and the club, on flat navy with two flat circles (the
+   sheet cuts them off at its edges; the seal reaches out over the paper, so this side cannot) */
 .certSide {
   position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
   padding: 4.2cqw 2cqw 3.4cqw;
   color: #fff;
-  background:
-    radial-gradient(circle at 80% 12%, rgba(95, 176, 245, 0.35), transparent 42%),
-    radial-gradient(circle at 10% 95%, rgba(95, 176, 245, 0.22), transparent 46%),
-    linear-gradient(165deg, #0b2a4a 0%, #0a3d73 48%, #0864af 100%);
+  background: #0a3d73;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    aspect-ratio: 1;
+    border-radius: 50%;
+  }
+
+  &::before {
+    top: -9cqw;
+    right: -11cqw;
+    width: 26cqw;
+    background: #0b4a8a;
+  }
+
+  &::after {
+    right: -7cqw;
+    bottom: -12cqw;
+    width: 24cqw;
+    background: #0864af;
+  }
 }
 
 .certUdsm {

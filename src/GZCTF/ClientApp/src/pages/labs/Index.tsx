@@ -5,11 +5,11 @@ import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router'
 import { Uicon } from '@Components/Uicon'
 import { LabCard } from '@Components/range/Community'
-import { Note, PoweredBy, StripedProgress } from '@Components/range/Parts'
+import { Note, PoweredBy, ProgressBar } from '@Components/range/Parts'
 import { RangePage } from '@Components/range/RangePage'
 import { RankEmblem } from '@Components/range/RankCard'
 import { LAB_CATEGORIES, profileUrl, useLabs } from '@Utils/Community'
-import { Category, CategoryIcon, DIFFICULTIES, ModuleStatus, useMe } from '@Utils/Range'
+import { Category, CategoryIcon, categoryStyle, DIFFICULTIES, ModuleStatus, useMe } from '@Utils/Range'
 import { usePageTitle } from '@Hooks/usePageTitle'
 import classes from '@Styles/Community.module.css'
 import range from '@Styles/Range.module.css'
@@ -74,7 +74,7 @@ const Labs: FC = () => {
                   <div className={cx(range.small, range.dim, range.mono)} style={{ marginBottom: 6 }}>
                     {t('range.rank.level_short')} {me.level}
                   </div>
-                  <StripedProgress
+                  <ProgressBar
                     value={Math.round(((me.xp - me.levelStart) / (me.nextLevel - me.levelStart)) * 100)}
                     size="sm"
                   />
@@ -102,6 +102,8 @@ const Labs: FC = () => {
                     className={classes.categoryItem}
                     data-active={category === c || undefined}
                     data-empty={!counts.get(c) || undefined}
+                    data-cat={c}
+                    style={categoryStyle(c)}
                     onClick={() => pick(c)}
                   >
                     <Uicon name={CategoryIcon[c]} />

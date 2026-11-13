@@ -4,7 +4,7 @@ import { FC, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { ModuleRow } from '@Components/range/Cards'
-import { Cover, Facts, Note, PathLabel, PoweredBy, StripedProgress } from '@Components/range/Parts'
+import { Cover, Facts, Note, PathLabel, PoweredBy, ProgressBar } from '@Components/range/Parts'
 import { RangePage } from '@Components/range/RangePage'
 import { SafeMarkdown } from '@Components/range/SafeMarkdown'
 import { coverIcon, pathUrl, percentOf, rangeApi, sectionUrl, usePath, useRangeRefresh } from '@Utils/Range'
@@ -71,7 +71,7 @@ const SkillPath: FC = () => {
                           {t('range.progress.completed', { percent })}
                         </strong>
                       </div>
-                      <StripedProgress value={percent} size="lg" />
+                      <ProgressBar value={percent} size="lg" />
                     </div>
                   )}
 
@@ -119,7 +119,12 @@ const SkillPath: FC = () => {
                     )}
                   </div>
                 </div>
-                <Cover icon={coverIcon(path.icon)} seed={path.slug} className={classes.heroCover} />
+                <Cover
+                  icon={coverIcon(path.icon)}
+                  seed={path.slug}
+                  category={path.category}
+                  className={classes.heroCover}
+                />
               </section>
 
               <section>

@@ -103,6 +103,7 @@
   background: var(--r-card);
   border: 1px solid var(--r-border);
   border-radius: 10px;
+  box-shadow: var(--r-lift);
 }
 
 .panelHead {
@@ -190,6 +191,7 @@
   background: var(--r-card);
   border: 1px solid var(--r-border);
   border-radius: 10px;
+  box-shadow: var(--r-lift);
 }
 
 .outlineItem {

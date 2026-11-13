@@ -6,8 +6,8 @@ import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { Uicon } from '@Components/Uicon'
 import { ModuleCard, PathCard } from '@Components/range/Cards'
-import { BadgeMedal, categoryTone, PlayerAvatar, VerifiedTick } from '@Components/range/Community'
-import { Label, Note, PoweredBy, StripedProgress, Xp } from '@Components/range/Parts'
+import { BadgeMedal, PlayerAvatar, VerifiedTick } from '@Components/range/Community'
+import { Label, Note, PoweredBy, ProgressBar, variantOf, Xp } from '@Components/range/Parts'
 import { RangePage } from '@Components/range/RangePage'
 import { RankEmblem, RankTitle } from '@Components/range/RankCard'
 import {
@@ -26,7 +26,7 @@ import {
   shortDate,
   useProfile,
 } from '@Utils/Community'
-import { coverIcon, percentOf, useRangeRefresh } from '@Utils/Range'
+import { categoryStyle, coverIcon, percentOf, useRangeRefresh } from '@Utils/Range'
 import { showErrorMsg } from '@Utils/Shared'
 import { usePageTitle } from '@Hooks/usePageTitle'
 import { useUser } from '@Hooks/useUser'
@@ -395,7 +395,7 @@ const ProfilePage: FC = () => {
                           {profile.xp - profile.levelStart}/{profile.nextLevel - profile.levelStart}
                         </span>
                       </div>
-                      <StripedProgress
+                      <ProgressBar
                         value={percentOf(profile.xp - profile.levelStart, profile.nextLevel - profile.levelStart)}
                         size="sm"
                       />
@@ -422,10 +422,7 @@ const ProfilePage: FC = () => {
                       {profile.streak.weekXp}/{profile.streak.goal}
                     </span>
                   </div>
-                  <StripedProgress
-                    value={Math.min(100, percentOf(profile.streak.weekXp, profile.streak.goal))}
-                    size="sm"
-                  />
+                  <ProgressBar value={Math.min(100, percentOf(profile.streak.weekXp, profile.streak.goal))} size="sm" />
                   <div className={cx(range.small, range.dim)} style={{ marginTop: 14 }}>
                     {t('range.streak.best', { count: profile.streak.best })}
                   </div>
@@ -436,7 +433,7 @@ const ProfilePage: FC = () => {
                   {profile.categories.map((item) => (
                     <div key={item.category} className={classes.catRow}>
                       <span>{t(`range.category.${item.category}`)}</span>
-                      <StripedProgress value={percentOf(item.xp, item.total)} size="sm" />
+                      <ProgressBar value={percentOf(item.xp, item.total)} size="sm" category={item.category} />
                       <span className={cx(range.mono, range.dim)} style={{ textAlign: 'right' }}>
                         {percentOf(item.xp, item.total)}%
                       </span>
@@ -549,9 +546,9 @@ const ProfilePage: FC = () => {
                       {profile.labs.map((lab) => (
                         <Link key={lab.slug} to={labUrl(lab.slug)} className={classes.labCard}>
                           <div
-                            className={classes.labCover}
-                            data-tone={categoryTone[lab.category]}
-                            style={{ height: 110 }}
+                            className={cx(classes.labCover, range.shapes)}
+                            data-v={variantOf(lab.slug)}
+                            style={{ ...categoryStyle(lab.category), height: 110 }}
                           >
                             <span className={classes.emblem} style={{ width: 64, height: 64, fontSize: '1.6rem' }}>
                               <Uicon name={coverIcon(lab.icon, lab.category)} />

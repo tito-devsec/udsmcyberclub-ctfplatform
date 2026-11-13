@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { Uicon } from '@Components/Uicon'
 import { useCelebrate } from '@Components/range/Celebrate'
-import { categoryTone, PlayerLink } from '@Components/range/Community'
+import { PlayerLink } from '@Components/range/Community'
 import { MachineBlock } from '@Components/range/MachineBlock'
-import { Note, PoweredBy, StripedProgress, Xp } from '@Components/range/Parts'
+import { Note, PoweredBy, ProgressBar, Xp } from '@Components/range/Parts'
 import { QuestionItem } from '@Components/range/QuestionItem'
 import { RangePage } from '@Components/range/RangePage'
 import { SafeMarkdown } from '@Components/range/SafeMarkdown'
@@ -23,6 +23,7 @@ import {
   useMachine,
   useMe,
   useRangeRefresh,
+  categoryStyle,
 } from '@Utils/Range'
 import { usePageTitle } from '@Hooks/usePageTitle'
 import classes from '@Styles/Community.module.css'
@@ -74,7 +75,7 @@ const LabPage: FC = () => {
       ) : (
         lab && (
           <>
-            <div className={classes.labHero} data-tone={categoryTone[lab.category]}>
+            <div className={classes.labHero} style={categoryStyle(lab.category)}>
               <div className={range.container}>
                 <Link to="/labs" className={classes.backButton}>
                   <Uicon name="arrow-left" />
@@ -217,7 +218,7 @@ const LabPage: FC = () => {
                           {t('range.lab.solved_of', { solved, total: lab.tasks.length })}
                         </span>
                       </div>
-                      <StripedProgress value={percentOf(solved, lab.tasks.length)} size="sm" />
+                      <ProgressBar value={percentOf(solved, lab.tasks.length)} size="sm" />
                       <div className={range.between} style={{ marginTop: 16 }}>
                         <span className={range.dim}>{t('range.lab.earned')}</span>
                         <span className={classes.inline} style={{ fontWeight: 600 }}>
