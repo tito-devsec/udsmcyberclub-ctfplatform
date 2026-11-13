@@ -121,6 +121,7 @@ tasks:                   # written like a section's questions
 - **With a machine** the catalogue calls it a Machine, without one a Challenge. A flag task needs a machine: its flag is the student's own, made the same way as in a section.
 - **Files** in the lab's `files/` folder are offered for download on its page. Their names use letters, digits, dots, dashes and `_`. Anyone can download them, signed in or not, so never put an answer in a file's name.
 - **Tasks** can be answered in any order. The lab is solved when they all are, and it then counts towards the student's badges.
+- **Any tool may be needed.** Students have the attack box in their browser (Kali with the common tools, CyberChef and a picture viewer, reaching their machine as `target`), but a lab is not limited to it: say in the scenario what else it needs, and students use their own Linux machine for it.
 - **A new machine** goes in `preview/examples/<name>`, with a Dockerfile, and the lab's image is then `club/<name>:latest`. It must serve on the port the lab names, and make whatever holds the flag from `GZCTF_FLAG` when it starts, so the image itself never contains a flag. The folders there are small examples to copy.
 - **A category with no labs** is still listed in the catalogue, marked as coming.
 

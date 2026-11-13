@@ -21,10 +21,11 @@ Runs the platform on your own machine with Docker:
 
    ```bash
    node build-lab-images.mjs
+   docker build -t club/attack-box attack-box
    docker compose up -d --build
    ```
 
-   `build-lab-images.mjs` builds every image a lab needs that is not on this computer yet, from [examples](examples) (add `--all` to build them all again). `seed-beginner-ctf.mjs` also builds the ones its challenges need.
+   `build-lab-images.mjs` builds every image a lab needs that is not on this computer yet, from [examples](examples) (add `--all` to build them all again). `seed-beginner-ctf.mjs` also builds the ones its challenges need. The attack box image is Kali Linux with its tools: the first build downloads about 550 MB and takes up about 3.6 GB.
 
 4. Open <http://localhost:3000> and sign in as `Admin` with `ADMIN_PASSWORD` from `.env`. The first start takes about 30 seconds while the database is created.
 5. Apply the UDSM branding under Admin → Settings (values are in the main [README](../README.md#branding)), and turn on **API Encryption** there. Browsers then encrypt passwords and flags before sending them.
@@ -126,6 +127,30 @@ These folders in [examples](examples) are machines for the labs only, one per la
 | Public Calldata | [public-calldata](examples/public-calldata) | Web3 | a transaction's input data is public too |
 
 The pwn, ICS, AI and Web3 machines imitate what they teach in a small web page, so they run in the same small containers as the rest: the stack frame of a C function, a PLC that trusts its HMI, a model trained on a few dozen messages, a block explorer over one contract. Nothing there is a real binary, PLC, model or blockchain.
+
+## Attack Box
+
+**Attack Box** in the CyberRange header (or **Open attack box** under any lab machine) opens <http://localhost:3000/attackbox> in its own tab: a desktop like Kali's, with Kali's own icons, a wallpaper drawn for the club in the style of Kali's, and the club's logo beside "UDSM CyberRange" where Kali shows its own. Starting the box gives the student a Kali Linux container of their own for two hours (it can be extended in its last ten minutes), and its terminal opens in a window. The first terminal of each box shows the club's welcome art and the box's rules until ENTER is pressed, and the prompt reads `udsmcyberrange@<player>`. Where the desktop's artwork comes from, and under which licences, is in [assets/attackbox](../src/GZCTF/ClientApp/src/assets/attackbox/README.md).
+
+- **Target.** The student's lab machine joins the box's private network under the name `target`, whether it starts before or after the box: `nmap target`, `curl http://target`, `nc target 9001`. The command `target` lists its open ports, and `tools` lists what is installed.
+- **Files.** The Files window sends files from the student's computer to `~/uploads` and downloads any file from the home folder (up to 25 MB each). Pictures open in the picture viewer.
+- **Picture viewer.** Each colour on its own, each of its eight bits, stretched contrast, every shade in its own colour, and the hidden bits read out as text, hex or a file. It runs in the browser, so it also works without a box, and a picture opened from the student's computer is never sent anywhere.
+- **CyberChef.** GCHQ's CyberChef, served by the `tools` service on <http://localhost:3001>: an address of its own, so nothing that runs there can act on the platform with the student's sign-in. Its Dockerfile checks the download against its published SHA-256.
+- **No internet.** A box reaches only its own target: no internet, no other student, not the server or its services. Every box runs with few Linux capabilities, no new privileges, and limits on memory, CPU, processes and disk (`BOX_*` in `docker-compose.yml`). A box that fills its disk or runs out of time is removed with its network.
+- **Installing tools.** `apt install` and `pip install` in a box work only for packages in the approved mirror, a Docker volume every box reads. Admins add to it on the server:
+
+  ```bash
+  node mirror.mjs add apt <package>
+  node mirror.mjs add pip <package>
+  node mirror.mjs list
+  node mirror.mjs remove apt <package>
+  ```
+
+  Packages are fetched by a throwaway copy of the box that has internet, so they match the box exactly, and every box can install them at once.
+
+A lab does not have to fit the attack box. Its author can ask for anything, and a student whose lab needs more (a graphical tool, a full desktop, hardware) uses their own Linux machine, which reaches lab machines at the address on the lab's page as before.
+
+On a real server, give the tools service a domain of its own and set `TOOLS_URL` to it, keep `BOX_SEATS` within what the server's memory allows (about 250 MB for each busy box), and consider `BOX_RUNTIME=runsc` ([gVisor](https://gvisor.dev)) so that boxes run in a sandbox of their own. Docker 27.1 or newer also hides the server's own address from boxes.
 
 ## Things to know
 
