@@ -1,0 +1,79 @@
+{
+  "policies": {
+    "Proxy": {
+      "Mode": "manual",
+      "HTTPProxy": "egress:3128",
+      "UseHTTPProxyForAllProtocols": true,
+      "Passthrough": "target, box, localhost, 127.0.0.1",
+      "Locked": true
+    },
+    "Homepage": {
+      "URL": "file:///usr/local/share/cyberrange/start/index.html",
+      "StartPage": "homepage",
+      "Locked": false
+    },
+    "FirefoxHome": {
+      "Search": true,
+      "TopSites": false,
+      "SponsoredTopSites": false,
+      "Highlights": false,
+      "Pocket": false,
+      "SponsoredPocket": false,
+      "Snippets": false,
+      "Locked": false
+    },
+    "SearchEngines": {
+      "Add": [
+        {
+          "Name": "DuckDuckGo (HTML)",
+          "URLTemplate": "https://html.duckduckgo.com/html/?q={searchTerms}",
+          "Method": "GET",
+          "IconURL": "https://duckduckgo.com/favicon.ico",
+          "Alias": "@html",
+          "Description": "DuckDuckGo's plain pages: quick over a slow connection"
+        }
+      ],
+      "Default": "DuckDuckGo (HTML)"
+    },
+    "DisplayBookmarksToolbar": "always",
+    "ManagedBookmarks": [
+      { "toplevel_name": "UDSM CyberRange" },
+      { "name": "Start page", "url": "file:///usr/local/share/cyberrange/start/index.html" },
+      { "name": "Your lab (target)", "url": "http://target/" },
+      { "name": "GTFOBins", "url": "https://gtfobins.org/" },
+      { "name": "OWASP Cheat Sheets", "url": "https://cheatsheetseries.owasp.org/" },
+      { "name": "HackTricks", "url": "https://hacktricks.wiki/" },
+      { "name": "PayloadsAllTheThings", "url": "https://github.com/swisskyrepo/PayloadsAllTheThings" },
+      { "name": "Kali Tools", "url": "https://www.kali.org/tools/" },
+      { "name": "Exploit-DB", "url": "https://www.exploit-db.com/" },
+      { "name": "CrackStation", "url": "https://crackstation.net/" },
+      { "name": "Reverse Shell Generator", "url": "https://www.revshells.com/" },
+      { "name": "explainshell", "url": "https://explainshell.com/" },
+      { "name": "LOLBAS", "url": "https://lolbas-project.github.io/" },
+      { "name": "CyberChef", "url": "https://gchq.github.io/CyberChef/" }
+    ],
+    "DownloadDirectory": "/home/student/Downloads",
+    "PromptForDownloadLocation": false,
+    "DisableTelemetry": true,
+    "DisableFirefoxStudies": true,
+    "DisablePocket": true,
+    "DisableFirefoxAccounts": true,
+    "DisableProfileImport": true,
+    "DisableSetDesktopBackground": true,
+    "DisableAppUpdate": true,
+    "DontCheckDefaultBrowser": true,
+    "OverrideFirstRunPage": "",
+    "OverridePostUpdatePage": "",
+    "PasswordManagerEnabled": false,
+    "OfferToSaveLogins": false,
+    "UserMessaging": {
+      "WhatsNew": false,
+      "ExtensionRecommendations": false,
+      "FeatureRecommendations": false,
+      "UrlbarInterventions": false,
+      "SkipOnboarding": true,
+      "MoreFromMozilla": false,
+      "Locked": false
+    }
+  }
+}

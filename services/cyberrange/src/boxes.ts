@@ -134,13 +134,47 @@ const hostName = (name: string) =>
     .replace(/^-+|-+$/g, '')
     .slice(0, 40) || 'player'
 
-// Forgets a box and takes it down, with its network and its open terminals.
+// ---- what the box's Firefox (browsers.ts) needs to know ----
+
+export const boxName = (userId: string) => `range-box-${userHash(userId, 'box')}`
+// the box's ~/Downloads, which its Firefox shares
+export const downloadsVolume = (userId: string) => `${boxName(userId)}-downloads`
+
+export async function runningBox(userId: string): Promise<Row | undefined> {
+  const row = await rowOf(userId)
+  return running(row) ? row : undefined
+}
+
+// What else stops when a student's box stops.
+const removalHooks: ((userId: string) => Promise<void>)[] = []
+export const whenBoxStops = (hook: (userId: string) => Promise<void>) => void removalHooks.push(hook)
+const stopTheRest = async (userId: string) => {
+  for (const hook of removalHooks) {
+    await hook(userId).catch((error) => console.error('cyberrange: stopping with the box:', error))
+  }
+}
+
+// A page on another site could open a WebSocket here with the student's sign-in. Browsers say
+// which site is asking, and only this one may.
+export function sameSite(req: IncomingMessage) {
+  let from = ''
+  try {
+    from = new URL(String(req.headers.origin)).host
+  } catch {
+    // no origin, or not an address
+  }
+  return Boolean(from) && from === req.headers.host
+}
+
+// Forgets a box and takes it down, with its network, its open terminals and its Firefox.
 async function remove(row: Row, why?: string) {
   // forgotten first, so it shows as stopped at once; reapBoxes() clears up if Docker fails here
   await db.query('DELETE FROM boxes WHERE user_id = $1 AND container_id = $2', [row.user_id, row.container_id])
   hangUp(row.user_id, why)
+  await stopTheRest(row.user_id)
   await docker('DELETE', `/containers/${row.container_id}?force=true`)
   await removeNetwork(row.network_id)
+  await docker('DELETE', `/volumes/${downloadsVolume(row.user_id)}?force=true`)
 }
 
 export function startBox(user: User) {
@@ -157,13 +191,17 @@ export function startBox(user: User) {
       throw new HttpError(503, 'Every attack box is in use right now. Try again in a few minutes.')
     }
 
-    const name = `range-box-${userHash(user.id, 'box')}`
+    const name = boxName(user.id)
+    const downloads = downloadsVolume(user.id)
     // leftovers under this student's names, if any
+    await stopTheRest(user.id)
     await docker('DELETE', `/containers/${name}?force=true`)
     await removeNetwork(name)
+    await docker('DELETE', `/volumes/${downloads}?force=true`)
 
     const network = await createNetwork(name, user.id)
     try {
+      await docker('POST', '/volumes/create', { Name: downloads, Labels: { [LABEL]: user.id } })
       const fileSize = config.boxDisk * 1024 * 1024
       const created = await docker<{ Id?: string; message?: string }>('POST', `/containers/create?name=${name}`, {
         Image: config.boxImage,
@@ -184,9 +222,12 @@ export function startBox(user: User) {
           CapAdd: ['CHOWN', 'DAC_OVERRIDE', 'FOWNER', 'FSETID', 'SETUID', 'SETGID', 'KILL', 'NET_RAW', 'NET_BIND_SERVICE', 'AUDIT_WRITE'],
           SecurityOpt: ['no-new-privileges'],
           Ulimits: [{ Name: 'fsize', Soft: fileSize, Hard: fileSize }],
-          Binds: [`${config.boxMirror}:/opt/mirror:ro`],
+          Binds: [`${config.boxMirror}:/opt/mirror:ro`, `${downloads}:/root/Downloads`],
           ...(config.boxRuntime && { Runtime: config.boxRuntime }),
         },
+        // The box answers as "box" on its network, so that a web server the student starts in it
+        // opens in the box's Firefox as http://box:PORT.
+        NetworkingConfig: { EndpointsConfig: { [name]: { Aliases: ['box'] } } },
       })
       if (created.status === 404) throw new HttpError(503, 'The attack box is not installed on this server yet.')
       if (created.status !== 201 || !created.data.Id) {
@@ -215,6 +256,7 @@ export function startBox(user: User) {
       // leave nothing half-made behind; reapBoxes() takes what cannot go now
       docker('DELETE', `/containers/${name}?force=true`)
         .then(() => removeNetwork(network))
+        .then(() => docker('DELETE', `/volumes/${downloads}?force=true`))
         .catch(() => {})
       throw error
     }
@@ -263,6 +305,12 @@ export async function reapBoxes() {
       await removeNetwork(found.Id)
     }
   }
+  const volumes = await docker<{ Volumes?: { Name: string; CreatedAt?: string }[] }>('GET', `/volumes?filters=${filters}`)
+  for (const found of volumes.data?.Volumes ?? []) {
+    const known = rows.some((row) => downloadsVolume(row.user_id) === found.Name)
+    // Docker refuses while a container still uses it, and the next round tries again
+    if (!known && Date.now() - Date.parse(found.CreatedAt ?? '') > 120_000) await docker('DELETE', `/volumes/${found.Name}`)
+  }
 
   // measuring a container's disk is slow, so only every fourth round (two minutes)
   if (++rounds % 4) return
@@ -298,16 +346,7 @@ export function upgrade(req: IncomingMessage, socket: Duplex, head: Buffer) {
   const refuse = (status: number, reason: string) =>
     socket.end(`HTTP/1.1 ${status} ${reason}\r\nConnection: close\r\nContent-Length: 0\r\n\r\n`)
   if (url.pathname !== `${BASE}/box/terminal`) return refuse(404, 'Not Found')
-
-  // A page on another site could open this address with the student's sign-in. Browsers say
-  // which site is asking, and only this one may.
-  let from = ''
-  try {
-    from = new URL(String(req.headers.origin)).host
-  } catch {
-    // no origin, or not an address
-  }
-  if (!from || from !== req.headers.host) return refuse(403, 'Forbidden')
+  if (!sameSite(req)) return refuse(403, 'Forbidden')
 
   const size = (name: string, fallback: number, most: number) =>
     Math.min(most, Math.max(2, Math.floor(Number(url.searchParams.get(name))) || fallback))
@@ -510,6 +549,8 @@ async function view(user: User) {
     player: playerName(user.name),
     cyberchef: config.toolsUrl ? `${config.toolsUrl}/cyberchef/` : null,
     fileLimit: config.boxFile,
+    // whether this server runs the box's Firefox
+    browser: config.browserEnabled,
   }
 }
 

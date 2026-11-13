@@ -66,6 +66,17 @@ export const config = {
   boxRuntime: process.env.BOX_RUNTIME ?? '',
   // the largest file sent into or fetched out of a box, in MB
   boxFile: positive('BOX_FILE_MB', 25),
+  // Firefox for the attack box, run on the server and shown in the box's window (see
+  // preview/attack-browser); BOX_BROWSER=off turns it off
+  browserEnabled: (process.env.BOX_BROWSER ?? 'on').trim().toLowerCase() !== 'off',
+  browserImage: process.env.BROWSER_IMAGE ?? 'club/attack-browser:latest',
+  // what one browser may use: memory in MB and CPU cores
+  browserMemory: positive('BROWSER_MEMORY_MB', 1024),
+  browserCpus: positive('BROWSER_CPUS', 1),
+  // a browser nobody has looked at for this long is stopped, which gives its memory back
+  browserIdleMinutes: positive('BROWSER_IDLE_MINUTES', 20),
+  // the network the browsers share with their proxy to the web (see preview/docker-compose.yml)
+  browserNetwork: process.env.BROWSER_NETWORK ?? 'cyberrange-browsers',
   // where the browser tools (CyberChef) are served; empty when they are not installed
   toolsUrl: (process.env.TOOLS_URL ?? '').replace(/\/+$/, ''),
 }

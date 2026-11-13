@@ -1,0 +1,155 @@
+<!doctype html>
+<!-- Firefox's start page in the attack box. The club's logo next to it is copied in from the
+     platform when the browser starts. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>UDSM CyberRange</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --page: #1f232b;
+        --tile: #2a2e37;
+        --line: #3c414c;
+        --text: #eef1f5;
+        --dim: #a3abb9;
+        --blue: #3b8eea;
+        --sky: #6cb6ff;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        align-content: start;
+        justify-items: center;
+        gap: 28px;
+        padding: 64px 24px 40px;
+        background: var(--page);
+        color: var(--text);
+        font: 15px/1.5 'DejaVu Sans', 'Liberation Sans', sans-serif;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        font-size: 2.4rem;
+        font-weight: 700;
+      }
+      .brand img {
+        width: 72px;
+        height: 72px;
+        object-fit: contain;
+      }
+      .brand span {
+        color: var(--sky);
+      }
+      form {
+        display: flex;
+        align-items: center;
+        width: min(640px, 100%);
+        height: 50px;
+        padding: 0 20px;
+        background: var(--tile);
+        border: 1px solid var(--line);
+        border-radius: 25px;
+      }
+      form:focus-within {
+        border-color: var(--blue);
+      }
+      input {
+        flex: 1;
+        font: inherit;
+        font-size: 1.05rem;
+        color: var(--text);
+        background: transparent;
+        border: 0;
+        outline: none;
+      }
+      .tiles {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(124px, 1fr));
+        gap: 12px;
+        width: min(820px, 100%);
+      }
+      .tiles a {
+        display: grid;
+        justify-items: center;
+        gap: 8px;
+        padding: 16px 8px;
+        font-size: 0.85rem;
+        text-align: center;
+        color: var(--text);
+        text-decoration: none;
+        background: var(--tile);
+        border: 1px solid transparent;
+        border-radius: 8px;
+      }
+      .tiles a:hover,
+      .tiles a:focus {
+        border-color: var(--blue);
+        outline: none;
+      }
+      .tiles b {
+        display: grid;
+        place-items: center;
+        width: 42px;
+        height: 42px;
+        font-size: 1.1rem;
+        color: #fff;
+        background: var(--blue);
+        border-radius: 50%;
+      }
+      .tiles a.lab b {
+        background: #22c55e;
+      }
+      p {
+        max-width: 660px;
+        margin: 0;
+        font-size: 0.85rem;
+        text-align: center;
+        color: var(--dim);
+      }
+      code {
+        color: var(--text);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="brand">
+      <img src="logo" alt="" onerror="this.remove()" />
+      <div>UDSM Cyber<span>Range</span></div>
+    </div>
+
+    <!-- DuckDuckGo's plain pages: quick over a slow connection, and least wary of a whole club
+         searching from one server -->
+    <form action="https://html.duckduckgo.com/html/" method="get">
+      <input name="q" placeholder="Search the web" autofocus autocomplete="off" />
+    </form>
+
+    <div class="tiles">
+      <a class="lab" href="http://target/"><b>T</b>Your lab (target)</a>
+      <a href="https://gtfobins.org/"><b>G</b>GTFOBins</a>
+      <a href="https://cheatsheetseries.owasp.org/"><b>O</b>OWASP Cheat Sheets</a>
+      <a href="https://hacktricks.wiki/"><b>H</b>HackTricks</a>
+      <a href="https://github.com/swisskyrepo/PayloadsAllTheThings"><b>P</b>PayloadsAllTheThings</a>
+      <a href="https://www.kali.org/tools/"><b>K</b>Kali Tools</a>
+      <a href="https://www.exploit-db.com/"><b>E</b>Exploit-DB</a>
+      <a href="https://crackstation.net/"><b>C</b>CrackStation</a>
+      <a href="https://www.revshells.com/"><b>R</b>Reverse Shell Generator</a>
+      <a href="https://explainshell.com/"><b>e</b>explainshell</a>
+      <a href="https://lolbas-project.github.io/"><b>L</b>LOLBAS</a>
+      <a href="https://gchq.github.io/CyberChef/"><b>C</b>CyberChef</a>
+    </div>
+
+    <p>
+      This Firefox runs on the club's server, next to your attack box. Your lab machine opens as
+      <code>http://target</code>, and a web server you start in your box as <code>http://box:8000</code>.
+      Websites see the club's server, not you, and the club keeps a list of the sites visited from here.
+      Downloads go to your box's <code>~/Downloads</code>. Sign in to nothing personal: everything here is
+      wiped when your box stops.
+    </p>
+  </body>
+</html>

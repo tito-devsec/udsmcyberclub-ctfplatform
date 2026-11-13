@@ -108,6 +108,9 @@ services:
       # run at once. BOX_MEMORY_MB, BOX_CPUS, BOX_PIDS, BOX_DISK_MB and BOX_FILE_MB limit each.
       BOX_MINUTES: 120
       BOX_SEATS: 40
+      # The box's Firefox (see attack-browser/), "off" to turn it off. Each one may use
+      # BROWSER_MEMORY_MB and BROWSER_CPUS, and stops after BROWSER_IDLE_MINUTES unwatched.
+      BOX_BROWSER: "on"
     volumes:
       - ../content:/content:ro
       # starts and stops the practice machines and the attack boxes
@@ -128,6 +131,21 @@ services:
     ports:
       # http://localhost:3001, reachable from this machine only
       - "127.0.0.1:3001:80"
+
+  # The attack box's Firefox reaches the web through this proxy and in no other way: websites
+  # over http and https, never this server, its networks or other students' machines (see
+  # ../services/egress). It notes which student's browser asked for which site.
+  egress:
+    build: ../services/egress
+    image: udsm-egress:local
+    restart: unless-stopped
+    environment:
+      # addresses to refuse besides the private ones, separated by commas: on a real server,
+      # its own public IP
+      EGRESS_DENY: ""
+    networks:
+      - browsers
+      - egress-out
 
   # The front door: /api/range goes to the CyberRange service, everything else to the platform.
   proxy:
@@ -170,3 +188,13 @@ networks:
     driver_opts:
       com.docker.network.bridge.enable_icc: "false"
       com.docker.network.bridge.enable_ip_masquerade: "false"
+  # The attack box browsers and their proxy. Nothing on it reaches the internet or this server
+  # by itself (no gateway address on the server); the proxy is the only way out.
+  browsers:
+    name: cyberrange-browsers
+    internal: true
+    driver_opts:
+      com.docker.network.bridge.gateway_mode_ipv4: isolated
+  # the proxy's own way to the internet
+  egress-out:
+    name: cyberrange-egress-out

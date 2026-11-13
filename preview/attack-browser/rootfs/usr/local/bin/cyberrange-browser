@@ -1,0 +1,21 @@
+#!/bin/sh
+# Firefox's screen: a VNC server that nothing outside this container can reach (the CyberRange
+# service connects to it through Docker), a window manager that keeps Firefox filling the
+# screen at whatever size the student's window is, and Firefox, opened again if it is closed.
+Xvnc :0 -geometry 1280x800 -depth 24 -rfbport 5900 -localhost -SecurityTypes None -AlwaysShared \
+  -desktop 'Firefox ESR' -nolisten tcp -dpi 96 > /tmp/xvnc.log 2>&1 &
+
+waited=0
+while [ ! -S /tmp/.X11-unix/X0 ] && [ "$waited" -lt 100 ]; do
+  sleep 0.1
+  waited=$((waited + 1))
+done
+
+openbox --config-file /etc/cyberrange/openbox.xml > /tmp/openbox.log 2>&1 &
+# copying and pasting between Firefox and the student's own computer
+vncconfig -nowin > /dev/null 2>&1 &
+
+while true; do
+  firefox-esr --profile "$HOME/profile" --no-remote > /tmp/firefox.log 2>&1
+  sleep 1
+done

@@ -1,0 +1,4 @@
+# The repository ignores bin/ folders and .xml files (Visual Studio's build output). This image
+# keeps its start script in one and its window manager's settings in the other.
+!rootfs/usr/local/bin/
+!rootfs/etc/cyberrange/openbox.xml

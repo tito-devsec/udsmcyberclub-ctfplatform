@@ -2,6 +2,7 @@ import { createServer } from 'node:http'
 import { config } from './config.js'
 import { loadContent } from './content.js'
 import { reapBoxes, upgrade } from './boxes.js'
+import { browserUpgrade, reapBrowsers } from './browsers.js'
 import { openDatabase } from './db.js'
 import { DockerUnavailable } from './docker.js'
 import { handle } from './http.js'
@@ -25,14 +26,19 @@ const { paths, modules, sections, labs } = contentSize()
 console.log(`cyberrange: loaded ${paths} paths, ${modules} modules with ${sections} sections, and ${labs} labs`)
 
 const server = createServer((req, res) => void handle(req, res))
-// terminals in attack boxes are WebSockets
-server.on('upgrade', upgrade)
+// terminals in attack boxes, and the screen of the box's Firefox, are WebSockets
+server.on('upgrade', (req, socket, head) => {
+  const path = new URL(req.url ?? '/', 'http://range').pathname
+  if (path === '/api/range/box/browser/screen') browserUpgrade(req, socket, head)
+  else upgrade(req, socket, head)
+})
 server.listen(config.port, () => console.log(`cyberrange: listening on port ${config.port}`))
 
 // expired machines and attack boxes are removed every 30 seconds
 const reaper = setInterval(() => {
   reap()
     .then(reapBoxes)
+    .then(reapBrowsers)
     .catch((error) =>
       console.error('cyberrange: removing expired machines failed:', error instanceof DockerUnavailable ? error.message : error)
     )

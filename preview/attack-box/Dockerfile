@@ -40,8 +40,10 @@ RUN mkdir -p /opt/mirror/apt /opt/mirror/pip \
  && printf '[global]\nno-index = true\nfind-links = /opt/mirror/pip\nbreak-system-packages = true\ndisable-pip-version-check = true\nroot-user-action = ignore\n' > /etc/pip.conf
 
 COPY rootfs/ /
+# ~/Downloads is shared with the box's Firefox (attack-browser), which runs as user 1000
 RUN chmod 755 /usr/local/bin/tools /usr/local/bin/target /usr/local/sbin/apt /usr/local/sbin/apt-get /usr/local/sbin/pip /usr/local/sbin/pip3 /usr/local/share/cyberrange/welcome /usr/local/sbin/cyberrange-start \
- && mkdir -p /root/Desktop /root/Documents /root/Downloads /root/Music /root/Pictures /root/Public /root/Templates /root/Videos
+ && mkdir -p /root/Desktop /root/Documents /root/Downloads /root/Music /root/Pictures /root/Public /root/Templates /root/Videos \
+ && chown 1000:1000 /root/Downloads
 
 WORKDIR /root
 CMD ["/usr/local/sbin/cyberrange-start"]
