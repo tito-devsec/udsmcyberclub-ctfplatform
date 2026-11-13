@@ -29,13 +29,17 @@ RUN apt-get update \
 COPY rootfs/ /
 
 # Firefox's settings for every student (policies.json) and the profile it starts with (user.js).
-# The student is user 1000, the owner of the box's Downloads folder they share.
+# The student is user 1000, the owner of the box's Downloads folder they share. Burp starts
+# with one choice made, where Java keeps Burp's settings (burp-prefs.xml): the free Community
+# Edition, which Kali packages, so it opens as on Kali instead of first offering Professional.
+# Its terms are not among them: each student reads and accepts those.
 RUN useradd --uid 1000 --create-home --shell /bin/bash student \
  && for dir in /usr/lib/firefox-esr/distribution /etc/firefox/policies; do \
       mkdir -p "$dir" && cp /etc/cyberrange/policies.json "$dir/policies.json"; \
     done \
- && mkdir -p /home/student/Downloads /home/student/profile \
+ && mkdir -p /home/student/Downloads /home/student/profile /home/student/.java/.userPrefs/burp \
  && cp /etc/cyberrange/user.js /home/student/profile/user.js \
+ && cp /etc/cyberrange/burp-prefs.xml /home/student/.java/.userPrefs/burp/prefs.xml \
  && chown -R student:student /home/student \
  && chmod 755 /usr/local/bin/cyberrange-browser /usr/local/bin/cyberrange-burp
 
