@@ -5,6 +5,7 @@
 import { timingSafeEqual } from 'node:crypto'
 import { join } from 'node:path'
 import { clientIp, forgetUser, isStaff, isSuperadmin, roleOf, SKILL_LEVELS, type User } from './auth.js'
+import { stopBox } from './boxes.js'
 import {
   ContentError,
   type Lab,
@@ -554,6 +555,7 @@ route('PUT', `${BASE}/admin/users/:id/admin`, async (ctx) => {
 // Removes everything kept here about someone.
 async function forget(id: string) {
   await stopMachine(id)
+  await stopBox(id)
   const client = await db.connect()
   try {
     await client.query('BEGIN')

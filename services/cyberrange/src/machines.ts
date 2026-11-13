@@ -46,9 +46,9 @@ const toInfo = (row: Row): MachineInfo => ({
   canExtend: row.expires_at.getTime() - Date.now() <= config.renewalWindowMinutes * 60_000,
 })
 
-// one machine operation at a time for each student
+// one machine or attack box operation at a time for each student
 const queues = new Map<string, Promise<void>>()
-async function exclusive<T>(key: string, work: () => Promise<T>): Promise<T> {
+export async function exclusive<T>(key: string, work: () => Promise<T>): Promise<T> {
   const before = queues.get(key) ?? Promise.resolve()
   let release!: () => void
   const mine = new Promise<void>((resolve) => (release = resolve))
@@ -71,6 +71,17 @@ async function rowOf(userId: string): Promise<Row | undefined> {
   const { rows } = await db.query<Row>('SELECT * FROM machines WHERE user_id = $1', [userId])
   return rows[0]
 }
+
+// The container of the student's machine, while it runs.
+export async function machineContainer(userId: string): Promise<string | null> {
+  const row = await rowOf(userId)
+  return row && row.expires_at.getTime() > Date.now() ? row.container_id : null
+}
+
+// What else happens when a machine has started: the attack box takes it in as its target.
+type Started = (userId: string, containerId: string) => Promise<void>
+const started: Started[] = []
+export const afterMachineStart = (listener: Started) => void started.push(listener)
 
 export async function currentMachine(userId: string): Promise<MachineInfo | null> {
   const row = await rowOf(userId)
@@ -152,6 +163,10 @@ export function startMachine(user: User, module: Module, section: Section): Prom
       'INSERT INTO machines (user_id, module, section, container_id, entry, started_at, expires_at) VALUES ($1, $2, $3, $4, $5, $6, $7)',
       [row.user_id, row.module, row.section, row.container_id, row.entry, row.started_at, row.expires_at]
     )
+    // the machine is up either way: a listener that fails must not undo that
+    for (const listener of started) {
+      await listener(user.id, id).catch((error) => console.error('cyberrange: after a machine started:', error))
+    }
     return toInfo(row)
   })
 }

@@ -47,6 +47,27 @@ export const config = {
   renewalWindowMinutes: positive('RENEWAL_WINDOW_MINUTES', 10),
   machineCpus: positive('MACHINE_CPUS', 0.5),
   machinePids: positive('MACHINE_PIDS', 256),
+
+  // The attack box: a Kali Linux container of the student's own, used from the browser.
+  boxImage: process.env.BOX_IMAGE ?? 'club/attack-box:latest',
+  boxMinutes: positive('BOX_MINUTES', 120),
+  // what one box may use: memory in MB, CPU cores, processes, and MB written to its disk
+  boxMemory: positive('BOX_MEMORY_MB', 768),
+  boxCpus: positive('BOX_CPUS', 1),
+  boxPids: positive('BOX_PIDS', 512),
+  boxDisk: positive('BOX_DISK_MB', 2048),
+  // how many boxes may run at the same time
+  boxSeats: positive('BOX_SEATS', 40),
+  // every box gets a private network of 16 addresses cut from this range
+  boxSubnets: process.env.BOX_SUBNETS ?? '10.213.0.0/16',
+  // the Docker volume of approved packages, read-only in every box (see preview/attack-box)
+  boxMirror: process.env.BOX_MIRROR ?? 'cyberrange-mirror',
+  // a stricter container runtime for boxes, such as runsc (gVisor); empty for Docker's own
+  boxRuntime: process.env.BOX_RUNTIME ?? '',
+  // the largest file sent into or fetched out of a box, in MB
+  boxFile: positive('BOX_FILE_MB', 25),
+  // where the browser tools (CyberChef) are served; empty when they are not installed
+  toolsUrl: (process.env.TOOLS_URL ?? '').replace(/\/+$/, ''),
 }
 
 if (config.secret.length < 32) throw new Error('RANGE_SECRET must be at least 32 characters long')

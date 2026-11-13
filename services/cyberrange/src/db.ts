@@ -144,6 +144,14 @@ CREATE TABLE IF NOT EXISTS attempts (
 CREATE INDEX IF NOT EXISTS attempts_by_user ON attempts (user_id, at);
 
 -- at most one running machine per student
+CREATE TABLE IF NOT EXISTS boxes (
+  user_id      uuid        PRIMARY KEY,
+  container_id text        NOT NULL,
+  network_id   text        NOT NULL,
+  started_at   timestamptz NOT NULL,
+  expires_at   timestamptz NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS machines (
   user_id      uuid        PRIMARY KEY,
   module       text        NOT NULL,
