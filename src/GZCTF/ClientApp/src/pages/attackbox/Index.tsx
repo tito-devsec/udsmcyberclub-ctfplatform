@@ -21,7 +21,8 @@ import classes from '@Styles/AttackBox.module.css'
 // The desktop's programs: their icon (Kali's own, and CyberChef's), the size they open at, and
 // whether more than one may be open.
 const APPS: Record<AppName, { image: string; w: number; h: number; many?: boolean }> = {
-  terminal: { image: Icons.terminal, w: 940, h: 620, many: true },
+  // wide enough for the club's welcome banner: 120 columns of 14px Fira Code
+  terminal: { image: Icons.terminal, w: 1100, h: 620, many: true },
   files: { image: Icons.home, w: 960, h: 600, many: true },
   // Firefox has tabs and windows of its own, and Burp Suite runs once, next to it
   browser: { image: Icons.firefox, w: 1180, h: 740 },

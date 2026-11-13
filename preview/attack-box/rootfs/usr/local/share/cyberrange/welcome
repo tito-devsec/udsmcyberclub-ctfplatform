@@ -1,11 +1,15 @@
 #!/bin/bash
 # The attack box's welcome, at the top of every new terminal: the club's art and the box's
 # rules, in the largest size the terminal has room for, then whether a lab machine is here.
+# The widest is the club's own banner (welcome-wide.ans): its shield and "UDSM CyberRange" in
+# 120 columns, which a terminal window has when it opens.
 here=/usr/local/share/cyberrange
 cols=$(tput cols 2> /dev/null || echo 100)
 rows=$(tput lines 2> /dev/null || echo 30)
 # each needs its own lines, two for the lab machine's line and two for the prompt
-if [ "${cols:-100}" -ge 88 ] && [ "${rows:-30}" -ge 26 ]; then
+if [ "${cols:-100}" -ge 120 ] && [ "${rows:-30}" -ge 29 ]; then
+  art=$here/welcome-wide.ans
+elif [ "${cols:-100}" -ge 88 ] && [ "${rows:-30}" -ge 26 ]; then
   art=$here/welcome.ans
 elif [ "${cols:-100}" -ge 80 ] && [ "${rows:-30}" -ge 21 ]; then
   art=$here/welcome-narrow.ans
