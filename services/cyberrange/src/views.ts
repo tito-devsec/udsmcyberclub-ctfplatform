@@ -2,8 +2,12 @@
 
 import type { User } from './auth.js'
 import { type Lab, type Module, type Path, pathCategory, type Section } from './content.js'
+import { releasedAt } from './labs.js'
 import { type ModuleState, moduleState, type PathState, type Progress } from './progress.js'
 import { content } from './state.js'
+
+// a boot-to-root machine, another machine to attack, or a challenge with files or a puzzle
+export const labKind = (lab: Lab) => (lab.type === 'b2r' ? 'b2r' : lab.section.machine ? 'machine' : 'challenge')
 
 export const link = (section: Section | undefined) => (section ? { slug: section.slug, title: section.title } : null)
 
@@ -57,12 +61,14 @@ export function labSummary(lab: Lab, progress: Progress, solvers: Map<string, nu
     minutes: lab.minutes,
     icon: lab.icon ?? null,
     xp: lab.xp,
-    // a machine to attack, or a challenge with files or a puzzle
-    kind: lab.section.machine ? 'machine' : 'challenge',
+    kind: labKind(lab),
+    // the system of a boot-to-root machine
+    os: lab.os,
     tasks: lab.section.questions.length,
     solved: state.sections.get(lab.section.slug)?.solved ?? 0,
     status: state.status,
     solvers: solvers.get(lab.key) ?? 0,
     updated: lab.updated ?? null,
+    released: releasedAt(lab)?.toISOString() ?? null,
   }
 }

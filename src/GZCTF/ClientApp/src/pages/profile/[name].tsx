@@ -17,6 +17,7 @@ import {
   certificateUrl,
   COUNTRY_CODES,
   countryName,
+  LabKindIcon,
   labUrl,
   linkIcon,
   linkUrl,
@@ -282,6 +283,18 @@ const ProfilePage: FC = () => {
                       <Uicon name="clock" />
                       {t('range.profile.active', { when: ago(profile.lastActive, i18n.language) })}
                     </span>
+                    {profile.stats.labsCreated > 0 && (
+                      <>
+                        <span className={classes.inline}>
+                          <Uicon name="flask" />
+                          {t('range.profile.labs_created', { count: profile.stats.labsCreated })}
+                        </span>
+                        <span className={classes.inline}>
+                          <Uicon name="hand-heart" />
+                          {t('range.profile.respects', { count: profile.stats.respects })}
+                        </span>
+                      </>
+                    )}
                   </div>
                   {links.length > 0 ? (
                     <div style={{ display: 'flex', gap: 8 }}>
@@ -555,8 +568,8 @@ const ProfilePage: FC = () => {
                             </span>
                           </div>
                           <div className={classes.labCardBody}>
-                            <Label icon={lab.kind === 'machine' ? 'computer' : 'puzzle-alt'}>
-                              {t(`range.category.${lab.category}`)}
+                            <Label icon={LabKindIcon[lab.kind]}>
+                              {lab.kind === 'b2r' ? t('range.lab.kind.b2r') : t(`range.category.${lab.category}`)}
                             </Label>
                             <div className={range.cardTitle}>{lab.title}</div>
                           </div>

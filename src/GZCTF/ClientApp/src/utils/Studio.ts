@@ -1,6 +1,7 @@
 // The studio: where tutors and admins write modules, labs and skill paths, and propose
 // games. Another part of the CyberRange service's API.
-import { Category, Difficulty, RANGE_API, rangeCall, useRange } from '@Utils/Range'
+import type { LabSystem } from '@Utils/Community'
+import { Category, Difficulty, FlagKind, RANGE_API, rangeCall, useRange } from '@Utils/Range'
 
 // ---- game proposals ----
 
@@ -115,15 +116,21 @@ export type DocumentStatus = 'draft' | 'published' | 'changed'
 export interface MachineDraft {
   image: string
   port: number
+  // in MB; 64 when left out
+  memory?: number
+  // the flags it gets: in GZCTF_FLAG, and a boot-to-root machine's in USER_FLAG and ROOT_FLAG
   flag?: string
+  userFlag?: string
+  rootFlag?: string
 }
 
 export interface QuestionDraft {
   // given by the service when the question is first saved
   id?: string
   question: string
-  // answered with the flag of the machine, or with one of `answer`
-  flag?: boolean
+  // answered with a flag of the machine (true: its flag; "user" or "root": a boot-to-root
+  // machine's), or with one of `answer`
+  flag?: boolean | 'user' | 'root'
   answer?: string[]
   format?: string
   hint?: string
@@ -157,6 +164,11 @@ export interface LabDraft {
   title: string
   summary: string
   scenario: string
+  // a boot-to-root machine, with the system it runs; a challenge when left out
+  type?: 'b2r'
+  os?: LabSystem
+  // the username of whoever made it, which the lab's page shows
+  creator?: string
   category: Category
   difficulty: Difficulty
   minutes: number
@@ -165,6 +177,24 @@ export interface LabDraft {
   machine?: MachineDraft
   tasks?: QuestionDraft[]
 }
+
+// where a machine keeps each of its flags
+export const FLAG_FIELD: Record<FlagKind, 'flag' | 'userFlag' | 'rootFlag'> = {
+  flag: 'flag',
+  user: 'userFlag',
+  root: 'rootFlag',
+}
+
+// which of the machine's flags a question asks for, if any
+export const flagKindOf = (question: Pick<QuestionDraft, 'flag'>): FlagKind | null =>
+  question.flag === true ? 'flag' : question.flag === 'user' || question.flag === 'root' ? question.flag : null
+
+// Questions that ask for a flag the machine no longer has ask for an answer again.
+export const withoutMissingFlags = <T extends QuestionDraft>(questions: T[] | undefined, machine?: MachineDraft) =>
+  questions?.map((question) => {
+    const kind = flagKindOf(question)
+    return kind && !machine?.[FLAG_FIELD[kind]] ? { ...question, flag: undefined, answer: [] } : question
+  })
 
 export interface PathDraft {
   title: string

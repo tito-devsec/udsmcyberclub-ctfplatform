@@ -102,7 +102,7 @@
       "disabled": "Burp Suite is turned off on this server.",
       "failed": "Burp Suite could not start",
       "off": "Start your attack box to use Burp Suite. It runs on the club's server, next to your box.",
-      "starting": "Starting Burp Suite... Java takes up to a minute to open it."
+      "starting": "Starting Burp Suite... It takes about ten seconds."
     },
     "cyberchef_missing": "CyberChef is not installed on this server yet. Ask your club's admins to set up the tools service.",
     "desktop": {
@@ -170,7 +170,7 @@
         "title": "Firefox"
       },
       "burp": {
-        "text": "Open Burp Suite from its icon on the desktop or in the panel, or from the Applications menu behind the club's logo, top left. It runs on the club's server next to Firefox and opens as it does on Kali, in under a minute: the first time, PortSwigger's terms and conditions, which you read and accept to go on; then choose Temporary project in memory and Next, then Use Burp defaults and Start Burp. While Burp runs, everything Firefox opens on target or box passes through it: Proxy > HTTP history lists every request, Intercept holds one so that you can change it before it goes on, and Repeater sends one again as often as you like. Websites do not pass through Burp, and Burp can reach nothing that Firefox cannot. If you minimise Burp, click its empty screen to bring it back.",
+        "text": "Open Burp Suite from its icon on the desktop or in the panel, or from the Applications menu behind the club's logo, top left. It runs on the club's server next to Firefox and opens as it does on Kali, in about ten seconds: the first time, PortSwigger's terms and conditions, which you read and accept to go on; then choose Temporary project in memory and Next, then Use Burp defaults and Start Burp. While Burp runs, everything Firefox opens on target or box passes through it: Proxy > HTTP history lists every request, Intercept holds one so that you can change it before it goes on, and Repeater sends one again as often as you like. Websites do not pass through Burp, and Burp can reach nothing that Firefox cannot. If you minimise Burp, click its empty screen to bring it back.",
         "title": "Burp Suite"
       },
       "commands": {
@@ -462,19 +462,24 @@
   },
   "lab": {
     "all": "All labs",
+    "b2r_lead": "Machines to take over from your attack box: get in as an ordinary user and take the user flag, then make yourself root and take the root flag.",
     "back": "Back to labs",
+    "blood_hint": "The first student to take this flag, and how long after the machine went online.",
     "bonus": "bonus for solving the whole lab",
     "categories": "Categories",
     "category": "Category",
+    "club": "UDSM CyberRange",
     "coming": "There are no labs in this category yet. They are on the way.",
     "count_one": "{{count}} lab",
     "count_other": "{{count}} labs",
+    "created_by": "Created by",
     "details": "Lab details",
     "earned": "XP earned",
     "empty": "No labs match these filters.",
     "files": "Files",
     "first_solve": "First solved by",
     "kind": {
+      "b2r": "Boot to Root",
       "challenge": "Challenge",
       "machine": "Machine"
     },
@@ -482,7 +487,17 @@
     "machine_note": "A private copy of this lab's target, started only for you.",
     "not_found": "There is no such lab.",
     "not_solved": "Nobody has solved it yet. Be the first.",
+    "os": {
+      "linux": "Linux",
+      "windows": "Windows"
+    },
     "progress": "Your progress",
+    "released_on": "Released on {{date}}",
+    "respect": "Respect Creator",
+    "respect_take_back": "Take your respect back",
+    "respected": "Respected",
+    "respects_one": "{{count}} respect",
+    "respects_other": "{{count}} respect",
     "reward": "XP reward",
     "scenario": "Scenario",
     "search": "Search labs",
@@ -503,10 +518,15 @@
     },
     "students_one": "{{count}} student",
     "students_other": "{{count}} students",
+    "system": "System",
+    "system_blood": "System Blood taken by",
+    "system_blood_open": "System Blood not taken yet",
     "task": "Task {{n}}",
     "tasks": "Tasks",
     "type": "Type",
-    "updated": "Updated"
+    "updated": "Updated",
+    "user_blood": "User Blood taken by",
+    "user_blood_open": "User Blood not taken yet"
   },
   "level": {
     "ask_content": "It decides which skill path is suggested to you first. You can change it at any time.",
@@ -621,6 +641,8 @@
       "paths": "No skill path started yet."
     },
     "joined": "Joined {{date}}",
+    "labs_created_one": "Made {{count}} lab",
+    "labs_created_other": "Made {{count}} labs",
     "level": "Level",
     "link": {
       "github": "GitHub",
@@ -642,6 +664,8 @@
     "picture_too_large": "That picture is larger than 3 MB.",
     "progress": "Progress by category",
     "rank": "Rank",
+    "respects_one": "{{count}} respect",
+    "respects_other": "{{count}} respect",
     "save": "Save",
     "score": "Score",
     "tab": {
@@ -665,8 +689,10 @@
     "flag": "Flag",
     "number": "Question {{n}}",
     "placeholder": "Your answer",
+    "root_flag": "Root flag",
     "show_hint": "Show a hint",
     "submit": "Submit",
+    "user_flag": "User flag",
     "wrong": "Not quite. Read the section again and try once more."
   },
   "rank": {
@@ -816,9 +842,20 @@
       "add_file": "Add a file",
       "bonus": "Bonus XP",
       "bonus_hint": "For solving the whole lab.",
+      "creator": "Creator",
+      "creator_hint": "The username of whoever made this lab. They must have signed in here once.",
       "details": "Lab details",
       "file_too_large": "A file can be up to 8 MB.",
-      "files_hint": "Up to 5 files of 8 MB each. Anyone can download them, and a published lab offers a new file at once."
+      "files_hint": "Up to 5 files of 8 MB each. Anyone can download them, and a published lab offers a new file at once.",
+      "os": "System",
+      "os_hint": "What the machine runs.",
+      "os_windows_later": "Windows (needs virtual machines, not on this server yet)",
+      "root_task": "What is the root flag?",
+      "type": "Type",
+      "type_b2r": "Boot to Root",
+      "type_challenge": "Challenge",
+      "type_hint": "Boot to Root: a machine to take over, with a user flag and a root flag.",
+      "user_task": "What is the user flag?"
     },
     "lead": "Write modules, labs and skill paths in the browser, and propose games. What you publish goes straight to the site; a proposed game goes online once the superadmin approves it.",
     "machine": {
@@ -826,11 +863,17 @@
       "flag_hint": "Keep [USER_HASH] in it: it makes every student's flag different.",
       "image": "Image",
       "image_hint": "One of the images built on the server.",
+      "memory": "Memory (MB)",
+      "memory_hint": "From 16 to 1024.",
       "port": "Port",
       "port_hint": "The port the machine serves on.",
+      "root_flag": "Root flag",
+      "root_flag_hint": "In ROOT_FLAG. Keep [USER_HASH] in it.",
       "title": "Machine",
       "use": "Students start a machine of their own here",
-      "use_hint": "A private container, started on request and removed after an hour."
+      "use_hint": "A private container, started on request and removed after an hour.",
+      "user_flag": "User flag",
+      "user_flag_hint": "In USER_FLAG. Keep [USER_HASH] in it."
     },
     "markdown_hint": "Markdown works here: **bold**, `code`, lists, links and code blocks.",
     "minutes": "Minutes it takes",
@@ -926,6 +969,8 @@
       "numbered": "Question {{n}}",
       "text": "Question",
       "the_flag": "The machine's flag",
+      "the_root_flag": "The root flag",
+      "the_user_flag": "The user flag",
       "title": "Questions",
       "xp": "XP for a right answer"
     },

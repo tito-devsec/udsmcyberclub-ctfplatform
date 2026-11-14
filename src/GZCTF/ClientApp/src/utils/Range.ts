@@ -118,12 +118,16 @@ export interface ModuleDetail extends ModuleSummary {
   chapters: { title: string; sections: SectionSummary[] }[]
 }
 
+// which of a machine's flags answers a question: its flag, or a boot-to-root machine's user or root flag
+export type FlagKind = 'flag' | 'user' | 'root'
+
 export interface Question {
   id: string
   question: string
   format: string | null
   hint: string | null
   flag: boolean
+  flagKind: FlagKind | null
   xp: number
   solved: boolean
 }

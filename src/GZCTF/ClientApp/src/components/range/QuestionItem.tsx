@@ -48,7 +48,17 @@ export const QuestionItem: FC<QuestionItemProps> = ({ number, question, submit, 
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           {question.solved && <Uicon name="check-circle-solid" style={{ color: 'var(--r-done)' }} />}
           {label ?? t('range.question.number', { n: number })}
-          {question.flag && <Label icon="flag-alt">{t('range.question.flag')}</Label>}
+          {question.flag && (
+            <Label icon="flag-alt">
+              {t(
+                question.flagKind === 'user'
+                  ? 'range.question.user_flag'
+                  : question.flagKind === 'root'
+                    ? 'range.question.root_flag'
+                    : 'range.question.flag'
+              )}
+            </Label>
+          )}
         </span>
         <Xp value={question.xp} plus pill />
         <Uicon name="angle-small-down" size={20} className={classes.chevron} data-open={open || undefined} />

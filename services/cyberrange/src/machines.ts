@@ -5,7 +5,7 @@
 import { createHmac } from 'node:crypto'
 import type { User } from './auth.js'
 import { config } from './config.js'
-import type { Module, Section } from './content.js'
+import type { FlagKind, Module, Section } from './content.js'
 import { db } from './db.js'
 import { docker } from './docker.js'
 import { HttpError } from './http.js'
@@ -34,8 +34,22 @@ interface Row {
 export const userHash = (userId: string, purpose: string) =>
   createHmac('sha256', config.secret).update(`${userId}:${purpose}`).digest('hex').slice(0, 12)
 
-export const machineFlag = (template: string, userId: string, module: Module, section: Section) =>
-  template.replaceAll('[USER_HASH]', userHash(userId, `${module.slug}/${section.slug}`))
+// The user's and root's flags of a boot-to-root machine are worked out apart from each other, and
+// from the "flag" of other machines, so that none of them gives away another.
+export const machineFlag = (template: string, userId: string, module: Module, section: Section, kind: FlagKind = 'flag') =>
+  template.replaceAll(
+    '[USER_HASH]',
+    userHash(userId, kind === 'flag' ? `${module.slug}/${section.slug}` : `${module.slug}/${section.slug}#${kind}`)
+  )
+
+// What a machine is told when it starts: its flags, each in a variable of its own.
+function flagVariables(machine: NonNullable<Section['machine']>, userId: string, module: Module, section: Section) {
+  const variables: string[] = []
+  if (machine.flag) variables.push(`GZCTF_FLAG=${machineFlag(machine.flag, userId, module, section)}`)
+  if (machine.userFlag) variables.push(`USER_FLAG=${machineFlag(machine.userFlag, userId, module, section, 'user')}`)
+  if (machine.rootFlag) variables.push(`ROOT_FLAG=${machineFlag(machine.rootFlag, userId, module, section, 'root')}`)
+  return variables
+}
 
 const toInfo = (row: Row): MachineInfo => ({
   module: row.module,
@@ -106,9 +120,13 @@ export function startMachine(user: User, module: Module, section: Section): Prom
     await removeContainer(name) // a leftover with the same name, if any
 
     const port = `${machine.port}/tcp`
+    // A machine with a root flag is there to be taken over: becoming root inside it, through sudo
+    // or a setuid program, is the exercise, so its programs may gain privileges. It keeps Docker's
+    // usual capabilities but for two it has no use for. Root inside is still a container's root.
+    const escalation = Boolean(machine.rootFlag)
     const created = await docker<{ Id: string; message?: string }>('POST', `/containers/create?name=${name}`, {
       Image: machine.image,
-      Env: machine.flag ? [`GZCTF_FLAG=${machineFlag(machine.flag, user.id, module, section)}`] : [],
+      Env: flagVariables(machine, user.id, module, section),
       Labels: {
         // also picked up by the instance-limits service, like the platform's own instances
         ChallengeId: `range:${module.slug}/${section.slug}`,
@@ -124,7 +142,7 @@ export function startMachine(user: User, module: Module, section: Section): Prom
         PidsLimit: config.machinePids,
         NetworkMode: config.machineNetwork,
         PortBindings: { [port]: [{ HostIp: '', HostPort: '' }] },
-        SecurityOpt: ['no-new-privileges'],
+        ...(escalation ? { CapDrop: ['MKNOD', 'SETFCAP'] } : { SecurityOpt: ['no-new-privileges'] }),
       },
     })
     if (created.status === 404) throw new HttpError(503, "This section's machine is not installed on the server yet.")

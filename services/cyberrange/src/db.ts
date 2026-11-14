@@ -152,6 +152,22 @@ CREATE TABLE IF NOT EXISTS boxes (
   expires_at   timestamptz NOT NULL
 );
 
+-- when each lab went online, kept from the first time the service loaded it: a boot-to-root
+-- machine's bloods are timed from it
+CREATE TABLE IF NOT EXISTS lab_releases (
+  lab         text        PRIMARY KEY,
+  released_at timestamptz NOT NULL
+);
+
+-- respect given to a lab's creator, once by each member
+CREATE TABLE IF NOT EXISTS respects (
+  user_id    uuid        NOT NULL,
+  creator_id uuid        NOT NULL,
+  given_at   timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (user_id, creator_id)
+);
+CREATE INDEX IF NOT EXISTS respects_by_creator ON respects (creator_id);
+
 CREATE TABLE IF NOT EXISTS machines (
   user_id      uuid        PRIMARY KEY,
   module       text        NOT NULL,

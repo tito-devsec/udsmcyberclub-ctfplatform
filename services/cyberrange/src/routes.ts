@@ -8,6 +8,7 @@ import { clientIp, forgetUser, isStaff, isSuperadmin, roleOf, SKILL_LEVELS, type
 import { stopBox } from './boxes.js'
 import {
   ContentError,
+  flagTemplate,
   type Lab,
   type Module,
   normalise,
@@ -19,6 +20,7 @@ import {
 } from './content.js'
 import { db } from './db.js'
 import { type Context, FileReply, HttpError, route } from './http.js'
+import { bloodsOf, creatorOf } from './labs.js'
 import { currentMachine, extendMachine, machineFlag, type MachineInfo, startMachine, stopMachine } from './machines.js'
 import { platform } from './platform.js'
 import { allAnswered, type ModuleState, moduleState, pathState, type Progress, progressOf, solvedIn } from './progress.js'
@@ -62,8 +64,9 @@ function mustBeOpen(state: ModuleState, section: Section) {
 }
 
 function check(question: Question, module: Module, section: Section, userId: string, answer: string): boolean {
-  if (question.flag) {
-    const expected = Buffer.from(machineFlag(section.machine!.flag!, userId, module, section))
+  if (question.flagKind) {
+    const template = flagTemplate(section.machine, question.flagKind)!
+    const expected = Buffer.from(machineFlag(template, userId, module, section, question.flagKind))
     const given = Buffer.from(answer.trim())
     return expected.length === given.length && timingSafeEqual(expected, given)
   }
@@ -333,6 +336,7 @@ route('GET', `${BASE}/modules/:module/sections/:section`, async (ctx) => {
           format: q.format ?? null,
           hint: q.hint ?? null,
           flag: q.flag,
+          flagKind: q.flagKind,
           xp: q.xp,
           solved: solved.has(q.id),
         })),
@@ -382,14 +386,21 @@ route('GET', `${BASE}/labs/:lab`, async (ctx) => {
   const user = await ctx.user()
   const [progress, solvers] = await Promise.all([progressOf(user?.id), solversOf()])
   const solved = solvedIn(progress, lab.module, lab.section)
-  const { rows: first } = await db.query<{ name: string; completed_at: Date }>(
-    `SELECT u.name, c.completed_at FROM completions c JOIN users u ON u.id = c.user_id
-     WHERE c.module = $1 ORDER BY c.completed_at LIMIT 1`,
-    [lab.key]
-  )
+  const [{ rows: first }, creator, bloods] = await Promise.all([
+    db.query<{ name: string; completed_at: Date }>(
+      `SELECT u.name, c.completed_at FROM completions c JOIN users u ON u.id = c.user_id
+       WHERE c.module = $1 ORDER BY c.completed_at LIMIT 1`,
+      [lab.key]
+    ),
+    creatorOf(lab, user),
+    bloodsOf(lab),
+  ])
   return {
     ...labSummary(lab, progress, solvers),
     scenario: lab.scenario,
+    creator,
+    // the first students to take a boot-to-root machine's user flag and its root flag
+    bloods,
     bonus: lab.section.xp,
     signedIn: Boolean(user),
     machine: lab.section.machine ? { port: lab.section.machine.port } : null,
@@ -408,6 +419,7 @@ route('GET', `${BASE}/labs/:lab`, async (ctx) => {
       format: q.format ?? null,
       hint: q.hint ?? null,
       flag: q.flag,
+      flagKind: q.flagKind,
       xp: q.xp,
       solved: solved.has(q.id),
     })),
@@ -562,6 +574,8 @@ async function forget(id: string) {
     for (const table of ['solves', 'completions', 'attempts', 'certificates']) {
       await client.query(`DELETE FROM ${table} WHERE user_id = $1`, [id])
     }
+    // the respect they gave, and the respect they were given
+    await client.query('DELETE FROM respects WHERE user_id = $1 OR creator_id = $1', [id])
     await client.query('DELETE FROM users WHERE id = $1', [id])
     await client.query('COMMIT')
   } catch (error) {

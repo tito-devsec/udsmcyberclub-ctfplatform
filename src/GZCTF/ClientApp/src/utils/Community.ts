@@ -21,6 +21,15 @@ import { UiconName } from '@Utils/Uicons'
 
 // ---- labs ----
 
+// a boot-to-root machine, another machine to attack, or a challenge with files or a puzzle
+export type LabKind = 'b2r' | 'machine' | 'challenge'
+// the system a boot-to-root machine runs
+export type LabSystem = 'linux' | 'windows'
+
+export const LabKindIcon: Record<LabKind, UiconName> = { b2r: 'skull', machine: 'computer', challenge: 'puzzle-alt' }
+// Uicons has no Linux logo: a terminal stands for it
+export const SystemIcon: Record<LabSystem, UiconName> = { linux: 'terminal', windows: 'windows-brands' }
+
 export interface LabSummary {
   slug: string
   title: string
@@ -30,13 +39,37 @@ export interface LabSummary {
   minutes: number
   icon: string | null
   xp: number
-  // a machine to attack, or a challenge with files or a puzzle
-  kind: 'machine' | 'challenge'
+  kind: LabKind
+  os: LabSystem | null
   tasks: number
   solved: number
   status: ModuleStatus
   solvers: number
   updated: string | null
+  // when it went online
+  released: string | null
+}
+
+interface Person {
+  name: string
+  avatar: string | null
+  verified: boolean
+}
+
+// the first student to take one of a boot-to-root machine's flags
+export interface Blood extends Person {
+  at: string
+  // seconds after the lab went online
+  after: number
+}
+
+export interface Creator extends Person {
+  // whether they have a profile here
+  member: boolean
+  respects: number
+  // whether whoever is looking has given them respect, or is them
+  respected: boolean
+  self: boolean
 }
 
 // A lab with everything on its page. `tasks` is a count in the summary and the list here.
@@ -49,6 +82,9 @@ export interface Lab extends Omit<LabSummary, 'tasks'> {
   machineKey: { module: string; section: string }
   files: { name: string; size: number; url: string }[]
   firstSolve: { name: string; at: string } | null
+  creator: Creator | null
+  // for a boot-to-root machine: who took its user flag first, and its root flag
+  bloods: { user: Blood | null; root: Blood | null } | null
   tasks: Question[]
 }
 
@@ -59,6 +95,37 @@ export const labsApi = {
   answer: (lab: string, task: string, answer: string) =>
     rangeCall<AnswerResult>('POST', `${RANGE_API}/labs/${lab}/tasks/${task}`, { answer }),
   startMachine: (lab: string) => rangeCall<MachineInfo>('POST', `${RANGE_API}/labs/${lab}/machine`),
+  // respect for a lab's creator, given or taken back
+  respect: (name: string, give: boolean) =>
+    rangeCall<{ respects: number; respected: boolean }>(
+      give ? 'PUT' : 'DELETE',
+      `${RANGE_API}/respect/${encodeURIComponent(name)}`
+    ),
+}
+
+// "0H 4M 0S", or with days in front once it took that long, as the time a blood took
+export function bloodTime(seconds: number) {
+  const days = Math.floor(seconds / 86_400)
+  const hours = Math.floor((seconds % 86_400) / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  const rest = seconds % 60
+  return `${days > 0 ? `${days}D ` : ''}${hours}H ${minutes}M ${rest}S`
+}
+
+// "6th June, 2026", as a lab's release is written
+export function releaseDate(iso: string, language: string) {
+  const date = new Date(iso)
+  if (!language.startsWith('en')) return date.toLocaleDateString(language, { dateStyle: 'long' })
+  const day = date.getDate()
+  const suffix =
+    day % 10 === 1 && day !== 11
+      ? 'st'
+      : day % 10 === 2 && day !== 12
+        ? 'nd'
+        : day % 10 === 3 && day !== 13
+          ? 'rd'
+          : 'th'
+  return `${day}${suffix} ${date.toLocaleDateString('en-GB', { month: 'long' })}, ${date.getFullYear()}`
 }
 
 export const labUrl = (lab: string) => `/labs/${lab}`
@@ -125,6 +192,9 @@ export interface Profile extends Standing {
     questions: number
     flags: number
     certificates: number
+    // labs online that name them as their creator, and the respect members gave them for it
+    labsCreated: number
+    respects: number
   }
   streak: { current: number; best: number; goal: number; weekXp: number }
   badges: Badge[]
@@ -138,7 +208,7 @@ export interface Profile extends Standing {
     difficulty: Difficulty
     icon: string | null
     xp: number
-    kind: 'machine' | 'challenge'
+    kind: LabKind
     solvedAt: string
   }[]
   categories: { category: Category; xp: number; total: number }[]

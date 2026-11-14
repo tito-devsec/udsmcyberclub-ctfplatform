@@ -1,4 +1,4 @@
-import { Button, FileButton, NumberInput, Select, Switch, TextInput } from '@mantine/core'
+import { Button, FileButton, NumberInput, SegmentedControl, Select, Switch, TextInput } from '@mantine/core'
 import { showNotification } from '@mantine/notifications'
 import cx from 'clsx'
 import { FC, ReactNode, useState } from 'react'
@@ -10,9 +10,11 @@ import { RangePage } from '@Components/range/RangePage'
 import {
   IconButton,
   ItemControls,
+  Labelled,
   MachineFields,
   MarkdownField,
   moved,
+  newMachine,
   QuestionsEditor,
   replaced,
   StatusChip,
@@ -25,13 +27,16 @@ import {
   documentsApi,
   fileToDataUrl,
   LabDraft,
+  MachineDraft,
   ModuleDraft,
   PathDraft,
+  QuestionDraft,
   SectionDraft,
   StudioDocument,
   studioUrl,
   useDocument,
   useMachineImages,
+  withoutMissingFlags,
 } from '@Utils/Studio'
 import { uicons } from '@Utils/Uicons'
 import { usePageTitle } from '@Hooks/usePageTitle'
@@ -144,10 +149,6 @@ type Selected =
   { at: 'details' } | { at: 'chapter'; chapter: number } | { at: 'section'; chapter: number; section: number }
 
 const newSection = (): SectionDraft => ({ title: '', content: '', xp: 10 })
-
-// Without a machine flag to ask for, questions that asked for it ask for an answer again.
-const withoutFlagQuestions = <T extends { flag?: boolean; answer?: string[] }>(questions: T[] | undefined) =>
-  questions?.map((question) => (question.flag ? { ...question, flag: undefined, answer: [] } : question))
 
 // A module: its details, then its chapters of sections, picked from the outline on the left.
 const ModuleEditor: FC<EditorProps<ModuleDraft>> = ({ value, onChange, images }) => {
@@ -319,10 +320,7 @@ const ModuleEditor: FC<EditorProps<ModuleDraft>> = ({ value, onChange, images })
                 value={section.machine}
                 images={images}
                 onChange={(machine) =>
-                  setSection({
-                    machine,
-                    questions: machine?.flag ? section.questions : withoutFlagQuestions(section.questions),
-                  })
+                  setSection({ machine, questions: withoutMissingFlags(section.questions, machine) })
                 }
               />
             </section>
@@ -334,7 +332,7 @@ const ModuleEditor: FC<EditorProps<ModuleDraft>> = ({ value, onChange, images })
                 noun="question"
                 value={section.questions ?? []}
                 onChange={(questions) => setSection({ questions })}
-                canFlag={Boolean(section.machine?.flag)}
+                machine={section.machine}
               />
             </section>
           </>
@@ -362,6 +360,45 @@ const sizeOf = (bytes: number) =>
 const LabEditor: FC<LabEditorProps> = ({ value, onChange, images, id, files, onFiles }) => {
   const { t } = useTranslation()
   const [busy, setBusy] = useState(false)
+  const b2r = value.type === 'b2r'
+
+  // A boot-to-root lab is a machine with a user flag and a root flag, and a task for each: they
+  // are added when it becomes one. A challenge again, its machine has one flag.
+  const setType = (type: string) => {
+    if (type === 'b2r') {
+      const machine: MachineDraft = value.machine
+        ? {
+            ...newMachine(images, true),
+            ...value.machine,
+            flag: undefined,
+          }
+        : newMachine(images, true)
+      const tasks = value.tasks ?? []
+      const added: QuestionDraft[] = [
+        ...(tasks.some((task) => task.flag === 'user')
+          ? []
+          : [{ question: t('range.studio.lab.user_task'), flag: 'user' as const, xp: 40 }]),
+        ...(tasks.some((task) => task.flag === 'root')
+          ? []
+          : [{ question: t('range.studio.lab.root_task'), flag: 'root' as const, xp: 60 }]),
+      ]
+      onChange({
+        ...value,
+        type: 'b2r',
+        os: value.os ?? 'linux',
+        machine,
+        tasks: withoutMissingFlags([...tasks, ...added], machine),
+      })
+    } else {
+      const machine = value.machine && {
+        ...value.machine,
+        userFlag: undefined,
+        rootFlag: undefined,
+        flag: value.machine.flag ?? newMachine(images).flag,
+      }
+      onChange({ ...value, type: undefined, os: undefined, machine, tasks: withoutMissingFlags(value.tasks, machine) })
+    }
+  }
 
   const change = async (work: () => Promise<StudioDocument>) => {
     setBusy(true)
@@ -401,6 +438,42 @@ const LabEditor: FC<LabEditorProps> = ({ value, onChange, images, id, files, onF
             onChange={(bonus) => onChange({ ...value, bonus: Number(bonus) || 0 })}
           />
         </DetailsFields>
+        <div className={classes.row}>
+          <Labelled label={t('range.studio.lab.type')}>
+            <SegmentedControl
+              fullWidth
+              value={b2r ? 'b2r' : 'challenge'}
+              onChange={setType}
+              data={[
+                { value: 'challenge', label: t('range.studio.lab.type_challenge') },
+                { value: 'b2r', label: t('range.studio.lab.type_b2r') },
+              ]}
+            />
+            <span className={cx(range.small, range.dim)}>{t('range.studio.lab.type_hint')}</span>
+          </Labelled>
+          {b2r && (
+            <Select
+              label={t('range.studio.lab.os')}
+              description={t('range.studio.lab.os_hint')}
+              data={[
+                { value: 'linux', label: t('range.lab.os.linux') },
+                // a Windows machine needs a virtual machine to run in, which this server has not
+                { value: 'windows', label: t('range.studio.lab.os_windows_later'), disabled: true },
+              ]}
+              value={value.os ?? 'linux'}
+              onChange={(os) => os && onChange({ ...value, os: os as LabDraft['os'] })}
+              allowDeselect={false}
+            />
+          )}
+          <TextInput
+            label={t('range.studio.lab.creator')}
+            description={t('range.studio.lab.creator_hint')}
+            maxLength={40}
+            required
+            value={value.creator ?? ''}
+            onChange={(event) => onChange({ ...value, creator: event.currentTarget.value || undefined })}
+          />
+        </div>
         <MarkdownField
           label={t('range.lab.scenario')}
           value={value.scenario}
@@ -416,9 +489,8 @@ const LabEditor: FC<LabEditorProps> = ({ value, onChange, images, id, files, onF
         <MachineFields
           value={value.machine}
           images={images}
-          onChange={(machine) =>
-            onChange({ ...value, machine, tasks: machine?.flag ? value.tasks : withoutFlagQuestions(value.tasks) })
-          }
+          b2r={b2r}
+          onChange={(machine) => onChange({ ...value, machine, tasks: withoutMissingFlags(value.tasks, machine) })}
         />
       </section>
 
@@ -466,7 +538,8 @@ const LabEditor: FC<LabEditorProps> = ({ value, onChange, images, id, files, onF
           noun="task"
           value={value.tasks ?? []}
           onChange={(tasks) => onChange({ ...value, tasks })}
-          canFlag={Boolean(value.machine?.flag)}
+          machine={value.machine}
+          b2r={b2r}
         />
       </section>
     </>

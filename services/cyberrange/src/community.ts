@@ -5,12 +5,13 @@ import { currentUser, forgetUser, roleOf } from './auth.js'
 import { CATEGORIES, type Category, pathCategory } from './content.js'
 import { db } from './db.js'
 import { HttpError, route } from './http.js'
+import { respectCount } from './labs.js'
 import { moduleState, pathState, progressOf } from './progress.js'
 import { allow } from './ratelimit.js'
 import { signatoriesOf } from './signing.js'
 import { content } from './state.js'
 import { badgesOf, positionOf, rankingPage, type Scope, streakOf, syncCertificates, weeks } from './stats.js'
-import { moduleSummary, pathSummary } from './views.js'
+import { labKind, moduleSummary, pathSummary } from './views.js'
 import { standing, xpOf } from './xp.js'
 
 const BASE = '/api/range'
@@ -86,7 +87,9 @@ async function profileOf(row: UserRow, viewerId: string | undefined) {
       [row.id]
     ),
   ])
-  const badges = await badgesOf(row.id, streak.fourthWeek)
+  const [badges, respects] = await Promise.all([badgesOf(row.id, streak.fourthWeek), respectCount(row.id)])
+  // the labs online that name them as their creator
+  const labsCreated = content.labs.filter((lab) => lab.creator?.toLowerCase() === row.name.toLowerCase()).length
 
   const { rows: labRows } = await db.query<{ module: string; at: Date }>(
     "SELECT module, completed_at AS at FROM completions WHERE user_id = $1 AND module LIKE 'lab:%' ORDER BY completed_at DESC",
@@ -103,7 +106,7 @@ async function profileOf(row: UserRow, viewerId: string | undefined) {
             difficulty: lab.difficulty,
             icon: lab.icon ?? null,
             xp: lab.xp,
-            kind: lab.section.machine ? 'machine' : 'challenge',
+            kind: labKind(lab),
             solvedAt: r.at.toISOString(),
           },
         ]
@@ -160,6 +163,8 @@ async function profileOf(row: UserRow, viewerId: string | undefined) {
       questions: counts.rows[0]?.questions ?? 0,
       flags: counts.rows[0]?.flags ?? 0,
       certificates: certificates.rows.length,
+      labsCreated,
+      respects,
     },
     streak: { current: streak.current, best: streak.best, goal: streak.goal, weekXp: streak.weekXp },
     badges,

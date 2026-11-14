@@ -38,26 +38,30 @@ const Labs: FC = () => {
 
   usePageTitle(t('range.nav.labs'))
 
-  // the category is in the address, so that a category can be linked to
+  // the category, or boot to root, is in the address, so that it can be linked to
   const category = LAB_CATEGORIES.find((c) => c === params.get('category')) ?? null
+  const b2r = !category && params.get('type') === 'b2r'
   const pick = (next: Category | null) => setParams(next ? { category: next } : {}, { replace: true })
+  const pickB2r = () => setParams({ type: 'b2r' }, { replace: true })
 
   const counts = useMemo(() => {
     const map = new Map<Category, number>()
     for (const lab of labs ?? []) map.set(lab.category, (map.get(lab.category) ?? 0) + 1)
     return map
   }, [labs])
+  const machines = labs?.filter((lab) => lab.kind === 'b2r').length ?? 0
 
   const shown = useMemo(() => {
     const words = search.trim().toLowerCase()
     return (labs ?? []).filter(
       (lab) =>
         (!category || lab.category === category) &&
+        (!b2r || lab.kind === 'b2r') &&
         (!difficulty || lab.difficulty === difficulty) &&
         (!status || lab.status === status) &&
         (!words || lab.title.toLowerCase().includes(words) || lab.summary.toLowerCase().includes(words))
     )
-  }, [labs, category, difficulty, status, search])
+  }, [labs, category, b2r, difficulty, status, search])
 
   const solved = labs?.filter((lab) => lab.status === 'completed').length ?? 0
 
@@ -88,12 +92,23 @@ const Labs: FC = () => {
                 <button
                   type="button"
                   className={classes.categoryItem}
-                  data-active={!category || undefined}
+                  data-active={(!category && !b2r) || undefined}
                   onClick={() => pick(null)}
                 >
                   <Uicon name="flask" />
                   {t('range.lab.all')}
                   <span className={classes.categoryCount}>{labs?.length ?? 0}</span>
+                </button>
+                <button
+                  type="button"
+                  className={classes.categoryItem}
+                  data-active={b2r || undefined}
+                  data-empty={!machines || undefined}
+                  onClick={pickB2r}
+                >
+                  <Uicon name="skull" />
+                  {t('range.lab.kind.b2r')}
+                  <span className={classes.categoryCount}>{machines}</span>
                 </button>
                 {LAB_CATEGORIES.map((c) => (
                   <button
@@ -116,9 +131,11 @@ const Labs: FC = () => {
           </aside>
 
           <main style={{ minWidth: 0 }}>
-            <h1 className={range.pageTitle}>{category ? t(`range.category.${category}`) : t('range.nav.labs')}</h1>
+            <h1 className={range.pageTitle}>
+              {category ? t(`range.category.${category}`) : b2r ? t('range.lab.kind.b2r') : t('range.nav.labs')}
+            </h1>
             <p className={range.lead} style={{ marginTop: 12 }}>
-              {t('range.lab.lead')}
+              {b2r ? t('range.lab.b2r_lead') : t('range.lab.lead')}
             </p>
 
             <div className={range.filters} style={{ marginTop: 28 }}>
@@ -179,7 +196,9 @@ const Labs: FC = () => {
                   </div>
                 ) : (
                   <div className={cx(range.card, range.empty)}>
-                    {category && !counts.get(category) ? t('range.lab.coming') : t('range.lab.empty')}
+                    {(category && !counts.get(category)) || (b2r && !machines)
+                      ? t('range.lab.coming')
+                      : t('range.lab.empty')}
                   </div>
                 )}
               </>

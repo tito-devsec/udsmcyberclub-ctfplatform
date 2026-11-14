@@ -34,14 +34,30 @@ export const CATEGORIES = [
 ] as const
 export type Category = (typeof CATEGORIES)[number]
 
+// A challenge: tasks about a machine, some files or a puzzle. Boot to root: a machine to take
+// over, first as an ordinary user and then as root (or SYSTEM), with a flag for each.
+export const LAB_TYPES = ['challenge', 'b2r'] as const
+export type LabType = (typeof LAB_TYPES)[number]
+
+// the system a boot-to-root machine runs
+export const SYSTEMS = ['linux', 'windows'] as const
+export type System = (typeof SYSTEMS)[number]
+
+// The flags a machine can hold, each its own for every student: "flag" in GZCTF_FLAG, as on a
+// platform challenge, and on a boot-to-root machine "user" in USER_FLAG and "root" in ROOT_FLAG.
+export const FLAG_KINDS = ['flag', 'user', 'root'] as const
+export type FlagKind = (typeof FLAG_KINDS)[number]
+
 export interface Question {
   id: string
   question: string
   // the shape of the answer, shown to students, e.g. "***.***"
   format?: string
   hint?: string
-  // answered with the flag from the student's own machine
+  // answered with a flag from the student's own machine
   flag: boolean
+  // which of the machine's flags, when it is one
+  flagKind: FlagKind | null
   caseSensitive: boolean
   hashes: Set<string>
   // what a right answer earns, chosen by the author
@@ -52,9 +68,15 @@ export interface Machine {
   image: string
   port: number
   memory: number
-  // template for the flag the machine gets in GZCTF_FLAG; [USER_HASH] differs per student
+  // templates for the flags the machine gets, by FLAG_KINDS; [USER_HASH] differs per student
   flag?: string
+  userFlag?: string
+  rootFlag?: string
 }
+
+// the template of one of a machine's flags
+export const flagTemplate = (machine: Machine | undefined, kind: FlagKind) =>
+  kind === 'user' ? machine?.userFlag : kind === 'root' ? machine?.rootFlag : machine?.flag
 
 export interface Section {
   slug: string
@@ -110,6 +132,11 @@ export interface Lab {
   title: string
   summary: string
   scenario: string
+  type: LabType
+  // the system of a boot-to-root machine
+  os: System | null
+  // the username of whoever made the lab, written by the admin who put it online
+  creator: string | null
   category: Category
   difficulty: Difficulty
   minutes: number
@@ -224,26 +251,46 @@ function loadMachine(value: unknown, where: string): Machine {
   const m = object(value, `${where} machine`)
   const image = text(m, 'image', where)
   if (!IMAGE.test(image)) fail(where, `"${image}" is not a valid image name`)
-  const flag = m.flag === undefined ? undefined : text(m, 'flag', where)
-  if (flag !== undefined && !flag.includes('[USER_HASH]')) {
-    fail(where, 'the machine flag needs [USER_HASH] so that every student gets their own')
+  const template = (field: string) => {
+    const flag = m[field] === undefined ? undefined : text(m, field, where)
+    if (flag !== undefined && !flag.includes('[USER_HASH]')) {
+      fail(where, `the machine's "${field}" needs [USER_HASH] so that every student gets their own`)
+    }
+    return flag
   }
   return {
     image,
     port: whole(m, 'port', `${where} machine`, 80, 1, 65535),
     memory: whole(m, 'memory', `${where} machine`, 64, 16, 1024),
-    flag,
+    flag: template('flag'),
+    userFlag: template('userFlag'),
+    rootFlag: template('rootFlag'),
   }
 }
+
+// "flag: true" asks for the machine's flag, "flag: user" and "flag: root" for those of a
+// boot-to-root machine
+function flagKindOf(raw: Raw, id: string, where: string): FlagKind | null {
+  const value = raw.flag
+  if (value === undefined || value === false) return null
+  if (value === true || value === 'flag') return 'flag'
+  if (value === 'user' || value === 'root') return value
+  fail(where, `question "${id}": "flag" must be true, user or root`)
+}
+
+const FLAG_NAMES: Record<FlagKind, string> = { flag: 'flag', user: 'userFlag', root: 'rootFlag' }
 
 function loadQuestion(raw: Raw, machine: Machine | undefined, where: string): Question {
   const id = text(raw, 'id', where)
   if (!SLUG.test(id)) fail(where, `question id "${id}" may only use a-z, 0-9 and dashes`)
-  const isFlag = raw.flag === true
+  const flagKind = flagKindOf(raw, id, where)
+  const isFlag = flagKind !== null
   const caseSensitive = isFlag || raw.caseSensitive === true
   const hashes = new Set<string>()
-  if (isFlag) {
-    if (!machine?.flag) fail(where, `question "${id}" asks for the machine flag, but this section's machine has no flag`)
+  if (flagKind) {
+    if (!flagTemplate(machine, flagKind)) {
+      fail(where, `question "${id}" asks for the machine's ${FLAG_NAMES[flagKind]}, but the machine has none`)
+    }
   } else {
     const answers = Array.isArray(raw.answer) ? raw.answer : [raw.answer]
     for (const answer of answers) {
@@ -257,6 +304,7 @@ function loadQuestion(raw: Raw, machine: Machine | undefined, where: string): Qu
     format: raw.format === undefined ? undefined : text(raw, 'format', where),
     hint: raw.hint === undefined ? undefined : text(raw, 'hint', where),
     flag: isFlag,
+    flagKind,
     caseSensitive,
     hashes,
     xp: whole(raw, 'xp', `${where} question "${id}"`, isFlag ? 40 : 10, 0, 1000),
@@ -346,6 +394,17 @@ export function moduleFrom(raw: Raw, slug: string, dir: string | null): Module {
   }
 }
 
+// A username on the platform, which takes any characters, from 3 to 15 of them. Whether
+// someone has it is checked where it can be: when a lab is published in the web interface.
+function creatorOf(raw: Raw, where: string): string | null {
+  if (raw.creator === undefined || raw.creator === null || raw.creator === '') return null
+  const name = text(raw, 'creator', where)
+  if (!name || name.length > 40 || /[\u0000-\u001f\u007f]/.test(name)) {
+    fail(where, '"creator" must be the username of whoever made the lab')
+  }
+  return name
+}
+
 function updatedOf(raw: Raw, where: string): string | undefined {
   const updated = raw.updated === undefined ? undefined : text(raw, 'updated', where)
   if (updated !== undefined && !DATE.test(updated)) fail(where, '"updated" must be a date such as "2026-11-12", in quotes')
@@ -378,6 +437,20 @@ export function labFrom(raw: Raw, slug: string, dir: string, files: { name: stri
 
   for (const { name } of files) {
     if (!FILE_NAME.test(name)) fail(where, `the file name "${name}" may only use letters, digits, dots, dashes and _`)
+  }
+
+  // A boot-to-root lab is its machine: a flag for the user, a flag for root, and a task for each.
+  // Other tasks may come before them, as guidance.
+  const type = choice(raw, 'type', where, LAB_TYPES, 'challenge')
+  if (type === 'b2r') {
+    if (!machine?.userFlag || !machine.rootFlag) {
+      fail(where, 'a boot-to-root lab needs a machine with a userFlag and a rootFlag')
+    }
+    for (const kind of ['user', 'root'] as const) {
+      if (questions.filter((question) => question.flagKind === kind).length !== 1) {
+        fail(where, `a boot-to-root lab needs one task answered with the ${kind} flag ("flag: ${kind}")`)
+      }
+    }
   }
 
   const title = text(raw, 'title', where)
@@ -421,6 +494,9 @@ export function labFrom(raw: Raw, slug: string, dir: string, files: { name: stri
     title,
     summary,
     scenario: section.content,
+    type,
+    os: type === 'b2r' ? choice(raw, 'os', where, SYSTEMS, 'linux') : null,
+    creator: creatorOf(raw, where),
     category,
     difficulty,
     minutes,

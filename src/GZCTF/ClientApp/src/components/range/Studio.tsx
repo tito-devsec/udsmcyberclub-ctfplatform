@@ -3,7 +3,8 @@ import { FC, PropsWithChildren, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Uicon } from '@Components/Uicon'
 import { SafeMarkdown } from '@Components/range/SafeMarkdown'
-import { MachineDraft, QuestionDraft } from '@Utils/Studio'
+import { FlagKind } from '@Utils/Range'
+import { FLAG_FIELD, flagKindOf, MachineDraft, QuestionDraft } from '@Utils/Studio'
 import { UiconName } from '@Utils/Uicons'
 import range from '@Styles/Range.module.css'
 import classes from '@Styles/Studio.module.css'
@@ -149,33 +150,62 @@ export const MarkdownField: FC<MarkdownFieldProps> = ({ label, value, onChange, 
   )
 }
 
+// A new machine, with flags to change: a boot-to-root machine's user and root flags, or the one
+// flag of any other.
+export const newMachine = (images: string[], b2r = false): MachineDraft =>
+  b2r
+    ? {
+        image: images[0] ?? '',
+        port: 80,
+        memory: 256,
+        userFlag: 'udsm{user_change_these_words_[USER_HASH]}',
+        rootFlag: 'udsm{root_change_these_words_[USER_HASH]}',
+      }
+    : { image: images[0] ?? '', port: 80, flag: 'udsm{change_these_words_[USER_HASH]}' }
+
 interface MachineFieldsProps {
   value: MachineDraft | undefined
   onChange: (value: MachineDraft | undefined) => void
   // the images on the server that may be used
   images: string[]
+  // a boot-to-root lab's machine, which has a user flag and a root flag
+  b2r?: boolean
   disabled?: boolean
 }
 
-// The machine a student starts for a section or a lab: its image, its port and its flag.
-export const MachineFields: FC<MachineFieldsProps> = ({ value, onChange, images, disabled }) => {
+// The machine a student starts for a section or a lab: its image, its port, its memory and its
+// flag, or a boot-to-root machine's two.
+export const MachineFields: FC<MachineFieldsProps> = ({ value, onChange, images, b2r, disabled }) => {
   const { t } = useTranslation()
+
+  const flagInput = (kind: FlagKind, label: string, hint: string) => {
+    const field = FLAG_FIELD[kind]
+    return (
+      value && (
+        <TextInput
+          label={t(label)}
+          description={t(hint)}
+          value={value[field] ?? ''}
+          onChange={(event) => onChange({ ...value, [field]: event.currentTarget.value.trim() || undefined })}
+          disabled={disabled}
+          styles={mono}
+        />
+      )
+    )
+  }
 
   return (
     <div style={{ display: 'grid', gap: 14 }}>
-      <Switch
-        label={t('range.studio.machine.use')}
-        description={t('range.studio.machine.use_hint')}
-        checked={Boolean(value)}
-        disabled={disabled}
-        onChange={(event) =>
-          onChange(
-            event.currentTarget.checked
-              ? { image: images[0] ?? '', port: 80, flag: 'udsm{change_these_words_[USER_HASH]}' }
-              : undefined
-          )
-        }
-      />
+      {/* a boot-to-root lab is its machine: it always has one */}
+      {!b2r && (
+        <Switch
+          label={t('range.studio.machine.use')}
+          description={t('range.studio.machine.use_hint')}
+          checked={Boolean(value)}
+          disabled={disabled}
+          onChange={(event) => onChange(event.currentTarget.checked ? newMachine(images) : undefined)}
+        />
+      )}
       {value && (
         <div className={classes.row}>
           <Select
@@ -197,14 +227,24 @@ export const MachineFields: FC<MachineFieldsProps> = ({ value, onChange, images,
             onChange={(port) => onChange({ ...value, port: Number(port) || 80 })}
             disabled={disabled}
           />
-          <TextInput
-            label={t('range.studio.machine.flag')}
-            description={t('range.studio.machine.flag_hint')}
-            value={value.flag ?? ''}
-            onChange={(event) => onChange({ ...value, flag: event.currentTarget.value.trim() || undefined })}
+          <NumberInput
+            label={t('range.studio.machine.memory')}
+            description={t('range.studio.machine.memory_hint')}
+            min={16}
+            max={1024}
+            step={16}
+            value={value.memory ?? 64}
+            onChange={(memory) => onChange({ ...value, memory: Number(memory) || 64 })}
             disabled={disabled}
-            styles={mono}
           />
+          {b2r ? (
+            <>
+              {flagInput('user', 'range.studio.machine.user_flag', 'range.studio.machine.user_flag_hint')}
+              {flagInput('root', 'range.studio.machine.root_flag', 'range.studio.machine.root_flag_hint')}
+            </>
+          ) : (
+            flagInput('flag', 'range.studio.machine.flag', 'range.studio.machine.flag_hint')
+          )}
         </div>
       )}
     </div>
@@ -214,18 +254,40 @@ export const MachineFields: FC<MachineFieldsProps> = ({ value, onChange, images,
 interface QuestionsEditorProps {
   value: QuestionDraft[]
   onChange: (value: QuestionDraft[]) => void
-  // whether there is a machine with a flag to ask for
-  canFlag: boolean
+  // the machine whose flags may be asked for
+  machine: MachineDraft | undefined
+  // a boot-to-root lab, whose tasks may ask for the user flag and the root flag
+  b2r?: boolean
   // what they are called: a section has questions, a lab has tasks
   noun: 'question' | 'task'
   disabled?: boolean
 }
 
+// how a question is answered, as the SegmentedControl below names it
+type AnsweredWith = 'answer' | FlagKind
+
 // The questions of a section, or the tasks of a lab.
-export const QuestionsEditor: FC<QuestionsEditorProps> = ({ value, onChange, canFlag, noun, disabled }) => {
+export const QuestionsEditor: FC<QuestionsEditorProps> = ({ value, onChange, machine, b2r, noun, disabled }) => {
   const { t } = useTranslation()
   const set = (index: number, changes: Partial<QuestionDraft>) =>
     onChange(replaced(value, index, { ...value[index], ...changes }))
+
+  const flags: { kind: FlagKind; label: string }[] = b2r
+    ? [
+        { kind: 'user', label: t('range.studio.question.the_user_flag') },
+        { kind: 'root', label: t('range.studio.question.the_root_flag') },
+      ]
+    : [{ kind: 'flag', label: t('range.studio.question.the_flag') }]
+
+  const answerWith = (question: QuestionDraft, kind: AnsweredWith): Partial<QuestionDraft> =>
+    kind === 'answer'
+      ? { flag: undefined, answer: question.answer ?? [], xp: question.xp === 40 ? 10 : question.xp }
+      : {
+          flag: kind === 'flag' ? true : kind,
+          answer: undefined,
+          caseSensitive: undefined,
+          xp: question.xp === 10 ? 40 : question.xp,
+        }
 
   return (
     <div style={{ display: 'grid', gap: 14 }}>
@@ -254,24 +316,16 @@ export const QuestionsEditor: FC<QuestionsEditorProps> = ({ value, onChange, can
             <Labelled label={t('range.studio.question.answered_with')}>
               <SegmentedControl
                 fullWidth
-                value={question.flag ? 'flag' : 'answer'}
-                onChange={(kind) =>
-                  set(
-                    index,
-                    kind === 'flag'
-                      ? {
-                          flag: true,
-                          answer: undefined,
-                          caseSensitive: undefined,
-                          xp: question.xp === 10 ? 40 : question.xp,
-                        }
-                      : { flag: undefined, answer: question.answer ?? [], xp: question.xp === 40 ? 10 : question.xp }
-                  )
-                }
+                value={flagKindOf(question) ?? 'answer'}
+                onChange={(kind) => set(index, answerWith(question, kind as AnsweredWith))}
                 disabled={disabled}
                 data={[
                   { value: 'answer', label: t('range.studio.question.an_answer') },
-                  { value: 'flag', label: t('range.studio.question.the_flag'), disabled: !canFlag },
+                  ...flags.map(({ kind, label }) => ({
+                    value: kind,
+                    label,
+                    disabled: !machine?.[FLAG_FIELD[kind]],
+                  })),
                 ]}
               />
             </Labelled>
@@ -284,7 +338,7 @@ export const QuestionsEditor: FC<QuestionsEditorProps> = ({ value, onChange, can
               disabled={disabled}
             />
           </div>
-          {!question.flag && (
+          {!flagKindOf(question) && (
             <>
               <TagsInput
                 label={t('range.studio.question.answers')}

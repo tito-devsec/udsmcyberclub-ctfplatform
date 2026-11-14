@@ -101,6 +101,7 @@ icon: code-simple        # optional: without it, the category's icon is used
 updated: "2026-11-12"    # optional, in quotes
 order: 10                # position in the catalogue
 bonus: 0                 # optional: extra XP for solving the whole lab (default 0)
+creator: alice           # optional: the username of whoever made it, shown on its page
 machine:                 # optional: leave it out for a challenge solved from files or research
   image: club/staff-portal:latest
   port: 80
@@ -124,6 +125,56 @@ tasks:                   # written like a section's questions
 - **Any tool may be needed.** Students have the attack box in their browser (Kali with the common tools, CyberChef and a picture viewer, reaching their machine as `target`), but a lab is not limited to it: say in the scenario what else it needs, and students use their own Linux machine for it.
 - **A new machine** goes in `preview/examples/<name>`, with a Dockerfile, and the lab's image is then `club/<name>:latest`. It must serve on the port the lab names, and make whatever holds the flag from `GZCTF_FLAG` when it starts, so the image itself never contains a flag. The folders there are small examples to copy.
 - **A category with no labs** is still listed in the catalogue, marked as coming.
+- **The creator** is shown on the lab's page, with a Respect Creator button for students, and on their profile. A lab without one is shown as the club's own. In the web interface the creator is required, and must be someone who has signed in here once.
+- **When it went online** is shown on its page too: the service notes it the first time it loads the lab.
+
+## A boot-to-root lab
+
+A boot-to-root (B2R) lab is a machine to take over: students get in as an ordinary user and take the user flag, then make themselves root and take the root flag. They work from their attack box, where the machine answers as `target` on every port it serves. The lab's page shows who took each flag first, its User Blood and System Blood, with how long after the lab went online. Staff, who can look inside any machine, and the lab's creator do not count for bloods.
+
+```yaml
+title: Club Intranet
+summary: One or two lines for the lab's card.
+scenario: |
+  What the student is told: what the machine is, never how to get in.
+type: b2r
+os: linux                # linux (windows needs virtual machines, which the platform cannot run yet)
+creator: alice
+category: web            # still gives the lab its colour and counts towards that category's badges
+difficulty: easy
+minutes: 60
+machine:
+  image: club/intranet:latest
+  port: 80               # the port its link opens; every port it serves is open to the attack box
+  memory: 256
+  userFlag: udsm{user_words_[USER_HASH]}
+  rootFlag: udsm{root_words_[USER_HASH]}
+tasks:
+  - id: user
+    question: What is the user flag?
+    flag: user
+    xp: 40
+  - id: root
+    question: What is the root flag?
+    flag: root
+    xp: 60
+```
+
+- **Both flags are each student's own**, like any machine flag. The machine gets them in `USER_FLAG` and `ROOT_FLAG` when it starts. Every process inherits its parent's variables, so the entrypoint, which runs as root, writes the flags where they belong and removes the variables before it starts anything else:
+
+  ```sh
+  #!/bin/sh
+  echo "$USER_FLAG" > /home/alice/user.txt
+  chown root:alice /home/alice/user.txt && chmod 640 /home/alice/user.txt
+  echo "$ROOT_FLAG" > /root/root.txt && chmod 600 /root/root.txt
+  unset USER_FLAG ROOT_FLAG
+  exec /usr/sbin/sshd -D    # or whatever starts the machine's services
+  ```
+
+- **Becoming root must be possible.** A machine with a `rootFlag` runs without Docker's `no-new-privileges`, so `sudo`, `su` and setuid programs work in it, and keeps Docker's usual capabilities except `MKNOD` and `SETFCAP`. Root inside is still only the root of a container. Every other machine keeps `no-new-privileges`.
+- **Tasks before the flags** may guide the way in, like any lab's tasks. Exactly one task is answered with `flag: user`, and exactly one with `flag: root`.
+- **Boot to Root** has its own place in the Labs catalogue, next to the categories, and the lab's card and page show its system.
+- **Windows machines**, and Active Directory networks of several machines, need virtual machines rather than containers. The platform does not run those yet, so a lab with `os: windows` cannot be published from the web interface.
 
 ## XP
 

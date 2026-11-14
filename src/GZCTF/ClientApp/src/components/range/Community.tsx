@@ -6,7 +6,7 @@ import { Link } from 'react-router'
 import { Uicon } from '@Components/Uicon'
 import { Label, variantOf, Xp } from '@Components/range/Parts'
 import { BadgeArt } from '@Utils/Artwork'
-import { labUrl, LabSummary, profileUrl } from '@Utils/Community'
+import { LabKindIcon, labUrl, LabSummary, profileUrl, SystemIcon } from '@Utils/Community'
 import { categoryStyle, coverIcon, DifficultyIcon } from '@Utils/Range'
 import { UICON_SIZE, UiconName, uicons } from '@Utils/Uicons'
 import classes from '@Styles/Community.module.css'
@@ -29,12 +29,19 @@ export const LabCard: FC<{ lab: LabSummary }> = ({ lab }) => {
         {lab.status === 'started' && <span className={range.badge}>{t('range.status.started')}</span>}
       </div>
       <div className={classes.labCardBody}>
-        <Label icon={lab.kind === 'machine' ? 'computer' : 'puzzle-alt'}>{t(`range.lab.kind.${lab.kind}`)}</Label>
+        <Label icon={LabKindIcon[lab.kind]}>{t(`range.lab.kind.${lab.kind}`)}</Label>
         <h3 className={range.cardTitle}>{lab.title}</h3>
         <div className={cx(classes.inline, range.dim)}>
           <Xp value={lab.xp} />
           <span>·</span>
-          {t(`range.category.${lab.category}`)}
+          {lab.os ? (
+            <span className={classes.inline}>
+              <Uicon name={SystemIcon[lab.os]} />
+              {t(`range.lab.os.${lab.os}`)}
+            </span>
+          ) : (
+            t(`range.category.${lab.category}`)
+          )}
         </div>
       </div>
       <div className={classes.labCardFoot}>

@@ -10,15 +10,18 @@ import {
   CATEGORIES,
   ContentError,
   DIFFICULTIES,
+  LAB_TYPES,
   labFrom,
   loadContent,
   type Machine,
   moduleFrom,
   pathFrom,
   type StudioDocument,
+  SYSTEMS,
 } from './content.js'
 import { db } from './db.js'
 import { BytesReply, HttpError, route } from './http.js'
+import { isMember, recordReleases } from './labs.js'
 import { fields, int, items, type Raw, SLUG, slugify, str, strings, unique } from './shape.js'
 import { content, setContent } from './state.js'
 
@@ -39,6 +42,7 @@ export async function reloadContent() {
   const next = loadContent(config.contentDir, rows)
   setContent(next)
   for (const problem of next.skipped) console.warn(`cyberrange: left out ${problem}`)
+  await recordReleases(next.labs)
   return next
 }
 
@@ -52,13 +56,28 @@ const iconOf = (value: unknown) => {
   return SLUG.test(icon) ? { icon } : {}
 }
 
+// a machine's flags: the one in GZCTF_FLAG, and a boot-to-root machine's user and root flags
+const FLAG_FIELDS = ['flag', 'userFlag', 'rootFlag'] as const
+
 function cleanMachine(value: unknown): Raw | undefined {
   const machine = fields(value)
   const image = str(machine.image, 200).trim()
   if (!image) return undefined
-  const flag = str(machine.flag, 120).trim()
-  return { image, port: int(machine.port, 80, 1, 65535), ...(flag && { flag }) }
+  const flags = Object.fromEntries(
+    FLAG_FIELDS.map((field) => [field, str(machine[field], 120).trim()]).filter(([, flag]) => flag)
+  )
+  return {
+    image,
+    port: int(machine.port, 80, 1, 65535),
+    ...(machine.memory !== undefined && { memory: int(machine.memory, 64, 16, 1024) }),
+    ...flags,
+  }
 }
+
+// what a question is answered with: an answer (false), the machine's flag (true), or the user or
+// root flag of a boot-to-root machine
+const flagOf = (value: unknown): boolean | 'user' | 'root' =>
+  value === true ? true : value === 'user' || value === 'root' ? value : false
 
 // Questions keep the name they have; new ones are named q1, q2 and so on.
 function cleanQuestions(value: unknown): Raw[] {
@@ -76,14 +95,14 @@ function cleanQuestions(value: unknown): Raw[] {
       const candidate = `q${next++}`
       if (!taken.has(candidate)) taken.add((id = candidate))
     }
-    const flag = question.flag === true
+    const flag = flagOf(question.flag)
     const format = str(question.format, 100).trim()
     const hint = str(question.hint, 500).trim()
     return {
       id,
       question: str(question.question, 1000).trim(),
       ...(flag
-        ? { flag: true }
+        ? { flag }
         : { answer: strings(Array.isArray(question.answer) ? question.answer : [question.answer], 10, 200) }),
       ...(format && { format }),
       ...(hint && { hint }),
@@ -141,10 +160,14 @@ function cleanModule(raw: Raw): Raw {
 function cleanLab(raw: Raw): Raw {
   const machine = cleanMachine(raw.machine)
   const tasks = cleanQuestions(raw.tasks)
+  const type = pick(raw.type, LAB_TYPES, 'challenge')
+  const creator = str(raw.creator, 40).trim()
   return {
     title: str(raw.title, 120).trim(),
     summary: str(raw.summary, 300).trim(),
     scenario: str(raw.scenario, 20_000),
+    ...(type === 'b2r' && { type, os: pick(raw.os, SYSTEMS, 'linux') }),
+    ...(creator && { creator }),
     category: pick(raw.category, CATEGORIES, 'misc'),
     difficulty: pick(raw.difficulty, DIFFICULTIES, 'easy'),
     minutes: int(raw.minutes, 30, 1, 100_000),
@@ -175,7 +198,7 @@ function questionProblem(questions: unknown, what: string): string | null {
   for (const [index, value] of items(questions, 30).entries()) {
     const question = fields(value)
     if (!str(question.question, 10)) return `${what}: question ${index + 1} has no text.`
-    if (question.flag !== true && strings(question.answer, 10, 200).length === 0) {
+    if (!flagOf(question.flag) && strings(question.answer, 10, 200).length === 0) {
       return `${what}: question ${index + 1} needs an answer.`
     }
   }
@@ -206,6 +229,16 @@ async function problemOf(kind: Kind, slug: string, data: Raw, files: { name: str
       machines.push(...moduleFrom(data, slug, null).sections.map((section) => section.machine))
     } else if (kind === 'lab') {
       if (!str(data.scenario, 20_000).trim()) return 'Write the scenario.'
+      // machines here are Linux containers; a Windows machine needs a virtual machine to run in
+      if (data.type === 'b2r' && data.os === 'windows') {
+        return 'Windows machines need virtual machines, which this server cannot run yet. Choose Linux.'
+      }
+      // the admin who puts a lab online names whoever made it, by their username here
+      const creator = str(data.creator, 40).trim()
+      if (!creator) return "Write the username of the lab's creator."
+      if (!(await isMember(creator))) {
+        return `Nobody called "${creator}" has signed in to CyberRange yet. Check the username, or ask them to sign in once.`
+      }
       if (items(data.tasks, 30).length === 0) return 'Add at least one task.'
       const problem = questionProblem(data.tasks, 'Tasks')
       if (problem) return problem
@@ -223,8 +256,10 @@ async function problemOf(kind: Kind, slug: string, data: Raw, files: { name: str
   for (const machine of machines) {
     if (!machine) continue
     if (!images.includes(machine.image)) return `"${machine.image}" is not one of the machine images on the server.`
-    if (machine.flag && !MACHINE_FLAG.test(machine.flag)) {
-      return 'A machine flag must look like udsm{some_words_[USER_HASH]}, so every student gets their own.'
+    for (const flag of [machine.flag, machine.userFlag, machine.rootFlag]) {
+      if (flag && !MACHINE_FLAG.test(flag)) {
+        return 'A machine flag must look like udsm{some_words_[USER_HASH]}, so every student gets their own.'
+      }
     }
   }
   return null

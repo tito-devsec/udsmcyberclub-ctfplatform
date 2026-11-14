@@ -377,6 +377,91 @@
   }
 }
 
+/* under the hero: a boot-to-root machine's bloods, then when the lab went online and who made it */
+.strip {
+  margin-top: 28px;
+  overflow: hidden;
+  background: var(--r-card);
+  border: 1px solid var(--r-border);
+  border-radius: 10px;
+  box-shadow: var(--r-lift);
+
+  /* the lab's two columns come right after it */
+  & + .labColumns {
+    padding-top: 24px;
+  }
+}
+
+.bloods {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-bottom: 1px solid var(--r-border);
+
+  & > * + * {
+    border-left: 1px solid var(--r-border);
+  }
+}
+
+.blood {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 60px;
+  padding: 10px 18px;
+  font-size: 0.92rem;
+  color: var(--r-dim);
+}
+
+/* a drop of flat red */
+.bloodDrop {
+  color: light-dark(#c62f45, #ff6b7d);
+}
+
+/* a name with its picture, or a time, on a raised pill */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 12px 0 4px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--r-text);
+  text-decoration: none;
+  border-radius: 999px;
+  background: var(--r-raised);
+
+  &[data-plain] {
+    padding-left: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &:is(a):hover {
+    color: var(--r-accent);
+  }
+}
+
+.chipAvatar {
+  width: 22px;
+  height: 22px;
+  font-size: 0.7rem !important;
+  border-radius: 50%;
+}
+
+.stripFoot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  min-height: 56px;
+  padding: 8px 18px;
+  font-size: 0.92rem;
+  color: var(--r-dim);
+}
+
 /* ---- profile ---- */
 
 .profileHead {

@@ -1,17 +1,29 @@
-import { Button } from '@mantine/core'
+import { Button, Tooltip } from '@mantine/core'
 import cx from 'clsx'
-import { FC, useCallback } from 'react'
+import { FC, useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { Uicon } from '@Components/Uicon'
 import { useCelebrate } from '@Components/range/Celebrate'
-import { PlayerLink } from '@Components/range/Community'
+import { PlayerAvatar, PlayerLink } from '@Components/range/Community'
 import { MachineBlock } from '@Components/range/MachineBlock'
 import { Note, PoweredBy, ProgressBar, Xp } from '@Components/range/Parts'
 import { QuestionItem } from '@Components/range/QuestionItem'
 import { RangePage } from '@Components/range/RangePage'
 import { SafeMarkdown } from '@Components/range/SafeMarkdown'
-import { labsApi, labUrl, shortDate, useLab } from '@Utils/Community'
+import {
+  Blood,
+  bloodTime,
+  Lab,
+  LabKindIcon,
+  labsApi,
+  labUrl,
+  profileUrl,
+  releaseDate,
+  shortDate,
+  SystemIcon,
+  useLab,
+} from '@Utils/Community'
 import {
   AnswerResult,
   CategoryIcon,
@@ -25,11 +37,130 @@ import {
   useRangeRefresh,
   categoryStyle,
 } from '@Utils/Range'
+import { showErrorMsg } from '@Utils/Shared'
 import { usePageTitle } from '@Hooks/usePageTitle'
 import classes from '@Styles/Community.module.css'
 import range from '@Styles/Range.module.css'
 
 const kilobytes = (bytes: number) => (bytes < 1024 ? `${bytes} B` : `${Math.round(bytes / 1024)} KB`)
+
+// someone's picture and name, in a chip that opens their profile when they have one
+const PersonChip: FC<{ name: string; avatar: string | null; link?: boolean }> = ({ name, avatar, link = true }) => {
+  const inside = (
+    <>
+      <PlayerAvatar name={name} avatar={avatar} className={classes.chipAvatar} />
+      {name}
+    </>
+  )
+  return link ? (
+    <Link to={profileUrl(name)} className={classes.chip}>
+      {inside}
+    </Link>
+  ) : (
+    <span className={classes.chip}>{inside}</span>
+  )
+}
+
+// Who took one of a boot-to-root machine's flags first, and how long after it went online.
+const BloodCell: FC<{ blood: Blood | null; label: string; open: string }> = ({ blood, label, open }) => {
+  const { t } = useTranslation()
+  return (
+    <div className={classes.blood}>
+      <Uicon name="blood-solid" className={classes.bloodDrop} />
+      {blood ? (
+        <>
+          <span>{label}</span>
+          <PersonChip name={blood.name} avatar={blood.avatar} />
+          <Tooltip label={t('range.lab.blood_hint')} withArrow>
+            <span className={classes.chip} data-plain>
+              <Uicon name="clock" />
+              {bloodTime(blood.after)}
+            </span>
+          </Tooltip>
+        </>
+      ) : (
+        <span>{open}</span>
+      )}
+    </div>
+  )
+}
+
+// Under the hero, as on a machine's page: a boot-to-root machine's bloods, then when the lab
+// went online, who made it, and respect for them.
+const LabStrip: FC<{ lab: Lab; signedIn: boolean; onRespect: () => void }> = ({ lab, signedIn, onRespect }) => {
+  const { t, i18n } = useTranslation()
+  const [busy, setBusy] = useState(false)
+  const creator = lab.creator
+
+  const respect = async () => {
+    if (!creator || busy) return
+    setBusy(true)
+    try {
+      await labsApi.respect(creator.name, !creator.respected)
+      onRespect()
+    } catch (error) {
+      showErrorMsg(error, t)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <section className={classes.strip}>
+      {lab.bloods && (
+        <div className={classes.bloods}>
+          <BloodCell blood={lab.bloods.user} label={t('range.lab.user_blood')} open={t('range.lab.user_blood_open')} />
+          <BloodCell
+            blood={lab.bloods.root}
+            label={t('range.lab.system_blood')}
+            open={t('range.lab.system_blood_open')}
+          />
+        </div>
+      )}
+      <div className={classes.stripFoot}>
+        <span className={classes.inline}>
+          {lab.released && (
+            <>
+              <Uicon name="calendar" />
+              {t('range.lab.released_on', { date: releaseDate(lab.released, i18n.language) })}
+            </>
+          )}
+        </span>
+        <span className={classes.inline} style={{ justifySelf: 'center' }}>
+          {t('range.lab.created_by')}
+          {creator ? (
+            <PersonChip name={creator.name} avatar={creator.avatar} link={creator.member} />
+          ) : (
+            <span className={classes.chip} data-plain>
+              {t('range.lab.club')}
+            </span>
+          )}
+        </span>
+        <span className={classes.inline} style={{ justifySelf: 'end' }}>
+          {creator?.member && (
+            <>
+              <span>{t('range.lab.respects', { count: creator.respects })}</span>
+              {signedIn && !creator.self && (
+                <Tooltip label={t('range.lab.respect_take_back')} disabled={!creator.respected} withArrow>
+                  <Button
+                    size="xs"
+                    radius="sm"
+                    variant={creator.respected ? 'light' : 'filled'}
+                    loading={busy}
+                    onClick={respect}
+                    leftSection={<Uicon name={creator.respected ? 'hand-heart-solid' : 'hand-heart'} />}
+                  >
+                    {t(creator.respected ? 'range.lab.respected' : 'range.lab.respect')}
+                  </Button>
+                </Tooltip>
+              )}
+            </>
+          )}
+        </span>
+      </div>
+    </section>
+  )
+}
 
 // A lab: its story, the machine or files to work on, and tasks that end with the flag.
 const LabPage: FC = () => {
@@ -38,7 +169,7 @@ const LabPage: FC = () => {
   const { signedIn } = useMe()
   const refresh = useRangeRefresh()
   const celebrate = useCelebrate('lab')
-  const { data, error } = useLab(slug)
+  const { data, error, mutate } = useLab(slug)
   const { data: machine, mutate: setMachine } = useMachine(signedIn)
 
   // what is on screen may still be the lab that was open before this one
@@ -89,7 +220,8 @@ const LabPage: FC = () => {
                     <div>
                       <h1 className={classes.labTitle}>{lab.title}</h1>
                       <div className={classes.labSub}>
-                        {t(`range.difficulty.${lab.difficulty}`)} · {t(`range.category.${lab.category}`)} ·{' '}
+                        {t(`range.difficulty.${lab.difficulty}`)} ·{' '}
+                        {lab.os ? t(`range.lab.os.${lab.os}`) : t(`range.category.${lab.category}`)} ·{' '}
                         {t(`range.lab.kind.${lab.kind}`)}
                       </div>
                     </div>
@@ -129,6 +261,8 @@ const LabPage: FC = () => {
             </div>
 
             <div className={range.container} style={{ paddingBottom: 40 }}>
+              <LabStrip lab={lab} signedIn={signedIn} onRespect={() => mutate()} />
+
               <div className={classes.labColumns}>
                 <div className={classes.labBody}>
                   {lab.status === 'completed' && (
@@ -232,17 +366,27 @@ const LabPage: FC = () => {
                   <section className={classes.panel}>
                     <h2 className={classes.cardTitle}>{t('range.lab.details')}</h2>
                     <dl className={classes.details}>
-                      <div>
-                        <dt>{t('range.lab.category')}</dt>
-                        <dd>
-                          <Uicon name={CategoryIcon[lab.category]} />
-                          {t(`range.category.${lab.category}`)}
-                        </dd>
-                      </div>
+                      {lab.os ? (
+                        <div>
+                          <dt>{t('range.lab.system')}</dt>
+                          <dd>
+                            <Uicon name={SystemIcon[lab.os]} />
+                            {t(`range.lab.os.${lab.os}`)}
+                          </dd>
+                        </div>
+                      ) : (
+                        <div>
+                          <dt>{t('range.lab.category')}</dt>
+                          <dd>
+                            <Uicon name={CategoryIcon[lab.category]} />
+                            {t(`range.category.${lab.category}`)}
+                          </dd>
+                        </div>
+                      )}
                       <div>
                         <dt>{t('range.lab.type')}</dt>
                         <dd>
-                          <Uicon name={lab.kind === 'machine' ? 'computer' : 'puzzle-alt'} />
+                          <Uicon name={LabKindIcon[lab.kind]} />
                           {t(`range.lab.kind.${lab.kind}`)}
                         </dd>
                       </div>

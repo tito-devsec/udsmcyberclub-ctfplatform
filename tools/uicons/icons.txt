@@ -171,3 +171,10 @@ receipt
 # the attack box: its Files window and picture viewer
 images
 folder
+
+# boot-to-root machines: their bloods, their creator and the system they run
+blood
+blood solid
+hand-heart
+hand-heart solid
+windows brands
