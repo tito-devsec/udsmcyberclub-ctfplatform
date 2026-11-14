@@ -1,0 +1,3 @@
+# The repository ignores files/ folders (where GZCTF keeps uploads). Here a lab's files/ folder
+# holds what students download for it, so it belongs in the repository.
+!*/files/**
