@@ -9,10 +9,79 @@
 # and the box ("box") whenever Burp runs (see /etc/cyberrange/proxy.pac). Burp gets no further
 # than Firefox does: the lab machine, the box, and websites only through the club's proxy.
 #
-# "cyberrange-burp ready" succeeds once Burp's window is on its screen: Java takes a minute or so.
+# "cyberrange-burp ready" succeeds once Burp's window is on its screen, some 10 to 20 seconds on.
+#
+# "cyberrange-burp train <file>" is for building the image (see the Dockerfile): it runs Burp
+# once on a screen of its own, up to its first window, and stops it. Java then writes what it
+# loaded and linked on the way to <file>, its ahead-of-time cache, and every later start reads
+# that instead of doing it again. Burp's terms stay unanswered: they are the students' to accept.
+
+# Java's settings for Burp: the same when the cache is made and when it is used, or Java ignores
+# the cache. Burp's share of memory comes from the service (BURP_HEAP_MB), inside what it adds to
+# this container's limit for Burp. Text is smoothed, as on a desktop. Java's quick compiler alone
+# and its simplest collector are plenty for Burp's light work, and Java takes 70 MB less.
+java_args() {
+  echo "-Xmx${BURP_HEAP_MB:-768}m -Dawt.useSystemAAFontSettings=on -Dswing.aatext=true" \
+    "--enable-native-access=ALL-UNNAMED -XX:TieredStopAtLevel=1 -XX:+UseSerialGC"
+}
+
+# waits up to $2 tenths of a second for the X server of display $1 to be up
+wait_for_screen() {
+  waited=0
+  while [ ! -S "/tmp/.X11-unix/X$1" ] && [ "$waited" -lt "$2" ]; do
+    sleep 0.1
+    waited=$((waited + 1))
+  done
+  [ -S "/tmp/.X11-unix/X$1" ]
+}
+
 if [ "$1" = ready ]; then
   DISPLAY=:1 xwininfo -root -tree 2> /dev/null | grep -q '"Burp Suite'
   exit $?
+fi
+
+if [ "$1" = train ]; then
+  cache=$2
+  # A home of its own, so that nothing of this run is left in the student's (such as the ids
+  # Burp gives its installation), except Burp's browser, which the image already holds unpacked.
+  # Java takes its home from the account, not from HOME: user.home moves it.
+  home=$(mktemp -d)
+  mkdir -p "$home/.BurpSuite" "$home/.java/.userPrefs/burp"
+  ln -s "$HOME/.BurpSuite/burpbrowser" "$home/.BurpSuite/burpbrowser"
+  cp /etc/cyberrange/burp-prefs.xml "$home/.java/.userPrefs/burp/prefs.xml"
+  Xvnc :9 -geometry 1280x800 -depth 24 -rfbport 5909 -localhost -SecurityTypes None -nolisten tcp \
+    > /dev/null 2>&1 < /dev/null &
+  xvnc=$!
+  if ! wait_for_screen 9 100; then
+    echo "The screen for Burp's trial run did not start." >&2
+    exit 1
+  fi
+  HOME=$home DISPLAY=:9 JAVA_ARGS="$(java_args) -Duser.home=$home -XX:AOTCacheOutput=$cache" \
+    burpsuite --disable-auto-update > "$home/burp.log" 2>&1 < /dev/null &
+  burp=$!
+  waited=0
+  until DISPLAY=:9 xwininfo -root -tree 2> /dev/null | grep -q '"Burp Suite'; do
+    sleep 1
+    waited=$((waited + 1))
+    if [ "$waited" -ge 300 ] || ! kill -0 "$burp" 2> /dev/null; then
+      cat "$home/burp.log" >&2
+      echo "Burp's first window did not open in its trial run." >&2
+      kill "$burp" "$xvnc" 2> /dev/null
+      exit 1
+    fi
+  done
+  # let it settle, then stop it the way the system stops it: Java writes the cache as it exits
+  sleep 5
+  kill -TERM "$burp"
+  wait "$burp"
+  kill "$xvnc"
+  wait "$xvnc"
+  rm -rf "$home" /tmp/.X9-lock /tmp/.X11-unix/X9
+  if [ ! -s "$cache" ]; then
+    echo "Java wrote no cache for Burp." >&2
+    exit 1
+  fi
+  exit 0
 fi
 
 pgrep -f '^Xvnc :1 ' > /dev/null && exit 0
@@ -21,12 +90,7 @@ rm -f /tmp/.X1-lock /tmp/.X11-unix/X1
 Xvnc :1 -geometry 1280x800 -depth 24 -rfbport 5901 -localhost -SecurityTypes None -AlwaysShared \
   -desktop 'Burp Suite' -nolisten tcp -dpi 96 > /tmp/xvnc-burp.log 2>&1 < /dev/null &
 
-waited=0
-while [ ! -S /tmp/.X11-unix/X1 ] && [ "$waited" -lt 100 ]; do
-  sleep 0.1
-  waited=$((waited + 1))
-done
-if [ ! -S /tmp/.X11-unix/X1 ]; then
+if ! wait_for_screen 1 100; then
   echo "Burp's screen did not start." >&2
   exit 1
 fi
@@ -38,13 +102,11 @@ openbox --config-file /etc/cyberrange/openbox-burp.xml > /tmp/openbox-burp.log 2
 # copying and pasting between Burp and the student's own computer
 vncconfig -nowin > /dev/null 2>&1 < /dev/null &
 
-# Burp's share of memory comes from the service (BURP_HEAP_MB), inside what it adds to this
-# container's limit for Burp. Text is smoothed, as on a desktop. Java's quick compiler alone and
-# its simplest collector are plenty for Burp's light work: next to a Firefox that is starting
-# too, on two cores, Burp's first window comes in about 50 seconds instead of 60, and Java takes
-# 70 MB less.
-JAVA_ARGS="-Xmx${BURP_HEAP_MB:-768}m -Dawt.useSystemAAFontSettings=on -Dswing.aatext=true"
-JAVA_ARGS="$JAVA_ARGS --enable-native-access=ALL-UNNAMED -XX:TieredStopAtLevel=1 -XX:+UseSerialGC"
+JAVA_ARGS=$(java_args)
+# the cache made with the image, when it was (Java carries on without it if it does not fit)
+if [ -s /usr/share/burpsuite/burp.aot ]; then
+  JAVA_ARGS="$JAVA_ARGS -XX:AOTCache=/usr/share/burpsuite/burp.aot"
+fi
 export JAVA_ARGS
 # Burp opens as on Kali: its loading screen, its terms the first time, then its two start-up
 # questions (a temporary project, Burp's default settings) before its main window.

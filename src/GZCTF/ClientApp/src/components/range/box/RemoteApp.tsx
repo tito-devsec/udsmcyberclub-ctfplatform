@@ -16,8 +16,9 @@ const LOOKS: Record<RemoteAppName, { words: string; icon: string }> = {
   burp: { words: 'burp', icon: Icons.burp },
 }
 
-// Java takes Burp Suite about half a minute to draw its window. The window waits for it, with
-// "starting" on show rather than a black screen, and after this long shows whatever is there.
+// Java takes Burp Suite some 10 seconds to draw its window, longer on a busy server. The window
+// waits for it, with "starting" on show rather than a black screen, and after this long shows
+// whatever is there.
 const BURP_WAIT_MS = 4 * 60_000
 
 const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))

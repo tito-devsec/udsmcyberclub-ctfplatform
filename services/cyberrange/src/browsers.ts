@@ -92,7 +92,7 @@ export function startBrowser(user: User) {
 
 // Burp Suite: started on its own screen in the student's browser container, which starts too if
 // it is not running. The container gets Burp's memory and CPU on top of Firefox's first. Burp
-// itself takes about half a minute more to show its window: see burpReady.
+// itself takes some 10 seconds more to show its window: see burpReady.
 export function startBurp(user: User) {
   return exclusive(user.id, async () => {
     const id = await ensureBrowser(user, 'burp')
